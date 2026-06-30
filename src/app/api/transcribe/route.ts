@@ -67,29 +67,61 @@ export async function POST(req: Request) {
     )
   }
 
-  // Group caption lines into paragraphs (gap > 2s = new paragraph)
+  // Some transcripts mark each new speaker with ">>". If present, start a
+  // fresh block at every ">>". Otherwise fall back to grouping by time gaps.
+  const hasSpeakerMarkers = raw.some((item) => item.text.includes('>>'))
+
   const segments: Segment[] = []
-  let buf = '', bufStart = 0, prevEnd = 0
 
-  for (const item of raw) {
-    const startMs = Math.round(item.offset)
-    const endMs = startMs + Math.round(item.duration)
-    const text = item.text.replace(/\n/g, ' ').trim()
-    if (!text) continue
+  if (hasSpeakerMarkers) {
+    let buf = '', bufStart = 0
 
-    if (!buf) bufStart = startMs
-
-    if (startMs - prevEnd > 2000 && buf) {
-      segments.push({ text: buf.trim(), startMs: bufStart })
-      buf = text
-      bufStart = startMs
-    } else {
-      buf += (buf ? ' ' : '') + text
+    const flush = () => {
+      const cleaned = buf.replace(/\s+/g, ' ').trim()
+      if (cleaned) segments.push({ text: cleaned, startMs: bufStart })
+      buf = ''
     }
-    prevEnd = endMs
-  }
 
-  if (buf.trim()) segments.push({ text: buf.trim(), startMs: bufStart })
+    for (const item of raw) {
+      const startMs = Math.round(item.offset)
+      const text = item.text.replace(/\n/g, ' ')
+
+      // Split on ">>"; first piece continues the current block, the rest each
+      // begin a new speaker block.
+      const pieces = text.split('>>')
+
+      for (let i = 0; i < pieces.length; i++) {
+        const piece = pieces[i].trim()
+        if (i > 0) flush()           // a ">>" ended the previous block
+        if (!buf) bufStart = startMs // mark start time for a fresh block
+        buf += (buf ? ' ' : '') + piece
+      }
+    }
+    flush()
+  } else {
+    // No speaker markers: group caption lines into paragraphs (gap > 2s = new)
+    let buf = '', bufStart = 0, prevEnd = 0
+
+    for (const item of raw) {
+      const startMs = Math.round(item.offset)
+      const endMs = startMs + Math.round(item.duration)
+      const text = item.text.replace(/\n/g, ' ').trim()
+      if (!text) continue
+
+      if (!buf) bufStart = startMs
+
+      if (startMs - prevEnd > 2000 && buf) {
+        segments.push({ text: buf.trim(), startMs: bufStart })
+        buf = text
+        bufStart = startMs
+      } else {
+        buf += (buf ? ' ' : '') + text
+      }
+      prevEnd = endMs
+    }
+
+    if (buf.trim()) segments.push({ text: buf.trim(), startMs: bufStart })
+  }
 
   return NextResponse.json({ id: randomUUID(), segments })
 }
