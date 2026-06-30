@@ -11,6 +11,7 @@ Your job:
 - Fix obvious transcription errors: correct misspelled names of people, companies, and places using context (e.g. "Kla Harris" -> "Kamala Harris", "Nuome"/"Newsome" -> "Newsom", "Zoron"/"Zaren" -> "Zohran"). Add proper punctuation and capitalization.
 - Remove the duplicated preview snippet if the opening text is repeated later.
 - Replace each "[ __ ]" with a natural mild word or just remove it so the sentence reads cleanly.
+- Thin out filler words ("um", "uh", "you know", "like", "I mean", and repeated stutters such as "I I" or "the the"). Remove roughly half of them — be more aggressive in long passages where they pile up — but do NOT remove all of them: keep enough to preserve the speaker's natural voice and rhythm. Never reword or paraphrase the actual content; only drop fillers and fix stutters.
 - Group the text into paragraphs, one per speaker turn. Merge fragments that clearly belong to the same continuous thought.
 - When you can confidently identify who is speaking from context, begin that paragraph with their name followed by a colon and a space, e.g. "Nate Silver: I think...". If you cannot tell, just write the paragraph with no name prefix. Never invent names.
 - Do NOT summarize, shorten, or omit content. Preserve everything that was said.
