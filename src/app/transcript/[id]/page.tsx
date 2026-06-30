@@ -9,15 +9,6 @@ interface Segment {
   startMs: number
 }
 
-function formatTime(ms: number): string {
-  const total = Math.floor(ms / 1000)
-  const h = Math.floor(total / 3600)
-  const m = Math.floor((total % 3600) / 60)
-  const s = total % 60
-  if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
-  return `${m}:${String(s).padStart(2, '0')}`
-}
-
 export default function TranscriptPage() {
   const params = useParams()
   const id = params.id as string
@@ -42,7 +33,7 @@ export default function TranscriptPage() {
   }, [id])
 
   const buildExportText = () =>
-    segments.map((s) => `[${formatTime(s.startMs)}]\n${s.text}`).join('\n\n')
+    segments.map((s) => s.text).join('\n\n')
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(buildExportText())
@@ -108,14 +99,11 @@ export default function TranscriptPage() {
         </div>
       </header>
 
-      <main className="flex-1 max-w-3xl w-full mx-auto px-6 py-10 space-y-6">
+      <main className="flex-1 max-w-2xl w-full mx-auto px-6 py-12 space-y-6">
         {segments.map((seg, i) => (
-          <div key={i}>
-            <p className="font-headline text-xs text-muted mb-1 uppercase tracking-widest">
-              {formatTime(seg.startMs)}
-            </p>
-            <p className="font-serif text-base leading-relaxed text-ink">{seg.text}</p>
-          </div>
+          <p key={i} className="font-serif text-lg leading-loose text-ink">
+            {seg.text}
+          </p>
         ))}
       </main>
 
