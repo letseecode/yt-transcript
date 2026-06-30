@@ -14,6 +14,8 @@ function extractVideoId(url: string): string | null {
   }
 }
 
+interface Segment { text: string; startMs: number }
+
 export async function POST(req: Request) {
   const { url } = await req.json()
 
@@ -26,48 +28,57 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Invalid YouTube URL.' }, { status: 400 })
   }
 
-  let yt: Innertube
+  // Get video info — this gives us direct caption track URLs
+  let captionBaseUrl: string | undefined
   try {
-    yt = await Innertube.create()
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err)
-    return NextResponse.json({ error: `Setup failed: ${msg}` }, { status: 500 })
-  }
-
-  let transcriptData
-  try {
+    const yt = await Innertube.create()
     const info = await yt.getInfo(videoId)
-    transcriptData = await info.getTranscript()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const tracks: any[] = (info as any).captions?.caption_tracks ?? []
+    const track =
+      tracks.find((t) => t.language_code?.startsWith('en')) ?? tracks[0]
+    captionBaseUrl = track?.base_url
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err)
     return NextResponse.json(
-      { error: `No transcript available for this video. It may have captions disabled. (${msg})` },
+      { error: `Could not load video info: ${msg}` },
       { status: 422 }
     )
   }
 
-  const rawSegments =
-    transcriptData?.transcript?.content?.body?.initial_segments ?? []
-
-  if (rawSegments.length === 0) {
+  if (!captionBaseUrl) {
     return NextResponse.json(
-      { error: 'No transcript available for this video. It may have captions disabled.' },
+      { error: 'No captions available for this video. Try a video with captions enabled.' },
       { status: 422 }
     )
   }
 
-  interface Segment { text: string; startMs: number }
+  // Fetch the caption file directly (fmt=json3 returns structured JSON)
+  let events: { tStartMs?: number; dDurationMs?: number; segs?: { utf8: string }[] }[]
+  try {
+    const res = await fetch(`${captionBaseUrl}&fmt=json3`)
+    const data = await res.json()
+    events = data.events ?? []
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err)
+    return NextResponse.json(
+      { error: `Could not fetch captions: ${msg}` },
+      { status: 502 }
+    )
+  }
+
+  // Group caption lines into readable paragraphs (gap > 2s = new paragraph)
   const segments: Segment[] = []
   let buf = '', bufStart = 0, prevEnd = 0
 
-  for (const seg of rawSegments) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const s = seg as any
-    const text: string = s?.snippet?.text ?? s?.snippet?.runs?.map((r: {text:string}) => r.text).join('') ?? ''
-    const startMs = parseInt(s?.start_ms ?? '0', 10)
-    const endMs = parseInt(s?.end_ms ?? String(startMs + 3000), 10)
+  for (const ev of events) {
+    if (!ev.segs) continue
+    const text = ev.segs.map((s) => s.utf8).join('').replace(/\n/g, ' ').trim()
+    if (!text || text === '\n') continue
 
-    if (!text.trim()) continue
+    const startMs = ev.tStartMs ?? 0
+    const endMs = startMs + (ev.dDurationMs ?? 3000)
+
     if (!buf) bufStart = startMs
 
     if (startMs - prevEnd > 2000 && buf) {
@@ -77,10 +88,18 @@ export async function POST(req: Request) {
     } else {
       buf += (buf ? ' ' : '') + text
     }
+
     prevEnd = endMs
   }
 
   if (buf.trim()) segments.push({ text: buf.trim(), startMs: bufStart })
+
+  if (segments.length === 0) {
+    return NextResponse.json(
+      { error: 'No captions available for this video.' },
+      { status: 422 }
+    )
+  }
 
   return NextResponse.json({ id: randomUUID(), segments })
 }
