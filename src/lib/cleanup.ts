@@ -27,9 +27,8 @@ export async function cleanupTranscript(rawText: string): Promise<Segment[] | nu
   let full = ''
   try {
     const stream = client.messages.stream({
-      model: 'claude-opus-4-8',
+      model: 'claude-haiku-4-5-20251001',
       max_tokens: 32000,
-      output_config: { effort: 'low' },
       system: SYSTEM_PROMPT,
       messages: [{ role: 'user', content: rawText }],
     })
