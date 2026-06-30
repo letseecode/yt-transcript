@@ -1,5 +1,3 @@
-import Anthropic from '@anthropic-ai/sdk'
-
 export interface Segment {
   text: string
   startMs: number
@@ -18,23 +16,31 @@ Your job:
 - Do NOT summarize, shorten, or omit content. Preserve everything that was said.
 - Output ONLY the cleaned transcript. No preamble, no commentary, no markdown formatting (no **, no #). Separate paragraphs with a single blank line.`
 
-export async function cleanupTranscript(rawText: string): Promise<Segment[] | null> {
-  const apiKey = process.env.ANTHROPIC_API_KEY
-  if (!apiKey) return null
+const MODEL = 'gemini-2.5-flash'
+const ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`
 
-  const client = new Anthropic({ apiKey })
+export async function cleanupTranscript(rawText: string): Promise<Segment[] | null> {
+  const apiKey = process.env.GEMINI_API_KEY
+  if (!apiKey) return null
 
   let full = ''
   try {
-    const stream = client.messages.stream({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 32000,
-      system: SYSTEM_PROMPT,
-      messages: [{ role: 'user', content: rawText }],
+    const res = await fetch(`${ENDPOINT}?key=${apiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+        contents: [{ role: 'user', parts: [{ text: rawText }] }],
+        generationConfig: { maxOutputTokens: 65536, temperature: 0.2 },
+      }),
     })
-    const message = await stream.finalMessage()
-    for (const block of message.content) {
-      if (block.type === 'text') full += block.text
+
+    if (!res.ok) return null
+
+    const data = await res.json()
+    const parts = data?.candidates?.[0]?.content?.parts ?? []
+    for (const part of parts) {
+      if (typeof part?.text === 'string') full += part.text
     }
   } catch {
     return null
