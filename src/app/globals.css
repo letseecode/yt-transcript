@@ -1,17 +1,24 @@
 @import "tailwindcss";
 
 @theme {
-  --color-cream: #F8F3EF;
+  --color-cream: #F7F2ED;
   --color-ink: #1A1A1A;
   --color-red: #FA4A30;
   --color-yellow: #FFED00;
-  --color-border: #E5E0DA;
+  --color-border: #E0DAD3;
   --color-muted: #6B6560;
+  --color-surface: #FFFFFF;
 
   --font-headline: var(--font-headline-family);
+  --font-serif: var(--font-serif-family);
   --font-body: var(--font-body-family);
 }
 
 body {
-  @apply bg-cream text-ink font-body;
+  @apply bg-cream text-ink font-body antialiased;
+}
+
+*:focus-visible {
+  outline: 2px solid var(--color-red);
+  outline-offset: 2px;
 }

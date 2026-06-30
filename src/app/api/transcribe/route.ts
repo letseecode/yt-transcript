@@ -1,5 +1,8 @@
 import { aai } from '@/lib/assemblyai'
 import { NextResponse } from 'next/server'
+import ytdl from '@distube/ytdl-core'
+
+export const maxDuration = 300
 
 export async function POST(req: Request) {
   const { url } = await req.json()
@@ -8,26 +11,39 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'No URL provided' }, { status: 400 })
   }
 
-  // Step 1: ask Railway to download the audio and stream the actual file back
-  const extractRes = await fetch(`${process.env.EXTRACTOR_URL}/extract`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ url }),
-  })
+  if (!ytdl.validateURL(url)) {
+    return NextResponse.json({ error: 'Invalid YouTube URL.' }, { status: 400 })
+  }
 
-  if (!extractRes.ok) {
+  let info
+  try {
+    info = await ytdl.getInfo(url)
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err)
     return NextResponse.json(
-      { error: 'Failed to extract audio from that video.' },
-      { status: 500 }
+      { error: `Could not access that video: ${message}` },
+      { status: 422 }
     )
   }
 
-  const audioBuffer = await extractRes.arrayBuffer()
+  const format = ytdl.chooseFormat(info.formats, {
+    quality: 'lowestaudio',
+    filter: 'audioonly',
+  })
 
-  // Step 2: upload the actual audio bytes to AssemblyAI directly
-  const uploadUrl = await aai.files.upload(Buffer.from(audioBuffer))
+  const audioStream = ytdl.downloadFromInfo(info, { format })
 
-  // Step 3: submit that permanent AssemblyAI-hosted URL for transcription
+  let uploadUrl: string
+  try {
+    uploadUrl = await aai.files.upload(audioStream as NodeJS.ReadableStream)
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err)
+    return NextResponse.json(
+      { error: `Audio upload failed: ${message}` },
+      { status: 502 }
+    )
+  }
+
   const transcript = await aai.transcripts.submit({
     audio_url: uploadUrl,
     speaker_labels: true,
