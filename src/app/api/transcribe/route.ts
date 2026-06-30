@@ -28,7 +28,7 @@ export async function POST(req: Request) {
 
   let yt: Innertube
   try {
-    yt = await Innertube.create({ retrieve_player: false })
+    yt = await Innertube.create()
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err)
     return NextResponse.json({ error: `Setup failed: ${msg}` }, { status: 500 })
