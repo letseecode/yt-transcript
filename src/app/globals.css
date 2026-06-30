@@ -1,3 +1,17 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-cream: #F8F3EF;
+  --color-ink: #1A1A1A;
+  --color-red: #FA4A30;
+  --color-yellow: #FFED00;
+  --color-border: #E5E0DA;
+  --color-muted: #6B6560;
+
+  --font-headline: var(--font-headline-family);
+  --font-body: var(--font-body-family);
+}
+
+body {
+  @apply bg-cream text-ink font-body;
+}
