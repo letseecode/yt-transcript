@@ -100,11 +100,22 @@ export default function TranscriptPage() {
       </header>
 
       <main className="flex-1 max-w-3xl w-full mx-auto px-6 py-10 space-y-4">
-        {segments.map((seg, i) => (
-          <p key={i} className="font-serif text-[1.125rem] leading-[1.6] text-ink">
-            {seg.text}
-          </p>
-        ))}
+        {segments.map((seg, i) => {
+          // If the paragraph begins with a short "Name:" label, render that
+          // label in bold italic, magazine-interview style.
+          const match = seg.text.match(/^([^:]{1,40}):\s+([\s\S]+)$/)
+          return (
+            <p key={i} className="font-serif text-[1.125rem] leading-[1.6] text-ink">
+              {match ? (
+                <>
+                  <span className="font-bold italic">{match[1]}:</span> {match[2]}
+                </>
+              ) : (
+                seg.text
+              )}
+            </p>
+          )
+        })}
       </main>
 
       <footer className="border-t-2 border-ink">

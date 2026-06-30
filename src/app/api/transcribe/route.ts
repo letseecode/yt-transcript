@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server'
 import { randomUUID } from 'crypto'
+import { cleanupTranscript } from '@/lib/cleanup'
 
-export const maxDuration = 30
+export const maxDuration = 300
 
 function extractVideoId(url: string): string | null {
   try {
@@ -142,5 +143,12 @@ export async function POST(req: Request) {
     }
   }
 
-  return NextResponse.json({ id: randomUUID(), segments: merged })
+  // AI cleanup pass: fix caption errors and re-segment by speaker. The raw
+  // caption text (with ">>" speaker hints) is the best input for the model.
+  // If the AI call fails or no key is set, fall back to the heuristic segments
+  // so the app always returns something usable.
+  const rawText = raw.map((item) => item.text).join(' ')
+  const cleaned = await cleanupTranscript(rawText)
+
+  return NextResponse.json({ id: randomUUID(), segments: cleaned ?? merged })
 }
