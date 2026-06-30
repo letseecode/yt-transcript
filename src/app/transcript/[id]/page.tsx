@@ -99,9 +99,9 @@ export default function TranscriptPage() {
         </div>
       </header>
 
-      <main className="flex-1 max-w-2xl w-full mx-auto px-6 py-12 space-y-6">
+      <main className="flex-1 max-w-3xl w-full mx-auto px-6 py-10 space-y-4">
         {segments.map((seg, i) => (
-          <p key={i} className="font-serif text-lg leading-loose text-ink">
+          <p key={i} className="font-serif text-[1.125rem] leading-[1.6] text-ink">
             {seg.text}
           </p>
         ))}

@@ -123,5 +123,24 @@ export async function POST(req: Request) {
     if (buf.trim()) segments.push({ text: buf.trim(), startMs: bufStart })
   }
 
-  return NextResponse.json({ id: randomUUID(), segments })
+  // Merge fragments: YouTube often inserts ">>" (or a caption break) in the
+  // middle of someone still talking. A block that begins with a lowercase
+  // letter is a continuation of the previous thought, not a new speaker, so
+  // fold it back into the previous block.
+  const merged: Segment[] = []
+  for (const seg of segments) {
+    const first = seg.text.trimStart().charAt(0)
+    const isContinuation =
+      first !== '' &&
+      first === first.toLowerCase() &&
+      first !== first.toUpperCase() // true only for lowercase letters
+
+    if (merged.length > 0 && isContinuation) {
+      merged[merged.length - 1].text += ' ' + seg.text
+    } else {
+      merged.push({ ...seg })
+    }
+  }
+
+  return NextResponse.json({ id: randomUUID(), segments: merged })
 }
