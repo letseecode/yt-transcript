@@ -1,8 +1,13 @@
-import { aai } from '@/lib/assemblyai'
+import { YoutubeTranscript } from 'youtube-transcript'
 import { NextResponse } from 'next/server'
-import ytdl from '@distube/ytdl-core'
+import { randomUUID } from 'crypto'
 
-export const maxDuration = 300
+interface Segment {
+  text: string
+  startMs: number
+}
+
+export const maxDuration = 30
 
 export async function POST(req: Request) {
   const { url } = await req.json()
@@ -11,43 +16,39 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'No URL provided' }, { status: 400 })
   }
 
-  if (!ytdl.validateURL(url)) {
-    return NextResponse.json({ error: 'Invalid YouTube URL.' }, { status: 400 })
-  }
-
-  let info
+  let raw
   try {
-    info = await ytdl.getInfo(url)
+    raw = await YoutubeTranscript.fetchTranscript(url)
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : String(err)
+    const msg = err instanceof Error ? err.message : String(err)
     return NextResponse.json(
-      { error: `Could not access that video: ${message}` },
+      { error: `No transcript available for this video. It may have captions disabled. (${msg})` },
       { status: 422 }
     )
   }
 
-  const format = ytdl.chooseFormat(info.formats, {
-    quality: 'lowestaudio',
-    filter: 'audioonly',
-  })
+  // Group caption lines into paragraphs; gap > 2s = new paragraph
+  const segments: Segment[] = []
+  let buf = '', bufStart = 0, prevEnd = 0
 
-  const audioStream = ytdl.downloadFromInfo(info, { format })
+  for (const item of raw) {
+    const start = Math.round(item.offset)
+    const end = start + Math.round(item.duration)
 
-  let uploadUrl: string
-  try {
-    uploadUrl = await aai.files.upload(audioStream as NodeJS.ReadableStream)
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : String(err)
-    return NextResponse.json(
-      { error: `Audio upload failed: ${message}` },
-      { status: 502 }
-    )
+    if (!buf) bufStart = start
+
+    if (start - prevEnd > 2000 && buf) {
+      segments.push({ text: buf.trim(), startMs: bufStart })
+      buf = item.text
+      bufStart = start
+    } else {
+      buf += (buf ? ' ' : '') + item.text
+    }
+
+    prevEnd = end
   }
 
-  const transcript = await aai.transcripts.submit({
-    audio_url: uploadUrl,
-    speaker_labels: true,
-  })
+  if (buf.trim()) segments.push({ text: buf.trim(), startMs: bufStart })
 
-  return NextResponse.json({ id: transcript.id })
+  return NextResponse.json({ id: randomUUID(), segments })
 }

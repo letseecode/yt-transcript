@@ -36,8 +36,11 @@ export default function Home() {
 
       const data = await res.json()
 
-      if (data.id) {
-        router.push(`/transcribe/${data.id}`)
+      if (data.id && data.segments) {
+        try {
+          localStorage.setItem(`transcript-${data.id}`, JSON.stringify(data.segments))
+        } catch {}
+        router.push(`/transcript/${data.id}`)
       } else {
         setError(data.error ?? 'Something went wrong. Try again.')
         setLoading(false)
@@ -95,7 +98,7 @@ export default function Home() {
               disabled={loading}
               className="bg-ink text-cream font-headline font-bold uppercase tracking-wide px-6 py-4 hover:bg-red transition-colors duration-100 disabled:opacity-50 whitespace-nowrap text-sm"
             >
-              {loading ? 'Submitting…' : 'Transcribe →'}
+              {loading ? 'Fetching…' : 'Transcribe →'}
             </button>
           </div>
 
@@ -109,12 +112,12 @@ export default function Home() {
         <div className="max-w-5xl mx-auto px-6 py-8 grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
             {
-              label: 'Speaker detection',
-              body: 'Automatically identifies multiple voices and labels each block.',
+              label: 'Auto captions',
+              body: 'Reads the captions YouTube already generated — instant, no audio processing needed.',
             },
             {
-              label: 'Rename speakers',
-              body: 'Click any label to replace "Speaker A" with a real name.',
+              label: 'Timestamped',
+              body: 'Every paragraph is linked to where it appears in the video.',
             },
             {
               label: 'Export',

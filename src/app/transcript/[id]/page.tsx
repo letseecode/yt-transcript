@@ -3,63 +3,46 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
-import SpeakerBlock from '@/components/SpeakerBlock'
 
-interface Utterance {
-  speaker: string
+interface Segment {
   text: string
-  start: number
-  end: number
+  startMs: number
+}
+
+function formatTime(ms: number): string {
+  const total = Math.floor(ms / 1000)
+  const h = Math.floor(total / 3600)
+  const m = Math.floor((total % 3600) / 60)
+  const s = total % 60
+  if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+  return `${m}:${String(s).padStart(2, '0')}`
 }
 
 export default function TranscriptPage() {
   const params = useParams()
   const id = params.id as string
 
-  const [utterances, setUtterances] = useState<Utterance[]>([])
-  const [names, setNames] = useState<Record<string, string>>({})
+  const [segments, setSegments] = useState<Segment[]>([])
   const [loading, setLoading] = useState(true)
+  const [notFound, setNotFound] = useState(false)
   const [copied, setCopied] = useState(false)
 
   useEffect(() => {
-    const fetchTranscript = async () => {
-      const res = await fetch(`/api/transcribe/${id}`)
-      const data = await res.json()
-      const utt: Utterance[] = data.utterances ?? []
-      setUtterances(utt)
-
-      const uniqueSpeakers: string[] = Array.from(new Set(utt.map((u) => u.speaker)))
-
-      let saved: Record<string, string> = {}
-      try {
-        const raw = localStorage.getItem(`names-${id}`)
-        if (raw) saved = JSON.parse(raw)
-      } catch {}
-
-      const defaults: Record<string, string> = {}
-      uniqueSpeakers.forEach((s) => {
-        defaults[s] = saved[s] ?? `Speaker ${s}`
-      })
-
-      setNames(defaults)
-      setLoading(false)
+    try {
+      const raw = localStorage.getItem(`transcript-${id}`)
+      if (raw) {
+        setSegments(JSON.parse(raw))
+      } else {
+        setNotFound(true)
+      }
+    } catch {
+      setNotFound(true)
     }
-
-    fetchTranscript()
+    setLoading(false)
   }, [id])
 
-  const handleRename = (speakerKey: string, newName: string) => {
-    setNames((prev) => {
-      const updated = { ...prev, [speakerKey]: newName }
-      try { localStorage.setItem(`names-${id}`, JSON.stringify(updated)) } catch {}
-      return updated
-    })
-  }
-
   const buildExportText = () =>
-    utterances
-      .map((u) => `[${names[u.speaker] ?? `Speaker ${u.speaker}`}]\n${u.text}`)
-      .join('\n\n')
+    segments.map((s) => `[${formatTime(s.startMs)}]\n${s.text}`).join('\n\n')
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(buildExportText())
@@ -81,6 +64,18 @@ export default function TranscriptPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="font-headline text-xl font-bold">Loading transcript…</p>
+      </div>
+    )
+  }
+
+  if (notFound) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-6 text-center">
+        <p className="font-headline text-xl font-bold">Transcript not found.</p>
+        <p className="font-body text-sm text-muted">This link only works in the same browser that generated the transcript.</p>
+        <Link href="/" className="font-headline font-bold uppercase tracking-wide text-xs border-2 border-ink px-4 py-2 hover:bg-yellow transition-colors">
+          ← Transcribe a new video
+        </Link>
       </div>
     )
   }
@@ -113,24 +108,14 @@ export default function TranscriptPage() {
         </div>
       </header>
 
-      <div className="border-b border-border bg-surface">
-        <div className="max-w-3xl mx-auto px-6 py-3">
-          <p className="font-body text-xs text-muted">
-            Click any speaker label to rename it. Press Enter or click away to confirm.
-          </p>
-        </div>
-      </div>
-
-      <main className="flex-1 max-w-3xl w-full mx-auto px-6 py-10 space-y-8">
-        {utterances.map((u, i) => (
-          <SpeakerBlock
-            key={i}
-            speakerKey={u.speaker}
-            displayName={names[u.speaker] ?? `Speaker ${u.speaker}`}
-            text={u.text}
-            startMs={u.start}
-            onRename={(newName) => handleRename(u.speaker, newName)}
-          />
+      <main className="flex-1 max-w-3xl w-full mx-auto px-6 py-10 space-y-6">
+        {segments.map((seg, i) => (
+          <div key={i}>
+            <p className="font-headline text-xs text-muted mb-1 uppercase tracking-widest">
+              {formatTime(seg.startMs)}
+            </p>
+            <p className="font-serif text-base leading-relaxed text-ink">{seg.text}</p>
+          </div>
         ))}
       </main>
 
