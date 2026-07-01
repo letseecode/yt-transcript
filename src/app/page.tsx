@@ -57,7 +57,7 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col">
       <header className="border-b-2 border-ink bg-surface sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto pl-1.5 pr-6 py-3 flex items-center gap-3">
+        <div className="max-w-5xl ml-0 mr-auto pl-1.5 pr-6 py-3 flex items-center gap-3">
           <a
             href="/"
             className="font-serif text-[1.275rem] text-black underline decoration-purple decoration-2 underline-offset-4 hover:text-purple transition-colors"
@@ -76,7 +76,7 @@ export default function Home() {
       </header>
 
       <section className="border-b-2 border-ink bg-surface text-ink">
-        <div className="max-w-5xl mx-auto pl-1.5 pr-6 pt-8 md:pt-10 pb-8 md:pb-10">
+        <div className="max-w-5xl ml-0 mr-auto pl-1.5 pr-6 pt-8 md:pt-10 pb-8 md:pb-10">
           <p className="font-headline uppercase tracking-wide text-[0.825rem] text-muted mb-4 md:mb-6">
             Full Transcripts · Your Own Library&nbsp;&nbsp;//&nbsp;&nbsp;Podcasts · Interviews · Investor Calls
           </p>
@@ -95,7 +95,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="max-w-5xl mx-auto w-full px-6 py-12">
+      <section className="max-w-5xl ml-0 mr-auto w-full px-6 py-12">
         <div className="max-w-2xl space-y-3">
           <label className="font-headline uppercase tracking-widest text-xs text-muted block">
             YouTube URL
@@ -125,7 +125,7 @@ export default function Home() {
       </section>
 
       <section className="border-t-2 border-ink mt-auto">
-        <div className="max-w-5xl mx-auto px-6 py-8 grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="max-w-5xl ml-0 mr-auto px-6 py-8 grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
             {
               label: 'Auto captions',
