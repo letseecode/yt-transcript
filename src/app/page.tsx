@@ -57,7 +57,7 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col">
       <header className="border-b-2 border-ink bg-surface sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto pl-3 pr-6 py-3 flex items-center gap-3">
+        <div className="max-w-5xl mx-auto pl-1.5 pr-6 py-3 flex items-center gap-3">
           <a
             href="/"
             className="font-serif text-[1.275rem] text-black underline decoration-purple decoration-2 underline-offset-4 hover:text-purple transition-colors"
@@ -76,12 +76,16 @@ export default function Home() {
       </header>
 
       <section className="border-b-2 border-ink bg-surface text-ink">
-        <div className="max-w-5xl mx-auto pl-3 pr-6 pt-24 md:pt-32 pb-16 md:pb-20">
+        <div className="max-w-5xl mx-auto pl-1.5 pr-6 pt-24 md:pt-32 pb-16 md:pb-20">
           <p className="font-headline uppercase tracking-[0.15em] text-[1.05rem] text-muted mb-4 md:mb-6">
             Full Transcripts · Your Own Library&nbsp;&nbsp;//&nbsp;&nbsp;Podcasts · Interviews · Investor Calls
           </p>
           <h1 className="font-display text-[4.125rem] md:text-[9rem] leading-[0.9] tracking-tight">
-            Paste a Link;
+            Paste a{' '}
+            <span className="underline decoration-purple decoration-[6px] md:decoration-[10px] underline-offset-[10px] md:underline-offset-[16px]">
+              Link
+            </span>
+            ;
             <br />
             <span className="inline-block whitespace-nowrap">
               <span className="text-purple">Read</span> the whole thing.
