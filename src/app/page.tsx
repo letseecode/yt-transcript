@@ -75,17 +75,17 @@ export default function Home() {
       <section className="border-b-2 border-ink bg-surface text-ink">
         <div className="max-w-5xl mx-auto px-6 py-16 md:py-24">
           <p className="font-headline uppercase tracking-widest text-xs text-muted mb-5">
-            Full transcripts · Speaker detection · Free
+            Full Transcripts · Own Your Library
           </p>
-          <h1 className="font-display text-6xl md:text-8xl leading-[0.92] mb-6 tracking-tight">
-            Paste a link.
+          <h1 className="font-display text-[5.25rem] md:text-[8.4rem] leading-[0.9] mb-6 tracking-tight">
+            Paste a link;
             <br />
-            <span className="inline-block pl-12 md:pl-28">
+            <span className="inline-block pl-20 md:pl-48">
               <span className="text-purple">Read</span> the whole thing.
             </span>
           </h1>
-          <p className="font-body text-base md:text-lg text-muted max-w-xl leading-relaxed">
-            Speaker detection labels who said what. Rename speakers to real names. Copy or download the full transcript.
+          <p className="font-serif text-lg md:text-xl text-muted max-w-xl leading-relaxed">
+            Podcasts · Interviews · Investor Calls
           </p>
         </div>
       </section>
