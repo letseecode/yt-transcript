@@ -65,10 +65,10 @@ export default function Home() {
             Your Transcript
           </a>
           <span className="font-serif text-[1.5rem] text-muted select-none">//</span>
-          <span className="font-body text-[1.05rem] text-muted">Read instead of listen</span>
+          <span className="font-serif text-[1.05rem] text-muted">Read instead of listen</span>
           <a
             href="/library"
-            className="ml-auto font-serif font-bold text-[1.05rem] bg-mint text-black border-2 border-ink px-4 py-2 hover:bg-paper transition-colors"
+            className="ml-auto font-serif font-bold text-[1.35rem] bg-mint text-black border-2 border-ink px-4 py-2 hover:bg-paper transition-colors"
           >
             Library
           </a>
