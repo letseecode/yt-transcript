@@ -76,7 +76,7 @@ export default function Home() {
       </header>
 
       <section className="border-b-2 border-ink bg-surface text-ink">
-        <div className="max-w-5xl mx-auto pl-1.5 pr-6 pt-8 md:pt-10 pb-16 md:pb-20">
+        <div className="max-w-5xl mx-auto pl-1.5 pr-6 pt-8 md:pt-10 pb-8 md:pb-10">
           <p className="font-headline uppercase tracking-wide text-[0.825rem] text-muted mb-4 md:mb-6">
             Full Transcripts · Your Own Library&nbsp;&nbsp;//&nbsp;&nbsp;Podcasts · Interviews · Investor Calls
           </p>
