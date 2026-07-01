@@ -80,9 +80,9 @@ export default function Home() {
           <p className="font-headline uppercase tracking-wide text-[0.825rem] text-muted mb-4 md:mb-6">
             Full Transcripts · Your Own Library&nbsp;&nbsp;//&nbsp;&nbsp;Podcasts · Interviews · Investor Calls
           </p>
-          <h1 className="font-display text-[4.125rem] md:text-[9rem] leading-[0.76] tracking-tight">
+          <h1 className="font-display text-[4.125rem] md:text-[9rem] leading-[0.82] tracking-tight">
             Paste a{' '}
-            <span className="underline decoration-purple decoration-[6px] md:decoration-[10px] underline-offset-[3px] md:underline-offset-[4px]">
+            <span className="underline decoration-purple decoration-[9px] md:decoration-[15px] underline-offset-[1px] md:underline-offset-[2px]">
               Link
             </span>
             ;
