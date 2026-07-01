@@ -8,10 +8,12 @@
   --color-border: #E0DAD3;
   --color-muted: #6B6560;
   --color-surface: #FFFFFF;
+  --color-purple: #5218FF;
 
   --font-headline: var(--font-headline-family);
   --font-serif: var(--font-serif-family);
   --font-body: var(--font-body-family);
+  --font-display: var(--font-display-family);
 }
 
 body {
