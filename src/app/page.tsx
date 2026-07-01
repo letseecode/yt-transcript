@@ -77,12 +77,12 @@ export default function Home() {
 
       <section className="border-b-2 border-ink bg-surface text-ink">
         <div className="max-w-5xl mx-auto pl-1.5 pr-6 pt-24 md:pt-32 pb-16 md:pb-20">
-          <p className="font-headline uppercase tracking-[0.15em] text-[1.05rem] text-muted mb-4 md:mb-6">
+          <p className="font-headline uppercase tracking-wide text-[0.825rem] text-muted mb-4 md:mb-6">
             Full Transcripts · Your Own Library&nbsp;&nbsp;//&nbsp;&nbsp;Podcasts · Interviews · Investor Calls
           </p>
-          <h1 className="font-display text-[4.125rem] md:text-[9rem] leading-[0.9] tracking-tight">
+          <h1 className="font-display text-[4.125rem] md:text-[9rem] leading-[0.76] tracking-tight">
             Paste a{' '}
-            <span className="underline decoration-purple decoration-[6px] md:decoration-[10px] underline-offset-[10px] md:underline-offset-[16px]">
+            <span className="underline decoration-purple decoration-[6px] md:decoration-[10px] underline-offset-[3px] md:underline-offset-[4px]">
               Link
             </span>
             ;
