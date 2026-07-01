@@ -65,10 +65,10 @@ export default function Home() {
             Your Transcript
           </a>
           <span className="font-serif text-[1.5rem] text-muted select-none">//</span>
-          <span className="font-serif text-[1.05rem] text-muted">Read instead of listen</span>
+          <span className="font-serif text-[1.4rem] text-muted">Read instead of listen</span>
           <a
             href="/library"
-            className="ml-auto font-serif font-bold text-[1.35rem] bg-mint text-black border-2 border-ink px-4 py-2 hover:bg-paper transition-colors"
+            className="ml-auto font-serif font-bold text-[1.15rem] bg-mint text-black border-2 border-ink px-3 py-1.5 hover:bg-paper transition-colors"
           >
             Library
           </a>
@@ -76,14 +76,14 @@ export default function Home() {
       </header>
 
       <section className="border-b-2 border-ink bg-surface text-ink">
-        <div className="max-w-5xl mx-auto px-6 pt-40 md:pt-56 pb-20 md:pb-28">
-          <p className="font-headline uppercase tracking-wide text-[0.825rem] text-muted mb-16 md:mb-24">
+        <div className="max-w-5xl mx-auto px-6 pt-56 md:pt-72 pb-28 md:pb-36">
+          <p className="font-headline uppercase tracking-wide text-[0.825rem] text-muted mb-20 md:mb-32">
             Full Transcripts · Your Own Library&nbsp;&nbsp;//&nbsp;&nbsp;Podcasts · Interviews · Investor Calls
           </p>
-          <h1 className="font-display text-[3rem] md:text-[10.5rem] leading-[0.9] tracking-tight">
+          <h1 className="font-display text-[2.75rem] md:text-[6rem] leading-[0.9] tracking-tight">
             Paste a Link;
             <br />
-            <span className="inline-block md:whitespace-nowrap pl-8 md:pl-16">
+            <span className="inline-block whitespace-nowrap">
               <span className="text-purple">Read</span> the whole thing.
             </span>
           </h1>
