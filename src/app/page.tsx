@@ -60,15 +60,15 @@ export default function Home() {
         <div className="max-w-5xl mx-auto px-6 py-3 flex items-center gap-3">
           <a
             href="/"
-            className="font-serif text-[1.5rem] text-black underline decoration-purple decoration-2 underline-offset-4 hover:text-purple transition-colors"
+            className="font-serif text-[1.275rem] text-black underline decoration-purple decoration-2 underline-offset-4 hover:text-purple transition-colors"
           >
             Your Transcript
           </a>
-          <span className="font-serif text-[1.5rem] text-muted select-none">//</span>
-          <span className="font-serif text-[1.4rem] text-muted">Read instead of listen</span>
+          <span className="font-serif text-[1.275rem] text-muted select-none">//</span>
+          <span className="font-serif text-[1.19rem] text-muted">Read instead of listen</span>
           <a
             href="/library"
-            className="ml-auto font-serif font-bold text-[1.15rem] bg-mint text-black border-2 border-ink px-3 py-1.5 hover:bg-paper transition-colors"
+            className="ml-auto font-serif font-bold text-[0.98rem] bg-mint text-black border-2 border-ink px-3 py-1.5 hover:bg-paper transition-colors"
           >
             Library
           </a>
@@ -77,7 +77,7 @@ export default function Home() {
 
       <section className="border-b-2 border-ink bg-surface text-ink">
         <div className="max-w-5xl mx-auto px-6 pt-24 md:pt-32 pb-16 md:pb-20">
-          <p className="font-headline uppercase tracking-wide text-[0.825rem] text-muted mb-10 md:mb-14">
+          <p className="font-headline uppercase tracking-[0.15em] text-[1.05rem] text-muted mb-4 md:mb-6">
             Full Transcripts · Your Own Library&nbsp;&nbsp;//&nbsp;&nbsp;Podcasts · Interviews · Investor Calls
           </p>
           <h1 className="font-display text-[4.125rem] md:text-[9rem] leading-[0.9] tracking-tight">
