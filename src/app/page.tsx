@@ -74,19 +74,16 @@ export default function Home() {
 
       <section className="border-b-2 border-ink bg-surface text-ink">
         <div className="max-w-5xl mx-auto px-6 py-16 md:py-24">
-          <p className="font-headline uppercase tracking-widest text-xs text-muted mb-5">
-            Full Transcripts · Own Your Library
+          <p className="font-headline uppercase tracking-wide text-[0.825rem] text-muted mb-5">
+            Full Transcripts · Your Own Library&nbsp; | &nbsp;Podcasts · Interviews · Investor Calls
           </p>
-          <h1 className="font-display text-[5.25rem] md:text-[8.4rem] leading-[0.9] mb-6 tracking-tight">
+          <h1 className="font-display text-[4.375rem] md:text-[7rem] leading-[0.9] tracking-tight">
             Paste a link;
             <br />
             <span className="inline-block pl-20 md:pl-48">
               <span className="text-purple">Read</span> the whole thing.
             </span>
           </h1>
-          <p className="font-serif text-lg md:text-xl text-muted max-w-xl leading-relaxed">
-            Podcasts · Interviews · Investor Calls
-          </p>
         </div>
       </section>
 
