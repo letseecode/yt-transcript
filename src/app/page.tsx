@@ -76,14 +76,14 @@ export default function Home() {
       </header>
 
       <section className="border-b-2 border-ink bg-surface text-ink">
-        <div className="max-w-5xl mx-auto px-6 py-16 md:py-24">
-          <p className="font-headline uppercase tracking-wide text-[0.825rem] text-muted mb-5">
+        <div className="max-w-5xl mx-auto px-6 pt-40 md:pt-56 pb-20 md:pb-28">
+          <p className="font-headline uppercase tracking-wide text-[0.825rem] text-muted mb-16 md:mb-24">
             Full Transcripts · Your Own Library&nbsp;&nbsp;//&nbsp;&nbsp;Podcasts · Interviews · Investor Calls
           </p>
-          <h1 className="font-display text-[4.375rem] md:text-[7rem] leading-[0.9] tracking-tight">
-            Paste a link;
+          <h1 className="font-display text-[3rem] md:text-[10.5rem] leading-[0.9] tracking-tight">
+            Paste a Link;
             <br />
-            <span className="inline-block whitespace-nowrap pl-20 md:pl-48">
+            <span className="inline-block md:whitespace-nowrap pl-8 md:pl-16">
               <span className="text-purple">Read</span> the whole thing.
             </span>
           </h1>
