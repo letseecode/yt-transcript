@@ -8,7 +8,12 @@
   --color-border: #E0DAD3;
   --color-muted: #6B6560;
   --color-surface: #FFFFFF;
-  --color-purple: #5218FF;
+
+  /* Main-page palette */
+  --color-purple: #4E00FF;
+  --color-mint: #54FFC9;
+  --color-paper: #E6E4E1;
+  --color-black: #000000;
 
   --font-headline: var(--font-headline-family);
   --font-serif: var(--font-serif-family);

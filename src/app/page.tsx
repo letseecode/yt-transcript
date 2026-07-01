@@ -56,16 +56,19 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="border-b-2 border-ink bg-cream sticky top-0 z-10">
+      <header className="border-b-2 border-ink bg-surface sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-6 py-3 flex items-center gap-3">
-          <span className="font-headline font-bold text-base uppercase tracking-tight">
-            YT Transcript
-          </span>
-          <span className="text-border select-none">/</span>
+          <a
+            href="/"
+            className="font-serif text-xl text-black underline decoration-purple decoration-2 underline-offset-4 hover:text-purple transition-colors"
+          >
+            Your Transcript
+          </a>
+          <span className="font-serif text-xl text-muted select-none">/</span>
           <span className="font-body text-sm text-muted">Read instead of listen</span>
           <a
             href="/library"
-            className="ml-auto font-headline font-bold uppercase tracking-wide text-xs border-2 border-ink px-4 py-2 hover:bg-yellow transition-colors"
+            className="ml-auto font-serif font-bold text-sm bg-mint text-black border-2 border-ink px-4 py-2 hover:bg-mint/70 transition-colors"
           >
             Library
           </a>
@@ -80,7 +83,7 @@ export default function Home() {
           <h1 className="font-display text-[4.375rem] md:text-[7rem] leading-[0.9] tracking-tight">
             Paste a link;
             <br />
-            <span className="inline-block pl-20 md:pl-48">
+            <span className="inline-block whitespace-nowrap pl-20 md:pl-48">
               <span className="text-purple">Read</span> the whole thing.
             </span>
           </h1>
