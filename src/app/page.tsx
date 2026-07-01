@@ -82,8 +82,9 @@ export default function Home() {
           </p>
           <h1 className="font-display text-[4.125rem] md:text-[9rem] leading-[0.82] tracking-tight">
             Paste a{' '}
-            <span className="underline decoration-purple decoration-[9px] md:decoration-[15px] underline-offset-[1px] md:underline-offset-[2px]">
+            <span className="relative inline-block">
               Link
+              <span className="absolute left-0 right-0 -bottom-[6px] md:-bottom-[10px] h-[9px] md:h-[15px] bg-purple" />
             </span>
             ;
             <br />
