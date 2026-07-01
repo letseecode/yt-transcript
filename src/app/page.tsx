@@ -76,11 +76,11 @@ export default function Home() {
       </header>
 
       <section className="border-b-2 border-ink bg-surface text-ink">
-        <div className="max-w-5xl mx-auto px-6 pt-56 md:pt-72 pb-28 md:pb-36">
-          <p className="font-headline uppercase tracking-wide text-[0.825rem] text-muted mb-20 md:mb-32">
+        <div className="max-w-5xl mx-auto px-6 pt-24 md:pt-32 pb-16 md:pb-20">
+          <p className="font-headline uppercase tracking-wide text-[0.825rem] text-muted mb-10 md:mb-14">
             Full Transcripts · Your Own Library&nbsp;&nbsp;//&nbsp;&nbsp;Podcasts · Interviews · Investor Calls
           </p>
-          <h1 className="font-display text-[2.75rem] md:text-[6rem] leading-[0.9] tracking-tight">
+          <h1 className="font-display text-[4.125rem] md:text-[9rem] leading-[0.9] tracking-tight">
             Paste a Link;
             <br />
             <span className="inline-block whitespace-nowrap">
