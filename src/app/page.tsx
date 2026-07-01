@@ -38,7 +38,10 @@ export default function Home() {
 
       if (data.id && data.segments) {
         try {
-          localStorage.setItem(`transcript-${data.id}`, JSON.stringify(data.segments))
+          localStorage.setItem(
+            `transcript-${data.id}`,
+            JSON.stringify({ segments: data.segments, title: data.title ?? '' })
+          )
         } catch {}
         router.push(`/transcript/${data.id}`)
       } else {
@@ -60,6 +63,12 @@ export default function Home() {
           </span>
           <span className="text-border select-none">/</span>
           <span className="font-body text-sm text-muted">Read instead of listen</span>
+          <a
+            href="/library"
+            className="ml-auto font-headline font-bold uppercase tracking-wide text-xs border-2 border-ink px-4 py-2 hover:bg-yellow transition-colors"
+          >
+            Library
+          </a>
         </div>
       </header>
 

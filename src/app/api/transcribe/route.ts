@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
-import { randomUUID } from 'crypto'
 import { cleanupTranscript } from '@/lib/cleanup'
+import { getTranscript, saveTranscript } from '@/lib/db'
 
 export const maxDuration = 300
 
@@ -21,7 +21,25 @@ interface SupadataSegment {
   lang: string
 }
 
-interface Segment { text: string; startMs: number }
+interface Segment {
+  text: string
+  startMs: number
+}
+
+// Look up the video's title/channel from YouTube's public oEmbed endpoint
+// (no API key). Falls back to the video id if it's unavailable.
+async function fetchTitle(videoId: string): Promise<{ title: string; author: string }> {
+  try {
+    const res = await fetch(
+      `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`
+    )
+    if (res.ok) {
+      const d = await res.json()
+      return { title: d.title ?? videoId, author: d.author_name ?? '' }
+    }
+  } catch {}
+  return { title: videoId, author: '' }
+}
 
 export async function POST(req: Request) {
   const { url } = await req.json()
@@ -33,6 +51,18 @@ export async function POST(req: Request) {
   const videoId = extractVideoId(url)
   if (!videoId) {
     return NextResponse.json({ error: 'Invalid YouTube URL.' }, { status: 400 })
+  }
+
+  // Cache check: if we've already transcribed this video, reuse it and spend
+  // zero Supadata credits.
+  const cached = await getTranscript(videoId)
+  if (cached) {
+    return NextResponse.json({
+      id: videoId,
+      segments: cached.segments,
+      title: cached.title,
+      cached: true,
+    })
   }
 
   const apiKey = process.env.SUPADATA_API_KEY
@@ -86,31 +116,23 @@ export async function POST(req: Request) {
     for (const item of raw) {
       const startMs = Math.round(item.offset)
       const text = item.text.replace(/\n/g, ' ')
-
-      // Split on ">>"; first piece continues the current block, the rest each
-      // begin a new speaker block.
       const pieces = text.split('>>')
-
       for (let i = 0; i < pieces.length; i++) {
         const piece = pieces[i].trim()
-        if (i > 0) flush()           // a ">>" ended the previous block
-        if (!buf) bufStart = startMs // mark start time for a fresh block
+        if (i > 0) flush()
+        if (!buf) bufStart = startMs
         buf += (buf ? ' ' : '') + piece
       }
     }
     flush()
   } else {
-    // No speaker markers: group caption lines into paragraphs (gap > 2s = new)
     let buf = '', bufStart = 0, prevEnd = 0
-
     for (const item of raw) {
       const startMs = Math.round(item.offset)
       const endMs = startMs + Math.round(item.duration)
       const text = item.text.replace(/\n/g, ' ').trim()
       if (!text) continue
-
       if (!buf) bufStart = startMs
-
       if (startMs - prevEnd > 2000 && buf) {
         segments.push({ text: buf.trim(), startMs: bufStart })
         buf = text
@@ -120,22 +142,15 @@ export async function POST(req: Request) {
       }
       prevEnd = endMs
     }
-
     if (buf.trim()) segments.push({ text: buf.trim(), startMs: bufStart })
   }
 
-  // Merge fragments: YouTube often inserts ">>" (or a caption break) in the
-  // middle of someone still talking. A block that begins with a lowercase
-  // letter is a continuation of the previous thought, not a new speaker, so
-  // fold it back into the previous block.
+  // Merge fragments that begin lowercase (continuations, not new speakers).
   const merged: Segment[] = []
   for (const seg of segments) {
     const first = seg.text.trimStart().charAt(0)
     const isContinuation =
-      first !== '' &&
-      first === first.toLowerCase() &&
-      first !== first.toUpperCase() // true only for lowercase letters
-
+      first !== '' && first === first.toLowerCase() && first !== first.toUpperCase()
     if (merged.length > 0 && isContinuation) {
       merged[merged.length - 1].text += ' ' + seg.text
     } else {
@@ -143,12 +158,14 @@ export async function POST(req: Request) {
     }
   }
 
-  // AI cleanup pass: fix caption errors and re-segment by speaker. The raw
-  // caption text (with ">>" speaker hints) is the best input for the model.
-  // If the AI call fails or no key is set, fall back to the heuristic segments
-  // so the app always returns something usable.
+  // AI cleanup pass (falls back to heuristic segments if it fails).
   const rawText = raw.map((item) => item.text).join(' ')
   const cleaned = await cleanupTranscript(rawText)
+  const finalSegments = cleaned ?? merged
 
-  return NextResponse.json({ id: randomUUID(), segments: cleaned ?? merged })
+  // Look up the title, then store in the database for caching + the library.
+  const { title, author } = await fetchTitle(videoId)
+  await saveTranscript({ videoId, url, title, author, segments: finalSegments })
+
+  return NextResponse.json({ id: videoId, segments: finalSegments, title })
 }

@@ -14,22 +14,63 @@ export default function TranscriptPage() {
   const id = params.id as string
 
   const [segments, setSegments] = useState<Segment[]>([])
+  const [title, setTitle] = useState('')
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
   const [copied, setCopied] = useState(false)
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(`transcript-${id}`)
-      if (raw) {
-        setSegments(JSON.parse(raw))
-      } else {
-        setNotFound(true)
+    let cancelled = false
+
+    const readLocal = (): boolean => {
+      try {
+        const raw = localStorage.getItem(`transcript-${id}`)
+        if (!raw) return false
+        const parsed = JSON.parse(raw)
+        // Older saves stored a bare array; newer ones store { segments, title }.
+        const segs = Array.isArray(parsed) ? parsed : parsed.segments
+        if (!segs) return false
+        if (!cancelled) {
+          setSegments(segs)
+          setTitle(Array.isArray(parsed) ? '' : parsed.title ?? '')
+        }
+        return true
+      } catch {
+        return false
       }
-    } catch {
-      setNotFound(true)
     }
-    setLoading(false)
+
+    const load = async () => {
+      // Try the database first (shareable, works on any device).
+      try {
+        const res = await fetch(`/api/transcript/${id}`)
+        if (res.ok) {
+          const data = await res.json()
+          if (!cancelled) {
+            setSegments(data.segments)
+            setTitle(data.title ?? '')
+            setLoading(false)
+          }
+          return
+        }
+      } catch {}
+
+      // Fall back to this browser's local copy.
+      if (readLocal()) {
+        if (!cancelled) setLoading(false)
+        return
+      }
+
+      if (!cancelled) {
+        setNotFound(true)
+        setLoading(false)
+      }
+    }
+
+    load()
+    return () => {
+      cancelled = true
+    }
   }, [id])
 
   const buildExportText = () =>
@@ -63,7 +104,7 @@ export default function TranscriptPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-6 text-center">
         <p className="font-headline text-xl font-bold">Transcript not found.</p>
-        <p className="font-body text-sm text-muted">This link only works in the same browser that generated the transcript.</p>
+        <p className="font-body text-sm text-muted">This transcript may have been removed, or the link is incorrect.</p>
         <Link href="/" className="font-headline font-bold uppercase tracking-wide text-xs border-2 border-ink px-4 py-2 hover:bg-yellow transition-colors">
           ← Transcribe a new video
         </Link>
@@ -80,7 +121,9 @@ export default function TranscriptPage() {
               YT Transcript
             </Link>
             <span className="text-border select-none">/</span>
-            <span className="font-body text-sm text-muted">Transcript</span>
+            <Link href="/library" className="font-body text-sm text-muted hover:text-ink transition-colors">
+              Library
+            </Link>
           </div>
           <div className="flex gap-2">
             <button
@@ -100,6 +143,11 @@ export default function TranscriptPage() {
       </header>
 
       <main className="flex-1 max-w-3xl w-full mx-auto px-6 py-10 space-y-4">
+        {title && (
+          <h1 className="font-headline font-bold text-3xl md:text-4xl leading-tight mb-6 text-ink">
+            {title}
+          </h1>
+        )}
         {segments.map((seg, i) => {
           // If the paragraph begins with a short "Name:" label, render that
           // label in bold italic, magazine-interview style.
