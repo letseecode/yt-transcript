@@ -19,7 +19,7 @@ export default function Home() {
       if (titleEndRef.current) {
         const rect = titleEndRef.current.getBoundingClientRect()
         const viewportWidth = document.documentElement.clientWidth
-        setHeaderPad(Math.max(0, viewportWidth - rect.right + 28))
+        setHeaderPad(Math.max(0, viewportWidth - rect.right + 10))
       }
     }
     sync()
@@ -100,13 +100,13 @@ export default function Home() {
           >
             YourTranscript
           </a>
-          <span className="font-serif text-[1.66rem] text-black select-none">/</span>
+          <span className="font-serif text-[1.66rem] text-black select-none">//</span>
           <span className="font-serif text-[1.44rem] text-muted">Read instead of listen</span>
         </div>
         <a
           ref={libraryRef}
           href="/library"
-          className="absolute top-1/2 -translate-y-1/2 font-headline font-bold uppercase text-[1.518rem] bg-mint text-black border-2 border-ink px-[14px] py-[7px] hover:bg-paper transition-colors"
+          className="absolute top-1/2 -translate-y-1/2 font-headline font-bold uppercase text-[1.518rem] bg-mint text-white border-2 border-ink px-[14px] py-[7px] hover:bg-paper transition-colors"
           style={{ right: headerPad !== null ? `${headerPad}px` : '24px' }}
         >
           Library
@@ -120,11 +120,11 @@ export default function Home() {
           </p>
           <h1 className="font-display text-[clamp(3.55rem,10.64vw,11.82rem)] leading-[1.0] tracking-tight">
             Paste a{' '}
-            <span className="relative inline-block">Link<span className="absolute left-[0.03em] -right-[0.04em] -bottom-[0.02em] h-[0.06em] bg-purple" /></span>
+            <span className="relative inline-block">Link<span className="absolute left-[0.045em] -right-[0.04em] -bottom-[0.02em] h-[0.06em] bg-purple" /></span>
             ;
             <br />
             <span ref={titleEndRef} className="inline-block whitespace-nowrap">
-              <span className="text-purple italic">Read</span> the whole thing.
+              <span className="text-purple">Read</span> the whole thing.
             </span>
           </h1>
         </div>
@@ -137,7 +137,7 @@ export default function Home() {
             className="max-w-[50.4rem] space-y-3"
             style={urlRowWidth !== null ? { width: `${urlRowWidth}px`, maxWidth: 'none' } : undefined}
           >
-            <label className="font-serif font-bold italic text-[1.65rem] text-black block">
+            <label className="font-serif font-bold italic text-[1.815rem] text-black block">
               YouTube URL:
             </label>
             <div className="flex border-2 border-purple">
