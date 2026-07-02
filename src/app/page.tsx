@@ -19,6 +19,7 @@ export default function Home() {
       }
     }
     sync()
+    document.fonts?.ready?.then(sync)
     window.addEventListener('resize', sync)
     return () => window.removeEventListener('resize', sync)
   }, [])
@@ -72,7 +73,7 @@ export default function Home() {
     <div className="min-h-screen flex flex-col">
       <header className="border-b-2 border-ink bg-surface sticky top-0 z-10">
         <div
-          className="max-w-5xl ml-0 mr-auto pl-[1cm] pr-6 py-3 flex items-center gap-3"
+          className="pl-[1cm] pr-6 py-3 flex items-center gap-3"
           style={headerPad !== null ? { paddingRight: `${headerPad}px` } : undefined}
         >
           <a
@@ -82,10 +83,10 @@ export default function Home() {
             Your Transcript
           </a>
           <span className="font-serif text-[1.66rem] text-muted select-none">//</span>
-          <span className="font-serif text-[1.55rem] text-muted">Read instead of listen</span>
+          <span className="font-serif text-[1.44rem] text-muted">Read instead of listen</span>
           <a
             href="/library"
-            className="ml-auto font-serif text-[1.27rem] bg-mint text-black border-2 border-ink px-3 py-1.5 hover:bg-paper transition-colors"
+            className="ml-auto font-headline text-[1.27rem] bg-mint text-black border-2 border-ink px-3 py-1.5 hover:bg-paper transition-colors"
           >
             Library
           </a>
@@ -115,18 +116,18 @@ export default function Home() {
             <label className="font-serif font-bold text-[1.275rem] text-black block">
               YouTube URL
             </label>
-            <div className="flex border-2 border-forest">
+            <div className="flex border-2 border-purple">
               <input
                 type="url"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && !loading && handleSubmit()}
-                className="flex-1 bg-surface px-4 py-6 outline-none font-serif text-base placeholder:text-muted"
+                className="url-input flex-1 bg-surface px-4 py-6 outline-none font-serif text-base placeholder:text-muted"
               />
               <button
                 onClick={handleSubmit}
                 disabled={loading}
-                className="flex items-center justify-center bg-ink text-cream font-serif text-[1.4rem] border-l-[12px] border-l-forest border-r-[12px] border-r-forest px-6 hover:bg-mint hover:text-black active:bg-mint active:text-black transition-colors duration-100 disabled:opacity-50 whitespace-nowrap"
+                className="flex items-center justify-center bg-ink text-cream font-headline text-[1.4rem] border-l-2 border-l-purple border-r-2 border-r-purple px-6 hover:bg-mint hover:text-black active:bg-mint active:text-black transition-colors duration-100 disabled:opacity-50 whitespace-nowrap"
               >
                 {loading ? 'Fetching…' : 'Transcribe →'}
               </button>
