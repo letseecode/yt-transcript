@@ -60,15 +60,15 @@ export default function Home() {
         <div className="max-w-5xl ml-0 mr-auto pl-[11px] pr-6 py-3 flex items-center gap-3">
           <a
             href="/"
-            className="font-serif text-[1.275rem] text-black underline decoration-purple decoration-2 underline-offset-4 hover:text-purple transition-colors"
+            className="font-serif text-[1.66rem] text-black underline decoration-purple decoration-2 underline-offset-4 hover:text-purple transition-colors"
           >
             Your Transcript
           </a>
-          <span className="font-serif text-[1.275rem] text-muted select-none">//</span>
-          <span className="font-serif text-[1.19rem] text-muted">Read instead of listen</span>
+          <span className="font-serif text-[1.66rem] text-muted select-none">//</span>
+          <span className="font-serif text-[1.55rem] text-muted">Read instead of listen</span>
           <a
             href="/library"
-            className="ml-auto font-serif text-[0.98rem] bg-mint text-black border-2 border-ink px-3 py-1.5 hover:bg-paper transition-colors"
+            className="ml-auto font-serif text-[1.27rem] bg-mint text-black border-2 border-ink px-3 py-1.5 hover:bg-paper transition-colors"
           >
             Library
           </a>
