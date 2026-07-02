@@ -120,7 +120,7 @@ export default function Home() {
           </p>
           <h1 className="font-display text-[clamp(2.84rem,8.51vw,9.46rem)] leading-[1.0] tracking-tight">
             Paste a{' '}
-            <span className="relative inline-block">Link<span className="absolute left-[0.035em] -right-[0.04em] -bottom-[0.02em] h-[0.06em] bg-purple" /></span>
+            <span className="relative inline-block">Link<span className="absolute left-[0.035em] -right-[0.04em] -bottom-[0.02em] h-[0.066em] bg-purple" /></span>
             ;
             <br />
             <span ref={titleEndRef} className="inline-block whitespace-nowrap">
@@ -146,12 +146,12 @@ export default function Home() {
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && !loading && handleSubmit()}
-                className="url-input flex-1 bg-surface px-[13px] py-[19px] outline-none font-serif text-[1.2rem] text-purple placeholder:text-muted"
+                className="url-input flex-1 bg-surface px-[13px] py-[19px] outline-none font-headline text-[1.2rem] text-purple placeholder:text-muted"
               />
               <button
                 onClick={handleSubmit}
                 disabled={loading}
-                className="flex items-center justify-center bg-ink text-cream font-headline font-bold uppercase text-[1.214rem] border-l-2 border-l-purple px-[19px] hover:bg-mint hover:text-black active:bg-mint active:text-black transition-colors duration-100 disabled:opacity-50 whitespace-nowrap"
+                className="flex items-center justify-center bg-ink text-cream font-headline font-bold uppercase text-[1.214rem] border-l-2 border-l-purple px-[19px] hover:bg-mint hover:text-black active:bg-purple active:text-white transition-colors duration-100 disabled:opacity-50 whitespace-nowrap"
               >
                 {loading ? 'Fetching…' : 'Transcribe →'}
               </button>
