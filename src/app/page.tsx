@@ -68,7 +68,7 @@ export default function Home() {
           <span className="font-serif text-[1.19rem] text-muted">Read instead of listen</span>
           <a
             href="/library"
-            className="ml-auto font-serif font-bold text-[0.98rem] bg-mint text-black border-2 border-ink px-3 py-1.5 hover:bg-paper transition-colors"
+            className="ml-auto font-serif text-[0.98rem] bg-mint text-black border-2 border-ink px-3 py-1.5 hover:bg-paper transition-colors"
           >
             Library
           </a>
@@ -95,9 +95,9 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="max-w-5xl ml-0 mr-auto w-full px-6 py-12">
-        <div className="max-w-2xl space-y-3">
-          <label className="font-headline uppercase tracking-widest text-xs text-muted block">
+      <section className="max-w-5xl ml-0 mr-auto w-full px-6 py-12 bg-paper">
+        <div className="max-w-[50.4rem] space-y-3">
+          <label className="font-serif text-[1.275rem] text-black block">
             YouTube URL
           </label>
           <div className="flex border-2 border-ink">
@@ -106,13 +106,12 @@ export default function Home() {
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && !loading && handleSubmit()}
-              placeholder="https://youtube.com/watch?v=..."
-              className="flex-1 bg-surface px-4 py-4 outline-none font-body text-base placeholder:text-muted"
+              className="flex-1 bg-surface px-4 py-6 outline-none font-body text-base placeholder:text-muted"
             />
             <button
               onClick={handleSubmit}
               disabled={loading}
-              className="bg-ink text-cream font-headline font-bold uppercase tracking-wide px-6 py-4 hover:bg-red transition-colors duration-100 disabled:opacity-50 whitespace-nowrap text-sm"
+              className="flex items-center justify-center bg-ink text-cream font-serif text-[1.4rem] border-l-[12px] border-l-black px-6 hover:bg-mint hover:text-black active:bg-mint active:text-black transition-colors duration-100 disabled:opacity-50 whitespace-nowrap"
             >
               {loading ? 'Fetching…' : 'Transcribe →'}
             </button>
