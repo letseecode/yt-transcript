@@ -27,10 +27,10 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'YT Transcript — Read Instead of Listen',
+  title: 'YourTranscript — Read Instead of Listen',
   description: 'Paste any YouTube video link. Get a full, speaker-labeled transcript in minutes.',
   openGraph: {
-    title: 'YT Transcript',
+    title: 'YourTranscript',
     description: 'Full speaker-labeled transcripts of any YouTube video.',
   },
 }
