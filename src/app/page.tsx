@@ -138,7 +138,7 @@ export default function Home() {
             style={urlRowWidth !== null ? { width: `${urlRowWidth}px`, maxWidth: 'none' } : undefined}
           >
             <label className="font-serif text-[1.452rem] text-black block">
-              <span className="italic">YouTube</span> URL:
+              YouTube <span className="italic">URL:</span>
             </label>
             <div className="flex border-2 border-purple">
               <input
