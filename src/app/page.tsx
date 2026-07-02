@@ -96,7 +96,7 @@ export default function Home() {
         <div className="pl-[0.8cm] pr-[19px] py-[22px] flex items-center gap-[10px]">
           <a
             href="/"
-            className="font-serif text-[1.33rem] text-black underline decoration-purple decoration-2 underline-offset-4 hover:text-purple transition-colors"
+            className="font-serif text-[1.452rem] text-black underline decoration-purple decoration-2 underline-offset-4 hover:text-purple transition-colors"
           >
             YourTranscript
           </a>
