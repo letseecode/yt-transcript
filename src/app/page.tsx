@@ -100,6 +100,7 @@ export default function Home() {
           >
             YourTranscript
           </a>
+          <span className="font-serif text-[1.33rem] text-black select-none">||</span>
         </div>
         <a
           ref={libraryRef}
