@@ -57,7 +57,7 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col">
       <header className="border-b-2 border-ink bg-surface sticky top-0 z-10">
-        <div className="max-w-5xl ml-0 mr-auto pl-[11px] pr-6 py-3 flex items-center gap-3">
+        <div className="max-w-5xl ml-0 mr-auto pl-[1cm] pr-6 py-3 flex items-center gap-3">
           <a
             href="/"
             className="font-serif text-[1.66rem] text-black underline decoration-purple decoration-2 underline-offset-4 hover:text-purple transition-colors"
@@ -76,16 +76,13 @@ export default function Home() {
       </header>
 
       <section className="border-b-2 border-ink bg-surface text-ink">
-        <div className="max-w-5xl ml-0 mr-auto pl-[11px] pr-6 pt-8 md:pt-10 pb-8 md:pb-10">
+        <div className="max-w-5xl ml-0 mr-auto pl-[1cm] pr-6 pt-8 md:pt-10 pb-8 md:pb-10">
           <p className="font-headline uppercase tracking-wide text-[0.825rem] text-muted mb-4 md:mb-6">
             Full Transcripts · Your Own Library&nbsp;&nbsp;//&nbsp;&nbsp;Podcasts · Interviews · Investor Calls
           </p>
-          <h1 className="font-display text-[5.775rem] md:text-[12.6rem] leading-[0.95] tracking-tight">
+          <h1 className="font-display text-[clamp(2.75rem,7.5vw,9.5rem)] leading-[0.95] tracking-tight">
             Paste a{' '}
-            <span className="relative inline-block">
-              Link
-              <span className="absolute left-0 right-0 -bottom-[8px] md:-bottom-[14px] h-[13px] md:h-[21px] bg-purple" />
-            </span>
+            <span className="relative inline-block">Link<span className="absolute left-0 right-0 -bottom-[6px] md:-bottom-[10px] h-[9px] md:h-[15px] bg-purple" /></span>
             ;
             <br />
             <span className="inline-block whitespace-nowrap">
