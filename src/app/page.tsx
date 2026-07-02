@@ -101,7 +101,7 @@ export default function Home() {
             YourTranscript
           </a>
           <span className="font-serif text-[1.33rem] text-black select-none">//</span>
-          <span className="font-serif italic text-[1.15rem] text-muted">Read instead of listen</span>
+          <span className="font-serif text-[1.15rem] text-muted"><span className="italic">Read</span> instead of listen</span>
         </div>
         <a
           ref={libraryRef}
@@ -121,7 +121,7 @@ export default function Home() {
           <h1 className="font-display text-[clamp(2.84rem,8.51vw,9.46rem)] leading-[1.0] tracking-tight">
             Paste a{' '}
             <span className="relative inline-block">Link<span className="absolute left-[0.035em] -right-[0.04em] -bottom-[0.02em] h-[0.066em] bg-purple" /></span>
-            ;
+            :
             <br />
             <span ref={titleEndRef} className="inline-block whitespace-nowrap">
               <span className="text-purple">Read</span> the whole thing.
