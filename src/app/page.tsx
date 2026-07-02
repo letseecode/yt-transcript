@@ -101,7 +101,7 @@ export default function Home() {
             YourTranscript
           </a>
           <span className="font-serif text-[1.33rem] text-black select-none">//</span>
-          <span className="font-serif text-[1.15rem] text-muted">Read instead of listen</span>
+          <span className="font-headline text-[1.15rem] text-muted">Read instead of listen</span>
         </div>
         <a
           ref={libraryRef}
