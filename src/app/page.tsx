@@ -10,6 +10,9 @@ export default function Home() {
   const [loading, setLoading] = useState(false)
   const titleEndRef = useRef<HTMLSpanElement>(null)
   const [headerPad, setHeaderPad] = useState<number | null>(null)
+  const libraryRef = useRef<HTMLAnchorElement>(null)
+  const urlRowRef = useRef<HTMLDivElement>(null)
+  const [urlRowWidth, setUrlRowWidth] = useState<number | null>(null)
 
   useEffect(() => {
     const sync = () => {
@@ -24,6 +27,23 @@ export default function Home() {
     window.addEventListener('resize', sync)
     return () => window.removeEventListener('resize', sync)
   }, [])
+
+  // Stretch the URL input row so its right edge reaches exactly where
+  // the Library button ends (only the input grows -- the button beside
+  // it keeps its own natural size since it isn't flex-1).
+  useEffect(() => {
+    const syncRow = () => {
+      if (libraryRef.current && urlRowRef.current) {
+        const libRect = libraryRef.current.getBoundingClientRect()
+        const rowRect = urlRowRef.current.getBoundingClientRect()
+        setUrlRowWidth(Math.max(0, libRect.right - rowRect.left))
+      }
+    }
+    syncRow()
+    document.fonts?.ready?.then(syncRow)
+    window.addEventListener('resize', syncRow)
+    return () => window.removeEventListener('resize', syncRow)
+  }, [headerPad])
 
   const isValidYoutubeUrl = (value: string) =>
     value.includes('youtube.com') || value.includes('youtu.be')
@@ -73,7 +93,7 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col">
       <header className="relative border-b-2 border-ink bg-surface sticky top-0 z-10">
-        <div className="pl-[1cm] pr-6 py-[18px] flex items-center gap-3">
+        <div className="pl-[1cm] pr-6 py-[27px] flex items-center gap-3">
           <a
             href="/"
             className="font-serif text-[1.66rem] text-black underline decoration-purple decoration-2 underline-offset-4 hover:text-purple transition-colors"
@@ -84,8 +104,9 @@ export default function Home() {
           <span className="font-serif text-[1.44rem] text-muted">Read instead of listen</span>
         </div>
         <a
+          ref={libraryRef}
           href="/library"
-          className="absolute top-1/2 -translate-y-1/2 font-headline font-bold uppercase text-[1.265rem] bg-mint text-black border-2 border-ink px-3 py-1.5 hover:bg-paper transition-colors"
+          className="absolute top-1/2 -translate-y-1/2 font-headline font-bold uppercase text-[1.518rem] bg-mint text-black border-2 border-ink px-[14px] py-[7px] hover:bg-paper transition-colors"
           style={{ right: headerPad !== null ? `${headerPad}px` : '24px' }}
         >
           Library
@@ -103,7 +124,7 @@ export default function Home() {
             ;
             <br />
             <span ref={titleEndRef} className="inline-block whitespace-nowrap">
-              <span className="text-purple">Read</span> the whole thing.
+              <span className="text-purple italic">Read</span> the whole thing.
             </span>
           </h1>
         </div>
@@ -111,7 +132,11 @@ export default function Home() {
 
       <section className="w-full bg-paper border-b-2 border-ink">
         <div className="max-w-5xl ml-0 mr-auto pl-[1cm] pr-[1cm] pt-12 pb-16">
-          <div className="max-w-[50.4rem] space-y-3">
+          <div
+            ref={urlRowRef}
+            className="max-w-[50.4rem] space-y-3"
+            style={urlRowWidth !== null ? { width: `${urlRowWidth}px`, maxWidth: 'none' } : undefined}
+          >
             <label className="font-serif font-bold italic text-[1.65rem] text-black block">
               YouTube URL:
             </label>
@@ -121,7 +146,7 @@ export default function Home() {
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && !loading && handleSubmit()}
-                className="url-input flex-1 bg-surface px-4 py-6 outline-none font-serif text-[1.5rem] placeholder:text-muted"
+                className="url-input flex-1 bg-surface px-4 py-6 outline-none font-serif text-[1.5rem] text-purple placeholder:text-muted"
               />
               <button
                 onClick={handleSubmit}
