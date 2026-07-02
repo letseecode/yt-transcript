@@ -100,8 +100,6 @@ export default function Home() {
           >
             YourTranscript
           </a>
-          <span className="font-serif text-[1.33rem] text-black select-none">||</span>
-          <span className="font-serif text-[1.15rem] text-muted"><span className="italic">Read</span> instead of listen</span>
         </div>
         <a
           ref={libraryRef}
@@ -137,7 +135,7 @@ export default function Home() {
             className="max-w-[40.3rem] space-y-[10px]"
             style={urlRowWidth !== null ? { width: `${urlRowWidth}px`, maxWidth: 'none' } : undefined}
           >
-            <label className="font-headline italic text-[1.452rem] text-black block">
+            <label className="font-headline text-[1.452rem] text-black block">
               YouTube URL:
             </label>
             <div className="flex border-2 border-purple has-[button:hover]:border-black has-[button:active]:border-black transition-colors">
