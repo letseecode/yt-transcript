@@ -61,7 +61,17 @@ export default function TranscribingPage() {
       return
     }
 
+    const MIN_VISIBLE_MS = 3000
+
     const run = async () => {
+      const startedAt = Date.now()
+      const waitForMinimum = async () => {
+        const elapsed = Date.now() - startedAt
+        if (elapsed < MIN_VISIBLE_MS) {
+          await new Promise((resolve) => setTimeout(resolve, MIN_VISIBLE_MS - elapsed))
+        }
+      }
+
       try {
         const res = await fetch('/api/transcribe', {
           method: 'POST',
@@ -79,15 +89,18 @@ export default function TranscribingPage() {
             )
           } catch {}
           sessionStorage.removeItem('pending-url')
+          await waitForMinimum()
           setPhase('done')
           setTimeout(() => router.push(`/transcript/${data.id}`), 700)
         } else {
           sessionStorage.removeItem('pending-url')
+          await waitForMinimum()
           setErrorMsg(data.error ?? 'Something went wrong. Try again.')
           setPhase('error')
         }
       } catch {
         sessionStorage.removeItem('pending-url')
+        await waitForMinimum()
         setErrorMsg('Network error. Try again.')
         setPhase('error')
       }
