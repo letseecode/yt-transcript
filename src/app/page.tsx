@@ -106,7 +106,7 @@ export default function Home() {
         <a
           ref={libraryRef}
           href="/library"
-          className="absolute top-1/2 -translate-y-1/2 font-headline font-bold uppercase text-[1.214rem] bg-mint text-black border-2 border-ink px-[11px] py-[6px] hover:bg-paper transition-colors"
+          className="absolute top-1/2 -translate-y-1/2 font-headline font-bold uppercase text-[1.214rem] bg-mint text-black border-2 border-ink px-[11px] py-[6px] hover:bg-purple hover:text-white transition-colors"
           style={{ right: headerPad !== null ? `${headerPad}px` : '19px' }}
         >
           Library
