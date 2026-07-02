@@ -137,8 +137,8 @@ export default function Home() {
             className="max-w-[40.3rem] space-y-[10px]"
             style={urlRowWidth !== null ? { width: `${urlRowWidth}px`, maxWidth: 'none' } : undefined}
           >
-            <label className="font-serif italic text-[1.452rem] text-black block">
-              YouTube URL:
+            <label className="font-serif text-[1.452rem] text-black block">
+              <span className="italic">YouTube</span> URL:
             </label>
             <div className="flex border-2 border-purple">
               <input
@@ -151,7 +151,7 @@ export default function Home() {
               <button
                 onClick={handleSubmit}
                 disabled={loading}
-                className="flex items-center justify-center bg-ink text-cream font-headline font-bold uppercase text-[1.214rem] border-l-2 border-l-purple px-[19px] hover:bg-mint hover:text-black active:bg-purple active:text-white transition-colors duration-100 disabled:opacity-50 whitespace-nowrap"
+                className="flex items-center justify-center bg-ink text-cream font-headline font-bold uppercase text-[1.214rem] border-l-2 border-l-purple px-[19px] hover:bg-purple hover:text-white active:bg-purple active:text-white transition-colors duration-100 disabled:opacity-50 whitespace-nowrap"
               >
                 {loading ? 'Fetching…' : 'Transcribe →'}
               </button>
