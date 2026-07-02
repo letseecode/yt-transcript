@@ -115,7 +115,7 @@ export default function Home() {
 
       <section className="border-b-2 border-ink bg-surface text-ink">
         <div className="max-w-5xl ml-0 mr-auto pl-[0.8cm] pr-[19px] pt-[26px] md:pt-[32px] pb-[26px] md:pb-[32px]">
-          <p className="font-headline uppercase tracking-wide text-[0.66rem] text-muted mb-[13px] md:mb-[19px]">
+          <p className="font-headline uppercase tracking-wide text-[0.792rem] text-muted mb-[13px] md:mb-[19px]">
             Full Transcripts · Your Own Library&nbsp;&nbsp;//&nbsp;&nbsp;Podcasts · Interviews · Investor Calls
           </p>
           <h1 className="font-display text-[clamp(2.84rem,8.51vw,9.46rem)] leading-[1.0] tracking-tight">
@@ -137,7 +137,7 @@ export default function Home() {
             className="max-w-[40.3rem] space-y-[10px]"
             style={urlRowWidth !== null ? { width: `${urlRowWidth}px`, maxWidth: 'none' } : undefined}
           >
-            <label className="font-serif font-bold italic text-[1.452rem] text-black block">
+            <label className="font-serif italic text-[1.452rem] text-black block">
               YouTube URL:
             </label>
             <div className="flex border-2 border-purple">
@@ -151,7 +151,7 @@ export default function Home() {
               <button
                 onClick={handleSubmit}
                 disabled={loading}
-                className="flex items-center justify-center bg-ink text-cream font-headline font-bold uppercase text-[1.12rem] border-l-2 border-l-purple px-[19px] hover:bg-mint hover:text-black active:bg-mint active:text-black transition-colors duration-100 disabled:opacity-50 whitespace-nowrap"
+                className="flex items-center justify-center bg-ink text-cream font-headline font-bold uppercase text-[1.214rem] border-l-2 border-l-purple px-[19px] hover:bg-mint hover:text-black active:bg-mint active:text-black transition-colors duration-100 disabled:opacity-50 whitespace-nowrap"
               >
                 {loading ? 'Fetching…' : 'Transcribe →'}
               </button>
