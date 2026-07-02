@@ -129,7 +129,7 @@ export default function Home() {
                 disabled={loading}
                 className="flex items-center justify-center bg-ink text-cream font-headline font-bold uppercase text-[1.214rem] border-l-2 border-l-purple px-[19px] hover:bg-purple hover:text-black hover:border-l-black active:bg-purple active:text-black active:border-l-black transition-colors duration-100 disabled:opacity-50 whitespace-nowrap"
               >
-                {loading ? 'Fetching…' : 'Transcribe →'}
+                {loading ? 'Processing…' : 'Transcribe →'}
               </button>
             </div>
 
