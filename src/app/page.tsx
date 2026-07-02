@@ -19,7 +19,7 @@ export default function Home() {
       if (titleEndRef.current) {
         const rect = titleEndRef.current.getBoundingClientRect()
         const viewportWidth = document.documentElement.clientWidth
-        setHeaderPad(Math.max(0, viewportWidth - rect.right + 10))
+        setHeaderPad(Math.max(0, viewportWidth - rect.right + 20))
       }
     }
     sync()
@@ -106,7 +106,7 @@ export default function Home() {
         <a
           ref={libraryRef}
           href="/library"
-          className="absolute top-1/2 -translate-y-1/2 font-headline font-bold uppercase text-[1.518rem] bg-mint text-white border-2 border-ink px-[14px] py-[7px] hover:bg-paper transition-colors"
+          className="absolute top-1/2 -translate-y-1/2 font-headline font-bold uppercase text-[1.518rem] bg-mint text-black border-2 border-ink px-[14px] py-[7px] hover:bg-paper transition-colors"
           style={{ right: headerPad !== null ? `${headerPad}px` : '24px' }}
         >
           Library
@@ -120,7 +120,7 @@ export default function Home() {
           </p>
           <h1 className="font-display text-[clamp(3.55rem,10.64vw,11.82rem)] leading-[1.0] tracking-tight">
             Paste a{' '}
-            <span className="relative inline-block">Link<span className="absolute left-[0.045em] -right-[0.04em] -bottom-[0.02em] h-[0.06em] bg-purple" /></span>
+            <span className="relative inline-block">Link<span className="absolute left-[0.035em] -right-[0.04em] -bottom-[0.02em] h-[0.06em] bg-purple" /></span>
             ;
             <br />
             <span ref={titleEndRef} className="inline-block whitespace-nowrap">
