@@ -52,7 +52,7 @@ export default function Home() {
     setError('')
 
     if (!url.trim()) {
-      setError('Paste a YouTube URL first.')
+      setError('Put a YouTube URL!')
       return
     }
 
@@ -157,7 +157,18 @@ export default function Home() {
             </div>
 
             {error && (
-              <p className="text-red text-sm font-body">{error}</p>
+              <p className="font-headline text-sm text-black">
+                {error.split(/(URL)/).map((part, i) =>
+                  part === 'URL' ? (
+                    <span key={i} className="relative inline-block">
+                      URL
+                      <span className="absolute left-0 right-0 -bottom-[1px] h-[2px] bg-purple" />
+                    </span>
+                  ) : (
+                    part
+                  )
+                )}
+              </p>
             )}
           </div>
         </div>
