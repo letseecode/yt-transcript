@@ -19,7 +19,7 @@ export default function Home() {
       if (titleEndRef.current) {
         const rect = titleEndRef.current.getBoundingClientRect()
         const viewportWidth = document.documentElement.clientWidth
-        setHeaderPad(Math.max(0, viewportWidth - rect.right + 20))
+        setHeaderPad(Math.max(0, viewportWidth - rect.right + 16))
       }
     }
     sync()
@@ -93,32 +93,32 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col">
       <header className="relative border-b-2 border-ink bg-surface sticky top-0 z-10">
-        <div className="pl-[1cm] pr-6 py-[27px] flex items-center gap-3">
+        <div className="pl-[0.8cm] pr-[19px] py-[22px] flex items-center gap-[10px]">
           <a
             href="/"
-            className="font-serif text-[1.66rem] text-black underline decoration-purple decoration-2 underline-offset-4 hover:text-purple transition-colors"
+            className="font-serif text-[1.33rem] text-black underline decoration-purple decoration-2 underline-offset-4 hover:text-purple transition-colors"
           >
             YourTranscript
           </a>
-          <span className="font-serif text-[1.66rem] text-black select-none">//</span>
-          <span className="font-serif text-[1.44rem] text-muted">Read instead of listen</span>
+          <span className="font-serif text-[1.33rem] text-black select-none">//</span>
+          <span className="font-serif text-[1.15rem] text-muted">Read instead of listen</span>
         </div>
         <a
           ref={libraryRef}
           href="/library"
-          className="absolute top-1/2 -translate-y-1/2 font-headline font-bold uppercase text-[1.518rem] bg-mint text-black border-2 border-ink px-[14px] py-[7px] hover:bg-paper transition-colors"
-          style={{ right: headerPad !== null ? `${headerPad}px` : '24px' }}
+          className="absolute top-1/2 -translate-y-1/2 font-headline font-bold uppercase text-[1.214rem] bg-mint text-black border-2 border-ink px-[11px] py-[6px] hover:bg-paper transition-colors"
+          style={{ right: headerPad !== null ? `${headerPad}px` : '19px' }}
         >
           Library
         </a>
       </header>
 
       <section className="border-b-2 border-ink bg-surface text-ink">
-        <div className="max-w-5xl ml-0 mr-auto pl-[1cm] pr-6 pt-8 md:pt-10 pb-8 md:pb-10">
-          <p className="font-headline uppercase tracking-wide text-[0.825rem] text-muted mb-4 md:mb-6">
+        <div className="max-w-5xl ml-0 mr-auto pl-[0.8cm] pr-[19px] pt-[26px] md:pt-[32px] pb-[26px] md:pb-[32px]">
+          <p className="font-headline uppercase tracking-wide text-[0.66rem] text-muted mb-[13px] md:mb-[19px]">
             Full Transcripts · Your Own Library&nbsp;&nbsp;//&nbsp;&nbsp;Podcasts · Interviews · Investor Calls
           </p>
-          <h1 className="font-display text-[clamp(3.55rem,10.64vw,11.82rem)] leading-[1.0] tracking-tight">
+          <h1 className="font-display text-[clamp(2.84rem,8.51vw,9.46rem)] leading-[1.0] tracking-tight">
             Paste a{' '}
             <span className="relative inline-block">Link<span className="absolute left-[0.035em] -right-[0.04em] -bottom-[0.02em] h-[0.06em] bg-purple" /></span>
             ;
@@ -131,13 +131,13 @@ export default function Home() {
       </section>
 
       <section className="w-full bg-paper border-b-2 border-ink">
-        <div className="max-w-5xl ml-0 mr-auto pl-[1cm] pr-[1cm] pt-12 pb-16">
+        <div className="max-w-5xl ml-0 mr-auto pl-[0.8cm] pr-[0.8cm] pt-[38px] pb-[51px]">
           <div
             ref={urlRowRef}
-            className="max-w-[50.4rem] space-y-3"
+            className="max-w-[40.3rem] space-y-[10px]"
             style={urlRowWidth !== null ? { width: `${urlRowWidth}px`, maxWidth: 'none' } : undefined}
           >
-            <label className="font-serif font-bold italic text-[1.815rem] text-black block">
+            <label className="font-serif font-bold italic text-[1.452rem] text-black block">
               YouTube URL:
             </label>
             <div className="flex border-2 border-purple">
@@ -146,12 +146,12 @@ export default function Home() {
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && !loading && handleSubmit()}
-                className="url-input flex-1 bg-surface px-4 py-6 outline-none font-serif text-[1.5rem] text-purple placeholder:text-muted"
+                className="url-input flex-1 bg-surface px-[13px] py-[19px] outline-none font-serif text-[1.2rem] text-purple placeholder:text-muted"
               />
               <button
                 onClick={handleSubmit}
                 disabled={loading}
-                className="flex items-center justify-center bg-ink text-cream font-headline font-bold uppercase text-[1.4rem] border-l-2 border-l-purple px-6 hover:bg-mint hover:text-black active:bg-mint active:text-black transition-colors duration-100 disabled:opacity-50 whitespace-nowrap"
+                className="flex items-center justify-center bg-ink text-cream font-headline font-bold uppercase text-[1.12rem] border-l-2 border-l-purple px-[19px] hover:bg-mint hover:text-black active:bg-mint active:text-black transition-colors duration-100 disabled:opacity-50 whitespace-nowrap"
               >
                 {loading ? 'Fetching…' : 'Transcribe →'}
               </button>
