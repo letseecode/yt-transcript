@@ -15,7 +15,8 @@ export default function Home() {
     const sync = () => {
       if (titleEndRef.current) {
         const rect = titleEndRef.current.getBoundingClientRect()
-        setHeaderPad(Math.max(0, window.innerWidth - rect.right))
+        const viewportWidth = document.documentElement.clientWidth
+        setHeaderPad(Math.max(0, viewportWidth - rect.right))
       }
     }
     sync()
@@ -86,7 +87,7 @@ export default function Home() {
           <span className="font-serif text-[1.44rem] text-muted">Read instead of listen</span>
           <a
             href="/library"
-            className="ml-auto font-headline text-[1.27rem] bg-mint text-black border-2 border-ink px-3 py-1.5 hover:bg-paper transition-colors"
+            className="ml-auto font-headline uppercase text-[1.27rem] bg-mint text-black border-2 border-ink px-3 py-1.5 hover:bg-paper transition-colors"
           >
             Library
           </a>
@@ -110,11 +111,11 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="w-full bg-paper">
-        <div className="max-w-5xl ml-0 mr-auto pl-[1cm] pr-6 py-12">
+      <section className="w-full bg-paper border-b-2 border-ink">
+        <div className="max-w-5xl ml-0 mr-auto pl-[1cm] pr-[1cm] py-12">
           <div className="max-w-[50.4rem] space-y-3">
-            <label className="font-serif font-bold text-[1.275rem] text-black block">
-              YouTube URL
+            <label className="font-serif font-bold text-[1.275rem] text-black block pl-4">
+              YouTube URL:
             </label>
             <div className="flex border-2 border-purple">
               <input
@@ -122,12 +123,12 @@ export default function Home() {
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && !loading && handleSubmit()}
-                className="url-input flex-1 bg-surface px-4 py-6 outline-none font-serif text-base placeholder:text-muted"
+                className="url-input flex-1 bg-surface px-4 py-6 outline-none font-serif text-[1.5rem] placeholder:text-muted"
               />
               <button
                 onClick={handleSubmit}
                 disabled={loading}
-                className="flex items-center justify-center bg-ink text-cream font-headline text-[1.4rem] border-l-2 border-l-purple border-r-2 border-r-purple px-6 hover:bg-mint hover:text-black active:bg-mint active:text-black transition-colors duration-100 disabled:opacity-50 whitespace-nowrap"
+                className="flex items-center justify-center bg-ink text-cream font-headline uppercase text-[1.4rem] border-l-2 border-l-purple border-r-2 border-r-purple px-6 hover:bg-mint hover:text-black active:bg-mint active:text-black transition-colors duration-100 disabled:opacity-50 whitespace-nowrap"
               >
                 {loading ? 'Fetching…' : 'Transcribe →'}
               </button>
@@ -140,29 +141,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="border-t-2 border-ink mt-auto">
-        <div className="max-w-5xl ml-0 mr-auto px-6 py-8 grid grid-cols-1 md:grid-cols-3 gap-8">
-          {[
-            {
-              label: 'Auto captions',
-              body: 'Reads the captions YouTube already generated — instant, no audio processing needed.',
-            },
-            {
-              label: 'Timestamped',
-              body: 'Every paragraph is linked to where it appears in the video.',
-            },
-            {
-              label: 'Export',
-              body: 'Copy to clipboard or download as a plain .txt file.',
-            },
-          ].map(({ label, body }) => (
-            <div key={label}>
-              <p className="font-headline font-bold text-sm uppercase tracking-wide mb-1">{label}</p>
-              <p className="font-body text-sm text-muted leading-relaxed">{body}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+      <section className="flex-1 bg-white" />
     </div>
   )
 }
