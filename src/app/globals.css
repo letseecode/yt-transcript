@@ -34,3 +34,12 @@ body {
 .url-input:focus-visible {
   outline: none;
 }
+
+@keyframes wave-rise {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-115vh);
+  }
+}

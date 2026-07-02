@@ -48,7 +48,7 @@ export default function Home() {
   const isValidYoutubeUrl = (value: string) =>
     value.includes('youtube.com') || value.includes('youtu.be')
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     setError('')
 
     if (!url.trim()) {
@@ -62,32 +62,10 @@ export default function Home() {
     }
 
     setLoading(true)
-
     try {
-      const res = await fetch('/api/transcribe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url }),
-      })
-
-      const data = await res.json()
-
-      if (data.id && data.segments) {
-        try {
-          localStorage.setItem(
-            `transcript-${data.id}`,
-            JSON.stringify({ segments: data.segments, title: data.title ?? '' })
-          )
-        } catch {}
-        router.push(`/transcript/${data.id}`)
-      } else {
-        setError(data.error ?? 'Something went wrong. Try again.')
-        setLoading(false)
-      }
-    } catch {
-      setError('Network error. Try again.')
-      setLoading(false)
-    }
+      sessionStorage.setItem('pending-url', url)
+    } catch {}
+    router.push('/transcribing')
   }
 
   return (
