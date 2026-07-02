@@ -16,7 +16,7 @@ export default function Home() {
       if (titleEndRef.current) {
         const rect = titleEndRef.current.getBoundingClientRect()
         const viewportWidth = document.documentElement.clientWidth
-        setHeaderPad(Math.max(0, viewportWidth - rect.right))
+        setHeaderPad(Math.max(0, viewportWidth - rect.right + 8))
       }
     }
     sync()
@@ -87,7 +87,7 @@ export default function Home() {
           <span className="font-serif text-[1.44rem] text-muted">Read instead of listen</span>
           <a
             href="/library"
-            className="ml-auto font-headline uppercase text-[1.27rem] bg-mint text-black border-2 border-ink px-3 py-1.5 hover:bg-paper transition-colors"
+            className="ml-auto font-headline uppercase text-[1.15rem] bg-mint text-black border-2 border-ink px-3 py-1.5 hover:bg-paper transition-colors"
           >
             Library
           </a>
@@ -99,9 +99,9 @@ export default function Home() {
           <p className="font-headline uppercase tracking-wide text-[0.825rem] text-muted mb-4 md:mb-6">
             Full Transcripts · Your Own Library&nbsp;&nbsp;//&nbsp;&nbsp;Podcasts · Interviews · Investor Calls
           </p>
-          <h1 className="font-display text-[clamp(3.55rem,10.64vw,11.82rem)] leading-[0.95] tracking-tight">
+          <h1 className="font-display text-[clamp(3.55rem,10.64vw,11.82rem)] leading-[1.0] tracking-tight">
             Paste a{' '}
-            <span className="relative inline-block">Link<span className="absolute left-[3px] right-[3px] md:left-[5px] md:right-[5px] -bottom-[6px] md:-bottom-[10px] h-[9px] md:h-[15px] bg-purple" /></span>
+            <span className="relative inline-block">Link<span className="absolute left-[0.015em] right-[0.015em] -bottom-[0.045em] h-[0.06em] bg-purple" /></span>
             ;
             <br />
             <span ref={titleEndRef} className="inline-block whitespace-nowrap">
@@ -114,7 +114,7 @@ export default function Home() {
       <section className="w-full bg-paper border-b-2 border-ink">
         <div className="max-w-5xl ml-0 mr-auto pl-[1cm] pr-[1cm] py-12">
           <div className="max-w-[50.4rem] space-y-3">
-            <label className="font-serif font-bold text-[1.275rem] text-black block pl-4">
+            <label className="font-serif font-bold text-[1.5rem] text-black block">
               YouTube URL:
             </label>
             <div className="flex border-2 border-purple">
@@ -128,7 +128,7 @@ export default function Home() {
               <button
                 onClick={handleSubmit}
                 disabled={loading}
-                className="flex items-center justify-center bg-ink text-cream font-headline uppercase text-[1.4rem] border-l-2 border-l-purple border-r-2 border-r-purple px-6 hover:bg-mint hover:text-black active:bg-mint active:text-black transition-colors duration-100 disabled:opacity-50 whitespace-nowrap"
+                className="flex items-center justify-center bg-ink text-cream font-headline uppercase text-[1.4rem] border-l-2 border-l-purple px-6 hover:bg-mint hover:text-black active:bg-mint active:text-black transition-colors duration-100 disabled:opacity-50 whitespace-nowrap"
               >
                 {loading ? 'Fetching…' : 'Transcribe →'}
               </button>
