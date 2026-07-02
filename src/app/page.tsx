@@ -52,7 +52,7 @@ export default function Home() {
     setError('')
 
     if (!url.trim()) {
-      setError('Put a YouTube URL!')
+      setError('Put a YouTube URL')
       return
     }
 
@@ -136,7 +136,7 @@ export default function Home() {
             className="max-w-[40.3rem] space-y-[10px]"
             style={urlRowWidth !== null ? { width: `${urlRowWidth}px`, maxWidth: 'none' } : undefined}
           >
-            <label className="font-headline text-[0.968rem] text-black block">
+            <label className="font-headline uppercase text-[0.968rem] text-black block">
               YouTube URL:
             </label>
             <div className="flex border-2 border-purple has-[button:hover]:border-black has-[button:active]:border-black transition-colors">
@@ -157,7 +157,7 @@ export default function Home() {
             </div>
 
             {error && (
-              <p className="font-headline text-sm text-black">
+              <p className="font-headline uppercase text-[0.673rem] text-black">
                 {error.split(/(URL)/).map((part, i) =>
                   part === 'URL' ? (
                     <span key={i} className="relative inline-block">
