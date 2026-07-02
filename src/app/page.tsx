@@ -72,11 +72,8 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="border-b-2 border-ink bg-surface sticky top-0 z-10">
-        <div
-          className="pl-[1cm] pr-6 py-3 flex items-center gap-3"
-          style={headerPad !== null ? { paddingRight: `${headerPad}px` } : undefined}
-        >
+      <header className="relative border-b-2 border-ink bg-surface sticky top-0 z-10">
+        <div className="pl-[1cm] pr-6 py-3 flex items-center gap-3">
           <a
             href="/"
             className="font-serif text-[1.66rem] text-black underline decoration-purple decoration-2 underline-offset-4 hover:text-purple transition-colors"
@@ -85,13 +82,14 @@ export default function Home() {
           </a>
           <span className="font-serif text-[1.66rem] text-muted select-none">//</span>
           <span className="font-serif text-[1.44rem] text-muted">Read instead of listen</span>
-          <a
-            href="/library"
-            className="ml-auto font-headline uppercase text-[1.15rem] bg-mint text-black border-2 border-ink px-3 py-1.5 hover:bg-paper transition-colors"
-          >
-            Library
-          </a>
         </div>
+        <a
+          href="/library"
+          className="absolute top-1/2 -translate-y-1/2 font-headline uppercase text-[1.15rem] bg-mint text-black border-2 border-ink px-3 py-1.5 hover:bg-paper transition-colors"
+          style={{ right: headerPad !== null ? `${headerPad}px` : '24px' }}
+        >
+          Library
+        </a>
       </header>
 
       <section className="border-b-2 border-ink bg-surface text-ink">
@@ -101,7 +99,7 @@ export default function Home() {
           </p>
           <h1 className="font-display text-[clamp(3.55rem,10.64vw,11.82rem)] leading-[1.0] tracking-tight">
             Paste a{' '}
-            <span className="relative inline-block">Link<span className="absolute left-[0.015em] right-[0.015em] -bottom-[0.045em] h-[0.06em] bg-purple" /></span>
+            <span className="relative inline-block">Link<span className="absolute left-[0.03em] right-[0.005em] -bottom-[0.02em] h-[0.06em] bg-purple" /></span>
             ;
             <br />
             <span ref={titleEndRef} className="inline-block whitespace-nowrap">
@@ -114,7 +112,7 @@ export default function Home() {
       <section className="w-full bg-paper border-b-2 border-ink">
         <div className="max-w-5xl ml-0 mr-auto pl-[1cm] pr-[1cm] py-12">
           <div className="max-w-[50.4rem] space-y-3">
-            <label className="font-serif font-bold text-[1.5rem] text-black block">
+            <label className="font-serif font-bold text-[1.65rem] text-black block pl-6">
               YouTube URL:
             </label>
             <div className="flex border-2 border-purple">
