@@ -85,7 +85,7 @@ export default function Home() {
         </div>
         <a
           href="/library"
-          className="absolute top-1/2 -translate-y-1/2 font-headline uppercase text-[1.15rem] bg-mint text-black border-2 border-ink px-3 py-1.5 hover:bg-paper transition-colors"
+          className="absolute top-1/2 -translate-y-1/2 font-headline font-bold uppercase text-[1.15rem] bg-mint text-black border-2 border-ink px-3 py-1.5 hover:bg-paper transition-colors"
           style={{ right: headerPad !== null ? `${headerPad}px` : '24px' }}
         >
           Library
@@ -99,7 +99,7 @@ export default function Home() {
           </p>
           <h1 className="font-display text-[clamp(3.55rem,10.64vw,11.82rem)] leading-[1.0] tracking-tight">
             Paste a{' '}
-            <span className="relative inline-block">Link<span className="absolute left-[0.03em] right-[0.005em] -bottom-[0.02em] h-[0.06em] bg-purple" /></span>
+            <span className="relative inline-block">Link<span className="absolute left-[0.03em] -right-[0.015em] -bottom-[0.02em] h-[0.06em] bg-purple" /></span>
             ;
             <br />
             <span ref={titleEndRef} className="inline-block whitespace-nowrap">
@@ -110,9 +110,9 @@ export default function Home() {
       </section>
 
       <section className="w-full bg-paper border-b-2 border-ink">
-        <div className="max-w-5xl ml-0 mr-auto pl-[1cm] pr-[1cm] py-12">
+        <div className="max-w-5xl ml-0 mr-auto pl-[1cm] pr-[1cm] pt-12 pb-16">
           <div className="max-w-[50.4rem] space-y-3">
-            <label className="font-serif font-bold text-[1.65rem] text-black block pl-6">
+            <label className="font-serif font-bold text-[1.65rem] text-black block">
               YouTube URL:
             </label>
             <div className="flex border-2 border-purple">
