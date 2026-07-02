@@ -16,7 +16,7 @@ export default function Home() {
       if (titleEndRef.current) {
         const rect = titleEndRef.current.getBoundingClientRect()
         const viewportWidth = document.documentElement.clientWidth
-        setHeaderPad(Math.max(0, viewportWidth - rect.right + 8))
+        setHeaderPad(Math.max(0, viewportWidth - rect.right + 28))
       }
     }
     sync()
@@ -78,7 +78,7 @@ export default function Home() {
             href="/"
             className="font-serif text-[1.66rem] text-black underline decoration-purple decoration-2 underline-offset-4 hover:text-purple transition-colors"
           >
-            Your Transcript
+            YourTranscript
           </a>
           <span className="font-serif text-[1.66rem] text-muted select-none">//</span>
           <span className="font-serif text-[1.44rem] text-muted">Read instead of listen</span>
@@ -126,7 +126,7 @@ export default function Home() {
               <button
                 onClick={handleSubmit}
                 disabled={loading}
-                className="flex items-center justify-center bg-ink text-cream font-headline uppercase text-[1.4rem] border-l-2 border-l-purple px-6 hover:bg-mint hover:text-black active:bg-mint active:text-black transition-colors duration-100 disabled:opacity-50 whitespace-nowrap"
+                className="flex items-center justify-center bg-ink text-cream font-headline font-bold uppercase text-[1.4rem] border-l-2 border-l-purple px-6 hover:bg-mint hover:text-black active:bg-mint active:text-black transition-colors duration-100 disabled:opacity-50 whitespace-nowrap"
               >
                 {loading ? 'Fetching…' : 'Transcribe →'}
               </button>
