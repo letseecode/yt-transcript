@@ -106,7 +106,7 @@ export default function Home() {
         <a
           ref={libraryRef}
           href="/library"
-          className="absolute top-1/2 -translate-y-1/2 font-headline font-bold uppercase text-[1.214rem] bg-mint text-black border-2 border-ink px-[11px] py-[6px] hover:bg-purple hover:text-white transition-colors"
+          className="absolute top-1/2 -translate-y-1/2 font-headline font-bold uppercase text-[1.214rem] bg-mint text-black border-2 border-ink px-[26px] py-[6px] hover:bg-purple hover:text-white transition-colors"
           style={{ right: headerPad !== null ? `${headerPad}px` : '19px' }}
         >
           Library
@@ -151,7 +151,7 @@ export default function Home() {
               <button
                 onClick={handleSubmit}
                 disabled={loading}
-                className="flex items-center justify-center bg-ink text-cream font-headline font-bold uppercase text-[1.214rem] border-l-2 border-l-purple px-[19px] hover:bg-purple hover:text-white active:bg-purple active:text-white transition-colors duration-100 disabled:opacity-50 whitespace-nowrap"
+                className="flex items-center justify-center bg-ink text-cream font-headline font-bold uppercase text-[1.214rem] border-l-2 border-l-purple px-[19px] hover:bg-purple hover:text-black hover:border-l-white active:bg-purple active:text-black active:border-l-white transition-colors duration-100 disabled:opacity-50 whitespace-nowrap"
               >
                 {loading ? 'Fetching…' : 'Transcribe →'}
               </button>
