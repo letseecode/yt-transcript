@@ -76,7 +76,7 @@ export default function Home() {
         <div className="w-full pl-[0.8cm] pr-0 py-[22px] flex items-center gap-0">
           <a
             href="/"
-            className="relative font-serif text-[1.597rem] text-black hover:text-purple hover:[text-shadow:0.05em_0.04em_0_rgba(120,120,120,0.65)] transition-[color,text-shadow] duration-150 -translate-y-[3px]"
+            className="relative font-serif text-[1.597rem] text-black hover:text-purple hover:[text-shadow:0.033em_0.027em_0_rgba(120,120,120,0.65)] transition-[color,text-shadow] duration-150 -translate-y-[3px]"
           >
             YourTranscript
             <span className="absolute left-0 right-0 bottom-[2px] h-[3.3px] bg-purple [box-shadow:2px_1.5px_0_rgba(78,0,255,0.3)] pointer-events-none" />
@@ -100,13 +100,13 @@ export default function Home() {
           <p className="font-headline uppercase tracking-wide text-[0.792rem] text-muted mb-[13px] md:mb-[19px]">
             Full Transcripts · Your Own Library&nbsp;&nbsp;<span className="text-[0.66rem] align-middle">||</span>&nbsp;&nbsp;Podcasts · Interviews · Investor Calls
           </p>
-          <h1 className="font-display text-[clamp(3.124rem,9.361vw,10.406rem)] leading-[1.0] tracking-tight [text-shadow:0.05em_0.03em_0_rgba(0,0,0,0.15)]">
+          <h1 className="font-display text-[clamp(3.124rem,9.361vw,10.406rem)] leading-[1.0] tracking-tight [text-shadow:0.06em_0.036em_0_rgba(0,0,0,0.15)]">
             Paste a{' '}
-            <span className="relative inline-block transition-[text-shadow] duration-150 hover:[text-shadow:0.05em_0.04em_0_rgba(120,120,120,0.75)]">Link<span className="absolute left-[0.035em] -right-[0.04em] -bottom-[0.02em] h-[0.091em] bg-purple [box-shadow:0.065em_0.04em_0_rgba(78,0,255,0.3)]" /></span>
+            <span className="relative inline-block">Link<span className="absolute left-[0.035em] -right-[0.04em] -bottom-[0.02em] h-[0.091em] bg-purple [box-shadow:0.065em_0.04em_0_rgba(78,0,255,0.3)]" /></span>
             ;
             <br />
             <span ref={titleEndRef} className="inline-block whitespace-nowrap">
-              <span className="text-purple [text-shadow:0.05em_0.03em_0_rgba(78,0,255,0.25)]">Read</span> the whole thing.
+              <span className="text-purple [text-shadow:0.06em_0.036em_0_rgba(78,0,255,0.25)]">Read</span> the whole thing.
             </span>
           </h1>
         </div>

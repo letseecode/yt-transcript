@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { WAVE_COLORS, WAVE_SHADOWS, VIEW_W, VIEW_H, PX_PER_CM, makeWaveOutline } from '@/lib/wavePath'
+import { WAVE_COLORS, WAVE_SHADOWS, waveShadowOffset, VIEW_W, VIEW_H, PX_PER_CM, makeWaveOutline } from '@/lib/wavePath'
 
 const WAVE_ROWS = 10
 const WAVES_PER_ROW = 8
@@ -155,7 +155,7 @@ export default function TranscribingPage() {
                 transform: 'translateX(-50%)',
                 width: `clamp(50px, ${w.slotVw}vw, ${maxPx}px)`,
                 aspectRatio: `${VIEW_W} / ${VIEW_H}`,
-                filter: `drop-shadow(6px 4.5px 0 ${WAVE_SHADOWS[w.color]})`,
+                filter: `drop-shadow(${waveShadowOffset(w.color)} 0 ${WAVE_SHADOWS[w.color]})`,
                 opacity: fadingOut ? 0 : active ? 1 : 0,
                 animation: active
                   ? `wave-appear-instant 0.05s steps(1,end) ${w.appearDelay}s both, wave-rise ${w.duration}s linear ${w.appearDelay}s infinite`
