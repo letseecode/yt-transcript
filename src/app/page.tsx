@@ -82,6 +82,7 @@ export default function Home() {
           </a>
           <span className="w-[0.8cm] h-[0.066em] text-[1.452rem] bg-black self-center" />
           <span className="w-[2px] h-[1.452rem] bg-black self-center" />
+          <span className="flex-1 h-[0.066em] text-[1.452rem] bg-black self-center" />
         </div>
         <a
           ref={libraryRef}
