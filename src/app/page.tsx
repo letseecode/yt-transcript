@@ -81,8 +81,8 @@ export default function Home() {
             YourTranscript
             <span className="absolute left-0 right-0 bottom-[2px] h-[3.3px] bg-purple [box-shadow:2px_1.5px_0_rgba(78,0,255,0.3)] pointer-events-none" />
           </a>
-          <span className="w-[2px] bg-black self-stretch -my-[18px]" />
-          <span className="flex-1 h-[0.066em] text-[1.452rem] bg-black self-center -ml-[10px]" />
+          <span className="w-[2px] bg-black self-stretch -my-[22px]" />
+          <span className="flex-1 h-[2px] bg-black self-center -ml-[10px]" />
         </div>
         <a
           ref={libraryRef}
@@ -94,14 +94,15 @@ export default function Home() {
         </a>
       </header>
 
-      <section className="border-b-2 border-ink bg-surface text-ink">
+      <section className="relative border-b-2 border-ink bg-surface text-ink">
+        <span className="absolute right-0 top-0 bottom-0 w-[2px] bg-ink pointer-events-none" />
         <div className="max-w-5xl ml-0 mr-auto pl-[0.8cm] pr-[19px] pt-[26px] md:pt-[32px] pb-[26px] md:pb-[32px]">
           <p className="font-headline uppercase tracking-wide text-[0.792rem] text-muted mb-[13px] md:mb-[19px]">
             Full Transcripts · Your Own Library&nbsp;&nbsp;<span className="text-[0.66rem] align-middle">||</span>&nbsp;&nbsp;Podcasts · Interviews · Investor Calls
           </p>
           <h1 className="font-display text-[clamp(3.124rem,9.361vw,10.406rem)] leading-[1.0] tracking-tight [text-shadow:0.05em_0.03em_0_rgba(0,0,0,0.15)]">
             Paste a{' '}
-            <span className="relative inline-block">Link<span className="absolute left-[0.035em] -right-[0.04em] -bottom-[0.02em] h-[0.091em] bg-purple [box-shadow:0.065em_0.04em_0_rgba(78,0,255,0.3)]" /></span>
+            <span className="relative inline-block transition-[text-shadow] duration-150 hover:[text-shadow:0.05em_0.04em_0_rgba(120,120,120,0.75)]">Link<span className="absolute left-[0.035em] -right-[0.04em] -bottom-[0.02em] h-[0.091em] bg-purple [box-shadow:0.065em_0.04em_0_rgba(78,0,255,0.3)]" /></span>
             ;
             <br />
             <span ref={titleEndRef} className="inline-block whitespace-nowrap">
@@ -111,14 +112,15 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="w-full bg-paper border-b-2 border-ink">
+      <section className="relative w-full bg-paper border-b-2 border-ink">
+        <span className="absolute right-0 top-0 bottom-0 w-[2px] bg-ink pointer-events-none" />
         <div className="max-w-5xl ml-0 mr-auto pl-[0.8cm] pr-[0.8cm] pt-[38px] pb-[51px]">
           <div
             ref={urlRowRef}
             className="max-w-[40.3rem] space-y-[10px]"
             style={urlRowWidth !== null ? { width: `${urlRowWidth}px`, maxWidth: 'none' } : undefined}
           >
-            <label className="font-headline uppercase text-[1.267rem] text-black block">
+            <label className="font-headline uppercase text-[1.102rem] text-black block">
               YouTube URL:
             </label>
             <div className="flex border-2 border-purple has-[button:hover]:border-black has-[button:active]:border-black transition-colors">
