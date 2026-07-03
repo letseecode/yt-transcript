@@ -4,7 +4,7 @@ import { useMemo } from 'react'
 import { WAVE_COLORS, WAVE_SHADOWS, VIEW_W, VIEW_H, PX_PER_CM, makeWaveOutline } from '@/lib/wavePath'
 
 const ROWS = 6
-const WAVES_PER_ROW = 8
+const WAVES_PER_ROW = 24
 const MIN_SIZE_CM = 46.8
 const MAX_SIZE_CM = 85.2
 // Slows the drift by 10%. Set back to 1 to revert this speed change.
