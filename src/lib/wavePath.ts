@@ -8,8 +8,8 @@ export const WAVE_COLORS = [
 // A brighter version of each wave color, used for its drop shadow.
 export const WAVE_SHADOWS: Record<string, string> = {
   '#000000': '#e4e4e4', // black -> lighter grey (1.1x brighter)
-  '#54FFC9': '#4ec4a0', // mint -> darker, more noticeable mint
-  '#4E00FF': '#b95eff', // purple -> brighter purple (1.1x)
+  '#54FFC9': '#5eebc0', // mint -> 1.2x lighter
+  '#4E00FF': '#cc67ff', // purple -> 1.1x lighter
 }
 
 export const VIEW_W = 200
@@ -18,7 +18,7 @@ export const PX_PER_CM = 37.8
 
 // A smooth, gently rounded sine-like scribble (∿∿∿) rather than a sharp zigzag.
 export function makeWavePath(seed: number) {
-  const cycles = 1 + (seed % 2) // 1-2 humps -- even softer, less frequent oscillation
+  const cycles = 1 // single hump -- minimal oscillation
   const amp = 1 // near-flat -- oscillates as little as possible
   const mid = VIEW_H / 2
   const period = VIEW_W / cycles
@@ -37,7 +37,7 @@ export function makeWavePath(seed: number) {
 // ribbon (thin at both ends, thickest at the middle) instead of a
 // constant-width stroke -- gives the calligraphy-swoosh texture.
 export function makeWaveOutline(seed: number, maxHalfWidth: number) {
-  const cycles = 1 + (seed % 2)
+  const cycles = 1
   const amp = 6 + (seed % 4)
   const mid = VIEW_H / 2
   const N = 48
