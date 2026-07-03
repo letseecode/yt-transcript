@@ -31,7 +31,7 @@ export default function HomeWaves({ exiting }: HomeWavesProps) {
         seed++
         items.push({
           seed,
-          topPercent: (row + 0.5) * (100 / ROWS) + (((seed * 7) % 10) - 5),
+          topPercent: 15 + (row + 0.5) * (70 / ROWS) + (((seed * 6) % 6) - 3),
           sizeCm: MIN_SIZE_CM + ((seed * 0.53) % (MAX_SIZE_CM - MIN_SIZE_CM)),
           delay: -((seed * 1.7) % 18),
           duration: 14 + ((seed * 1.1) % 10),
