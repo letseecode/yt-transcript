@@ -49,7 +49,7 @@ export default function TranscribingPage() {
           // 1.5x faster on average than before, with a wider spread so
           // some waves are noticeably quicker and others noticeably slower.
           duration: (9 + ((seed * 0.9) % 9)) * 1.8 * (1 / 1.5),
-          color: WAVE_COLORS[seed % WAVE_COLORS.length],
+          color: WAVE_COLORS[(seed * 7) % WAVE_COLORS.length],
         })
       }
     }

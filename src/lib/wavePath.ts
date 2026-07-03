@@ -1,11 +1,16 @@
-export const WAVE_COLORS = ['#000000', '#000000', '#000000', '#4E00FF', '#54FFC9']
+// 70% black, 20% mint, 10% purple
+export const WAVE_COLORS = [
+  '#000000', '#000000', '#000000', '#000000', '#000000', '#000000', '#000000',
+  '#54FFC9', '#54FFC9',
+  '#4E00FF',
+]
 export const VIEW_W = 200
 export const VIEW_H = 34
 export const PX_PER_CM = 37.8
 
 // A smooth, gently rounded sine-like scribble (∿∿∿) rather than a sharp zigzag.
 export function makeWavePath(seed: number) {
-  const cycles = 1 + (seed % 3) // 1-3 humps -- softer, less frequent oscillation
+  const cycles = 1 + (seed % 2) // 1-2 humps -- even softer, less frequent oscillation
   const amp = 6 + (seed % 4) // 6-9 amplitude
   const mid = VIEW_H / 2
   const period = VIEW_W / cycles
@@ -24,7 +29,7 @@ export function makeWavePath(seed: number) {
 // ribbon (thin at both ends, thickest at the middle) instead of a
 // constant-width stroke -- gives the calligraphy-swoosh texture.
 export function makeWaveOutline(seed: number, maxHalfWidth: number) {
-  const cycles = 1 + (seed % 3)
+  const cycles = 1 + (seed % 2)
   const amp = 6 + (seed % 4)
   const mid = VIEW_H / 2
   const N = 48
