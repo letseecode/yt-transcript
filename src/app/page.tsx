@@ -117,7 +117,7 @@ export default function Home() {
             className="max-w-[40.3rem] space-y-[10px]"
             style={urlRowWidth !== null ? { width: `${urlRowWidth}px`, maxWidth: 'none' } : undefined}
           >
-            <label className="font-headline uppercase text-[0.968rem] text-black block">
+            <label className="font-headline uppercase text-[1.162rem] text-black block">
               YouTube URL:
             </label>
             <div className="flex border-2 border-purple has-[button:hover]:border-black has-[button:active]:border-black transition-colors">
