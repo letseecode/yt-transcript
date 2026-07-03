@@ -55,20 +55,20 @@ body {
 
 @keyframes wave-drift {
   0% {
-    transform: translateX(-40vw);
+    transform: translateX(-40vw) translateY(-50%);
   }
   100% {
-    transform: translateX(140vw);
+    transform: translateX(140vw) translateY(-50%);
   }
 }
 
 @keyframes wave-sink {
   0% {
-    transform: translateY(0);
+    transform: translateY(-50%);
     opacity: 1;
   }
   100% {
-    transform: translateY(80px);
+    transform: translateY(calc(-50% + 80px));
     opacity: 0;
   }
 }
