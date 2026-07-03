@@ -73,13 +73,14 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col">
       <header className="relative border-b-2 border-ink bg-surface sticky top-0 z-10">
-        <div className="pl-[0.8cm] pr-[19px] py-[22px] flex items-center gap-[10px]">
+        <div className="w-full pl-[0.8cm] pr-[19px] py-[22px] flex items-center gap-[10px]">
           <a
             href="/"
             className="font-serif text-[1.452rem] text-black underline decoration-purple decoration-2 underline-offset-4 hover:text-purple transition-colors"
           >
             YourTranscript
           </a>
+          <span className="flex-1 h-[0.066em] text-[1.452rem] bg-black self-center" />
         </div>
         <a
           ref={libraryRef}
