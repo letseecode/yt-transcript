@@ -73,16 +73,16 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col">
       <header className="relative border-b-2 border-ink bg-surface sticky top-0 z-10">
-        <div className="w-full pl-[0.8cm] pr-[0.8cm] py-[22px] flex items-center gap-[10px]">
+        <div className="w-full pl-[0.8cm] pr-[19px] py-[22px] flex items-center gap-[10px]">
           <a
             href="/"
             className="font-serif text-[1.452rem] text-black underline decoration-purple decoration-2 underline-offset-4 hover:text-purple transition-colors"
           >
             YourTranscript
           </a>
-          <span className="flex-1 h-[0.066em] text-[1.452rem] bg-black self-center" />
+          <span className="w-[0.8cm] h-[0.066em] text-[1.452rem] bg-black self-center" />
+          <span className="w-[2px] h-[1.452rem] bg-black self-center" />
         </div>
-        <span className="absolute top-0 right-[0.8cm] bottom-0 w-[2px] bg-black" />
         <a
           ref={libraryRef}
           href="/library"
@@ -156,7 +156,9 @@ export default function Home() {
       </section>
 
       <section className="relative bg-white overflow-hidden border-b-2 border-ink" style={{ height: '5cm' }}>
-        <HomeWaves exiting={loading} />
+        <div className="absolute left-0 right-0" style={{ top: '0.5cm', bottom: '0.5cm' }}>
+          <HomeWaves exiting={loading} />
+        </div>
       </section>
       <section className="flex-1 bg-white" />
     </div>
