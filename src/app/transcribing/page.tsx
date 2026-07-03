@@ -2,34 +2,14 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { WAVE_COLORS, VIEW_W, VIEW_H, PX_PER_CM, makeWavePath } from '@/lib/wavePath'
 
 const WAVE_ROWS = 10
 const WAVES_PER_ROW = 8
-const WAVE_COLORS = ['#000000', '#000000', '#000000', '#4E00FF', '#54FFC9']
 const SETTLE_MS = 28000
 const ROW_APPEAR_STEP = 0.9
-const PX_PER_CM = 37.8
-const MIN_SIZE_CM = 2
-const MAX_SIZE_CM = 4
-const VIEW_W = 200
-const VIEW_H = 34
-
-// A smooth, gently rounded sine-like scribble (∿∿∿) rather than a sharp zigzag.
-function makeWavePath(seed: number) {
-  const cycles = 2 + (seed % 3) // 2-4 humps
-  const amp = 8 + (seed % 5) // 8-12 amplitude
-  const mid = VIEW_H / 2
-  const period = VIEW_W / cycles
-  let d = `M0 ${mid}`
-  for (let i = 0; i < cycles; i++) {
-    const x0 = i * period
-    const xMid = x0 + period / 2
-    const xEnd = x0 + period
-    d += ` C ${x0 + period * 0.25} ${mid - amp}, ${xMid - period * 0.25} ${mid - amp}, ${xMid} ${mid}`
-    d += ` C ${xMid + period * 0.25} ${mid + amp}, ${xEnd - period * 0.25} ${mid + amp}, ${xEnd} ${mid}`
-  }
-  return d
-}
+const MIN_SIZE_CM = 5
+const MAX_SIZE_CM = 6.5
 
 export default function TranscribingPage() {
   const router = useRouter()

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import HomeWaves from '@/components/HomeWaves'
 
 export default function Home() {
   const router = useRouter()
@@ -65,7 +66,8 @@ export default function Home() {
     try {
       sessionStorage.setItem('pending-url', url)
     } catch {}
-    router.push('/transcribing')
+    // Give the waves time to sink out of view before we navigate.
+    setTimeout(() => router.push('/transcribing'), 450)
   }
 
   return (
@@ -151,7 +153,9 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="flex-1 bg-white" />
+      <section className="relative flex-1 bg-white overflow-hidden">
+        <HomeWaves exiting={loading} />
+      </section>
     </div>
   )
 }
