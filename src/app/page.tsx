@@ -73,16 +73,15 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col">
       <header className="relative border-b-2 border-ink bg-surface sticky top-0 z-10">
-        <div className="w-full pl-[0.8cm] pr-[19px] py-[22px] flex items-center gap-[10px]">
+        <div className="w-full pl-[0.8cm] pr-0 py-[22px] flex items-center gap-[10px]">
           <a
             href="/"
-            className="font-serif text-[1.452rem] text-black underline decoration-purple decoration-2 underline-offset-4 hover:text-purple transition-colors"
+            className="font-serif text-[1.452rem] text-black underline decoration-purple decoration-2 underline-offset-4 hover:text-purple transition-colors [text-shadow:0.05em_0.03em_0_rgba(0,0,0,0.15)]"
           >
             YourTranscript
           </a>
-          <span className="w-[0.8cm] h-[0.066em] text-[1.452rem] bg-black self-center" />
-          <span className="w-[2px] h-[1.452rem] bg-black self-center" />
-          <span className="flex-1 h-[0.066em] text-[1.452rem] bg-black self-center" />
+          <span className="w-[2px] bg-black self-stretch" />
+          <span className="flex-1 h-[0.066em] text-[1.452rem] bg-black self-center -ml-[10px]" />
         </div>
         <a
           ref={libraryRef}
@@ -97,11 +96,11 @@ export default function Home() {
       <section className="border-b-2 border-ink bg-surface text-ink">
         <div className="max-w-5xl ml-0 mr-auto pl-[0.8cm] pr-[19px] pt-[26px] md:pt-[32px] pb-[26px] md:pb-[32px]">
           <p className="font-headline uppercase tracking-wide text-[0.792rem] text-muted mb-[13px] md:mb-[19px]">
-            Full Transcripts · Your Own Library&nbsp;&nbsp;<span className="text-[0.72rem]">||</span>&nbsp;&nbsp;Podcasts · Interviews · Investor Calls
+            Full Transcripts · Your Own Library&nbsp;&nbsp;<span className="text-[0.6rem]">||</span>&nbsp;&nbsp;Podcasts · Interviews · Investor Calls
           </p>
           <h1 className="font-display text-[clamp(3.124rem,9.361vw,10.406rem)] leading-[1.0] tracking-tight [text-shadow:0.05em_0.03em_0_rgba(0,0,0,0.15)]">
             Paste a{' '}
-            <span className="relative inline-block">Link<span className="absolute left-[0.035em] -right-[0.04em] -bottom-[0.02em] h-[0.066em] bg-purple" /></span>
+            <span className="relative inline-block">Link<span className="absolute left-[0.035em] -right-[0.04em] -bottom-[0.02em] h-[0.0792em] bg-purple [box-shadow:0.05em_0.03em_0_rgba(78,0,255,0.25)]" /></span>
             ;
             <br />
             <span ref={titleEndRef} className="inline-block whitespace-nowrap">

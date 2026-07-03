@@ -5,8 +5,8 @@ export const PX_PER_CM = 37.8
 
 // A smooth, gently rounded sine-like scribble (∿∿∿) rather than a sharp zigzag.
 export function makeWavePath(seed: number) {
-  const cycles = 2 + (seed % 3) // 2-4 humps
-  const amp = 8 + (seed % 5) // 8-12 amplitude
+  const cycles = 1 + (seed % 3) // 1-3 humps -- softer, less frequent oscillation
+  const amp = 6 + (seed % 4) // 6-9 amplitude
   const mid = VIEW_H / 2
   const period = VIEW_W / cycles
   let d = `M0 ${mid}`
