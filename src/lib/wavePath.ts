@@ -7,9 +7,9 @@ export const WAVE_COLORS = [
 ]
 // A brighter version of each wave color, used for its drop shadow.
 export const WAVE_SHADOWS: Record<string, string> = {
-  '#000000': '#e4e4e4', // black -> lighter grey (1.1x brighter)
-  '#54FFC9': '#5eebc0', // mint -> 1.2x lighter
-  '#4E00FF': '#cc67ff', // purple -> 1.1x lighter
+  '#000000': '#e9e9e9', // black -> 1.2x lighter
+  '#54FFC9': '#79eecb', // mint -> 1.2x lighter
+  '#4E00FF': '#d88aff', // purple -> 1.3x lighter
 }
 
 export const VIEW_W = 200
@@ -38,7 +38,7 @@ export function makeWavePath(seed: number) {
 // constant-width stroke -- gives the calligraphy-swoosh texture.
 export function makeWaveOutline(seed: number, maxHalfWidth: number) {
   const cycles = 1
-  const amp = 6 + (seed % 4)
+  const amp = 4.8 + (seed % 3) // base amplitude increased 1.2x (4 -> 4.8), plus per-wave variance
   const mid = VIEW_H / 2
   const N = 48
 
