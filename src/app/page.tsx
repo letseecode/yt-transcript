@@ -76,11 +76,12 @@ export default function Home() {
         <div className="w-full pl-[0.8cm] pr-0 py-[22px] flex items-center gap-[10px]">
           <a
             href="/"
-            className="font-serif font-semibold text-[1.452rem] text-black underline decoration-purple decoration-[3px] underline-offset-4 hover:text-purple transition-colors"
+            className="relative font-serif font-semibold text-[1.597rem] text-black hover:text-purple transition-colors"
           >
             YourTranscript
+            <span className="absolute left-0 right-0 bottom-[2px] h-[3.3px] bg-purple [box-shadow:2px_1.5px_0_rgba(78,0,255,0.3)] pointer-events-none" />
           </a>
-          <span className="w-[2px] bg-black self-stretch my-[4px]" />
+          <span className="w-[2px] bg-black self-stretch -my-[18px]" />
           <span className="flex-1 h-[0.066em] text-[1.452rem] bg-black self-center -ml-[10px]" />
         </div>
         <a
@@ -117,7 +118,7 @@ export default function Home() {
             className="max-w-[40.3rem] space-y-[10px]"
             style={urlRowWidth !== null ? { width: `${urlRowWidth}px`, maxWidth: 'none' } : undefined}
           >
-            <label className="font-headline uppercase text-[1.394rem] text-black block">
+            <label className="font-headline uppercase text-[1.267rem] text-black block">
               YouTube URL:
             </label>
             <div className="flex border-2 border-purple has-[button:hover]:border-black has-[button:active]:border-black transition-colors">
@@ -131,7 +132,7 @@ export default function Home() {
               <button
                 onClick={handleSubmit}
                 disabled={loading}
-                className="flex items-center justify-center bg-ink text-cream font-headline font-bold uppercase text-[1.214rem] border-l-2 border-l-purple px-[19px] hover:bg-purple hover:text-black hover:border-l-black hover:[text-shadow:2px_1.5px_0_rgba(255,255,255,0.5)] active:bg-purple active:text-black active:border-l-black transition-colors duration-100 disabled:opacity-50 whitespace-nowrap"
+                className="flex items-center justify-center bg-ink text-cream font-headline font-bold uppercase text-[1.214rem] border-l-2 border-l-purple px-[19px] hover:bg-purple hover:text-black hover:border-l-black hover:[text-shadow:2px_1.5px_0_rgba(255,255,255,0.3)] active:bg-purple active:text-black active:border-l-black transition-colors duration-100 disabled:opacity-50 whitespace-nowrap"
               >
                 {loading ? 'Processing…' : 'Transcribe →'}
               </button>
