@@ -6,7 +6,7 @@ import { WAVE_COLORS, WAVE_SHADOWS, VIEW_W, VIEW_H, PX_PER_CM, makeWaveOutline }
 const ROWS = 6
 const WAVES_PER_ROW = 6
 const MIN_SIZE_CM = 9.36
-const MAX_SIZE_CM = 12.17
+const MAX_SIZE_CM = 17.04
 // Slows the drift by 10%. Set back to 1 to revert this speed change.
 const SPEED_FACTOR = 1.1
 
@@ -65,7 +65,7 @@ export default function HomeWaves({ exiting }: HomeWavesProps) {
               left: 0,
               width: `min(45vw, ${maxPx}px)`,
               aspectRatio: `${VIEW_W} / ${VIEW_H}`,
-              filter: `drop-shadow(18px 12px 0 ${WAVE_SHADOWS[w.color]})`,
+              filter: `drop-shadow(3px 2px 0 ${WAVE_SHADOWS[w.color]})`,
               animation: exiting
                 ? 'wave-sink 0.5s ease-in forwards'
                 : `wave-drift ${w.duration}s linear ${w.delay}s infinite`,

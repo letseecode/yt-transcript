@@ -155,7 +155,7 @@ export default function TranscribingPage() {
                 transform: 'translateX(-50%)',
                 width: `clamp(50px, ${w.slotVw}vw, ${maxPx}px)`,
                 aspectRatio: `${VIEW_W} / ${VIEW_H}`,
-                filter: `drop-shadow(18px 12px 0 ${WAVE_SHADOWS[w.color]})`,
+                filter: `drop-shadow(3px 2px 0 ${WAVE_SHADOWS[w.color]})`,
                 opacity: fadingOut ? 0 : active ? 1 : 0,
                 animation: active
                   ? `wave-appear-instant 0.05s steps(1,end) ${w.appearDelay}s both, wave-rise ${w.duration}s linear ${w.appearDelay}s infinite`
