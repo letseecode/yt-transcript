@@ -5,8 +5,8 @@ import { WAVE_COLORS, VIEW_W, VIEW_H, PX_PER_CM, makeWavePath } from '@/lib/wave
 
 const ROWS = 6
 const WAVES_PER_ROW = 6
-const MIN_SIZE_CM = 5
-const MAX_SIZE_CM = 6.5
+const MIN_SIZE_CM = 6.5
+const MAX_SIZE_CM = 8.45
 
 interface HomeWavesProps {
   // true once the user has hit Transcribe -- waves stop drifting and
