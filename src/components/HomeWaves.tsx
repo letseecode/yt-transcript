@@ -26,20 +26,27 @@ export default function HomeWaves({ exiting }: HomeWavesProps) {
       color: string
     }[] = []
     let seed = 0
+    const total = ROWS * WAVES_PER_ROW
     for (let row = 0; row < ROWS; row++) {
       for (let i = 0; i < WAVES_PER_ROW; i++) {
         seed++
+        const duration = 14 + ((seed * 1.1) % 10)
         items.push({
           seed,
           topPercent: 15 + (row + 0.5) * (70 / ROWS) + (((seed * 6) % 6) - 3),
           sizeCm: MIN_SIZE_CM + ((seed * 0.53) % (MAX_SIZE_CM - MIN_SIZE_CM)),
-          delay: -((seed * 1.7) % 18),
-          duration: 14 + ((seed * 1.1) % 10),
-          color: WAVE_COLORS[seed % WAVE_COLORS.length],
+          // Spread starting offsets evenly across the full drift cycle
+          // (rather than a modulo pattern that could bunch several
+          // waves at similar positions at once) so they don't gather.
+          delay: -(((seed - 1) / total) * duration),
+          duration,
+          color: WAVE_COLORS[(seed * 7) % WAVE_COLORS.length],
         })
       }
     }
-    return items
+    // Trim 10% of the total count, evenly (drop every 10th) rather
+    // than truncating the tail, so no row loses all its waves.
+    return items.filter((_, idx) => (idx + 1) % 10 !== 0)
   }, [])
 
   return (
