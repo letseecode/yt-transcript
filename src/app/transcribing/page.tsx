@@ -3,10 +3,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
-const WAVE_ROWS = 16
-const WAVES_PER_ROW = 6
+const WAVE_ROWS = 10
+const WAVES_PER_ROW = 4
 const SETTLE_MS = 28000
-const ROW_APPEAR_STEP = 0.5
+const ROW_APPEAR_STEP = 0.9
 const PX_PER_CM = 37.8
 const MIN_SIZE_CM = 2
 const MAX_SIZE_CM = 4
@@ -56,12 +56,12 @@ export default function TranscribingPage() {
       const rowOffset = (row % 2) * (slotPercent / 2)
       for (let i = 0; i < WAVES_PER_ROW; i++) {
         seed++
-        const jitter = ((seed * 13) % 24) / 100 - 0.12 // +/-0.12 of a slot
+        const jitter = ((seed * 13) % 16) / 100 - 0.08 // +/-0.08 of a slot
         items.push({
           row,
           seed,
           leftPercent: (rowOffset + i * slotPercent + slotPercent / 2 + jitter * slotPercent + 100) % 100,
-          slotVw: slotPercent * 0.6,
+          slotVw: slotPercent * 0.45,
           sizeCm: MIN_SIZE_CM + ((seed * 0.37) % (MAX_SIZE_CM - MIN_SIZE_CM)),
           appearDelay: row * ROW_APPEAR_STEP + ((seed * 0.11) % 0.4),
           duration: (9 + ((seed * 0.9) % 4.5)) * 1.8,
