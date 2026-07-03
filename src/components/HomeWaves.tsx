@@ -7,6 +7,8 @@ const ROWS = 6
 const WAVES_PER_ROW = 6
 const MIN_SIZE_CM = 9.36
 const MAX_SIZE_CM = 12.17
+// Slows the drift by 10%. Set back to 1 to revert this speed change.
+const SPEED_FACTOR = 1.1
 
 interface HomeWavesProps {
   // true once the user has hit Transcribe -- waves stop drifting and
@@ -30,7 +32,7 @@ export default function HomeWaves({ exiting }: HomeWavesProps) {
     for (let row = 0; row < ROWS; row++) {
       for (let i = 0; i < WAVES_PER_ROW; i++) {
         seed++
-        const duration = (14 + ((seed * 1.1) % 10)) * 1.3
+        const duration = (14 + ((seed * 1.1) % 10)) * 1.3 * SPEED_FACTOR
         items.push({
           seed,
           topPercent: 15 + (row + 0.5) * (70 / ROWS) + (((seed * 6) % 6) - 3),
@@ -63,7 +65,7 @@ export default function HomeWaves({ exiting }: HomeWavesProps) {
               left: 0,
               width: `min(45vw, ${maxPx}px)`,
               aspectRatio: `${VIEW_W} / ${VIEW_H}`,
-              filter: `drop-shadow(3px 2px 0 ${WAVE_SHADOWS[w.color]})`,
+              filter: `drop-shadow(${w.color === '#54FFC9' ? '6px 4px' : '3px 2px'} 0 ${WAVE_SHADOWS[w.color]})`,
               animation: exiting
                 ? 'wave-sink 0.5s ease-in forwards'
                 : `wave-drift ${w.duration}s linear ${w.delay}s infinite`,
