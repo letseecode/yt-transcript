@@ -97,15 +97,15 @@ export default function Home() {
       <section className="border-b-2 border-ink bg-surface text-ink">
         <div className="max-w-5xl ml-0 mr-auto pl-[0.8cm] pr-[19px] pt-[26px] md:pt-[32px] pb-[26px] md:pb-[32px]">
           <p className="font-headline uppercase tracking-wide text-[0.792rem] text-muted mb-[13px] md:mb-[19px]">
-            Full Transcripts · Your Own Library&nbsp;&nbsp;||&nbsp;&nbsp;Podcasts · Interviews · Investor Calls
+            Full Transcripts · Your Own Library&nbsp;&nbsp;<span className="text-[0.72rem]">||</span>&nbsp;&nbsp;Podcasts · Interviews · Investor Calls
           </p>
-          <h1 className="font-display text-[clamp(3.124rem,9.361vw,10.406rem)] leading-[1.0] tracking-tight">
+          <h1 className="font-display text-[clamp(3.124rem,9.361vw,10.406rem)] leading-[1.0] tracking-tight [text-shadow:0.05em_0.03em_0_rgba(0,0,0,0.15)]">
             Paste a{' '}
             <span className="relative inline-block">Link<span className="absolute left-[0.035em] -right-[0.04em] -bottom-[0.02em] h-[0.066em] bg-purple" /></span>
             ;
             <br />
             <span ref={titleEndRef} className="inline-block whitespace-nowrap">
-              <span className="text-purple">Read</span> the whole thing.
+              <span className="text-purple [text-shadow:0.05em_0.03em_0_rgba(78,0,255,0.25)]">Read</span> the whole thing.
             </span>
           </h1>
         </div>
