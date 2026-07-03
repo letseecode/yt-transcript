@@ -34,7 +34,6 @@ export default function TranscribingPage() {
   const router = useRouter()
   const [phase, setPhase] = useState<'loading' | 'settling' | 'done' | 'error'>('loading')
   const [errorMsg, setErrorMsg] = useState('')
-  const [resultTitle, setResultTitle] = useState('')
   const startedRef = useRef(false)
 
   // row 0 = lowest row (appears first), higher rows appear later as the
@@ -116,9 +115,8 @@ export default function TranscribingPage() {
           } catch {}
           sessionStorage.removeItem('pending-url')
           await waitForMinimum()
-          setResultTitle(data.title || 'Transcript ready.')
           setPhase('done')
-          setTimeout(() => router.push(`/transcript/${data.id}`), 1400)
+          setTimeout(() => router.push(`/transcript/${data.id}`), 700)
         } else {
           sessionStorage.removeItem('pending-url')
           await waitForMinimum()
@@ -180,12 +178,6 @@ export default function TranscribingPage() {
           )
         })}
       </div>
-
-      {phase === 'done' && (
-        <p className="relative z-10 font-serif text-[1.6rem] text-black bg-white px-6 py-3 text-center max-w-2xl animate-[wave-appear_0.9s_ease-out_both]">
-          {resultTitle}
-        </p>
-      )}
 
       {phase === 'error' && (
         <p className="relative z-10 font-headline uppercase text-[0.968rem] text-black bg-white px-4 py-2 border-2 border-purple">
