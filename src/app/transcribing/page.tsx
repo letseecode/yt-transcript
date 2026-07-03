@@ -4,21 +4,28 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 const WAVE_ROWS = 16
-const WAVES_PER_ROW = 15
+const WAVES_PER_ROW = 9
 const SETTLE_MS = 28000
 const ROW_APPEAR_STEP = 0.5
+const PX_PER_CM = 37.8
+const MIN_SIZE_CM = 2.5
+const MAX_SIZE_CM = 5
+const VIEW_W = 200
+const VIEW_H = 34
 
-function makeSquigglePath(seed: number) {
-  const segments = 5 + (seed % 3)
-  const width = 64
-  const step = width / segments
-  let d = `M0 12`
-  for (let i = 1; i <= segments; i++) {
-    const x = i * step
-    const up = (i + seed) % 2 === 0
-    const y = up ? 4 : 20
-    const cx = x - step / 2
-    d += ` Q${cx} ${up ? 20 : 4} ${x} ${y}`
+// A smooth, gently rounded sine-like scribble (∿∿∿) rather than a sharp zigzag.
+function makeWavePath(seed: number) {
+  const cycles = 2 + (seed % 3) // 2-4 humps
+  const amp = 8 + (seed % 5) // 8-12 amplitude
+  const mid = VIEW_H / 2
+  const period = VIEW_W / cycles
+  let d = `M0 ${mid}`
+  for (let i = 0; i < cycles; i++) {
+    const x0 = i * period
+    const xMid = x0 + period / 2
+    const xEnd = x0 + period
+    d += ` C ${x0 + period * 0.25} ${mid - amp}, ${xMid - period * 0.25} ${mid - amp}, ${xMid} ${mid}`
+    d += ` C ${xMid + period * 0.25} ${mid + amp}, ${xEnd - period * 0.25} ${mid + amp}, ${xEnd} ${mid}`
   }
   return d
 }
@@ -31,19 +38,34 @@ export default function TranscribingPage() {
   const startedRef = useRef(false)
 
   // row 0 = lowest row (appears first), higher rows appear later as the
-  // page fills from the bottom up toward the ceiling.
+  // page fills from the bottom up toward the ceiling. Each wave sits in
+  // its own horizontal slot so neighbors can pass close by without
+  // ever rendering on top of one another.
   const waves = useMemo(() => {
-    const items: { row: number; seed: number; left: number; appearDelay: number; duration: number }[] = []
+    const items: {
+      row: number
+      seed: number
+      leftPercent: number
+      slotVw: number
+      sizeCm: number
+      appearDelay: number
+      duration: number
+    }[] = []
+    const slotPercent = 100 / WAVES_PER_ROW
     let seed = 0
     for (let row = 0; row < WAVE_ROWS; row++) {
+      const rowOffset = (row % 2) * (slotPercent / 2)
       for (let i = 0; i < WAVES_PER_ROW; i++) {
         seed++
+        const jitter = ((seed * 13) % 40) / 100 - 0.2 // +/-0.2 of a slot
         items.push({
           row,
           seed,
-          left: 2 + ((seed * 17) % 96),
+          leftPercent: (rowOffset + i * slotPercent + slotPercent / 2 + jitter * slotPercent + 100) % 100,
+          slotVw: slotPercent * 0.82,
+          sizeCm: MIN_SIZE_CM + ((seed * 0.37) % (MAX_SIZE_CM - MIN_SIZE_CM)),
           appearDelay: row * ROW_APPEAR_STEP + ((seed * 0.11) % 0.4),
-          duration: 9 + ((seed * 0.9) % 4.5),
+          duration: (9 + ((seed * 0.9) % 4.5)) * 1.8,
         })
       }
     }
@@ -126,33 +148,32 @@ export default function TranscribingPage() {
       <div className="absolute inset-0">
         {waves.map((w) => {
           const upperHalf = w.row >= WAVE_ROWS / 2
-          const filling = phase === 'loading' || phase === 'settling'
           const active = phase === 'loading' || (phase === 'settling' && upperHalf)
           const fadingOut = phase === 'done' || (phase === 'settling' && !upperHalf)
+          const maxPx = w.sizeCm * PX_PER_CM
           return (
             <svg
               key={w.seed}
-              width="58"
-              height="22"
-              viewBox="0 0 64 24"
+              viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
               className="absolute"
               style={{
-                left: `${w.left}%`,
+                left: `${w.leftPercent}%`,
                 bottom: '-40px',
+                transform: 'translateX(-50%)',
+                width: `clamp(50px, ${w.slotVw}vw, ${maxPx}px)`,
+                aspectRatio: `${VIEW_W} / ${VIEW_H}`,
                 opacity: fadingOut ? 0 : active ? 1 : 0,
                 animation: active
                   ? `wave-appear 1.2s ease-out ${w.appearDelay}s both, wave-rise ${w.duration}s linear ${w.appearDelay}s infinite`
-                  : filling
-                    ? 'none'
-                    : 'none',
+                  : 'none',
                 transition: fadingOut ? 'opacity 0.9s ease' : undefined,
               }}
             >
               <path
-                d={makeSquigglePath(w.seed)}
+                d={makeWavePath(w.seed)}
                 fill="none"
                 stroke="#000000"
-                strokeWidth={2.4}
+                strokeWidth={2.6}
                 strokeLinecap="round"
               />
             </svg>
