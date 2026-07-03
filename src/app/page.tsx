@@ -81,8 +81,8 @@ export default function Home() {
             YourTranscript
             <span className="absolute left-0 right-0 bottom-[2px] h-[3.3px] bg-purple [box-shadow:2px_1.5px_0_rgba(78,0,255,0.3)] pointer-events-none" />
           </a>
-          <span className="w-[2px] bg-ink self-stretch -my-[22px] ml-[0.8cm]" />
-          <span className="flex-1 h-[2px] bg-ink self-center" />
+          <span className="w-0 border-l-2 border-ink self-stretch -my-[22px] ml-[0.8cm]" />
+          <span className="flex-1 h-0 border-t-2 border-ink self-center" />
         </div>
         <a
           ref={libraryRef}
@@ -95,7 +95,7 @@ export default function Home() {
       </header>
 
       <section className="relative border-b-2 border-ink bg-surface text-ink">
-        <span className="absolute right-0 top-0 bottom-0 w-[2px] bg-ink pointer-events-none" />
+        <span className="absolute right-[0.5cm] top-0 bottom-0 w-0 border-l-2 border-ink pointer-events-none" />
         <div className="max-w-5xl ml-0 mr-auto pl-[0.8cm] pr-[19px] pt-[26px] md:pt-[32px] pb-[26px] md:pb-[32px]">
           <p className="font-headline uppercase tracking-wide text-[0.792rem] text-muted mb-[13px] md:mb-[19px]">
             Full Transcripts · Your Own Library&nbsp;&nbsp;<span className="text-[0.66rem] align-middle">||</span>&nbsp;&nbsp;Podcasts · Interviews · Investor Calls
@@ -113,7 +113,7 @@ export default function Home() {
       </section>
 
       <section className="relative w-full bg-paper border-b-2 border-ink">
-        <span className="absolute right-0 top-0 bottom-0 w-[2px] bg-ink pointer-events-none" />
+        <span className="absolute right-[0.5cm] top-0 bottom-0 w-0 border-l-2 border-ink pointer-events-none" />
         <div className="max-w-5xl ml-0 mr-auto pl-[0.8cm] pr-[0.8cm] pt-[38px] pb-[51px]">
           <div
             ref={urlRowRef}
