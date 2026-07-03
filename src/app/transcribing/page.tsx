@@ -4,7 +4,8 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 const WAVE_ROWS = 10
-const WAVES_PER_ROW = 4
+const WAVES_PER_ROW = 8
+const WAVE_COLORS = ['#000000', '#000000', '#000000', '#4E00FF', '#54FFC9']
 const SETTLE_MS = 28000
 const ROW_APPEAR_STEP = 0.9
 const PX_PER_CM = 37.8
@@ -49,6 +50,7 @@ export default function TranscribingPage() {
       sizeCm: number
       appearDelay: number
       duration: number
+      color: string
     }[] = []
     const slotPercent = 100 / WAVES_PER_ROW
     let seed = 0
@@ -64,7 +66,10 @@ export default function TranscribingPage() {
           slotVw: slotPercent * 0.45,
           sizeCm: MIN_SIZE_CM + ((seed * 0.37) % (MAX_SIZE_CM - MIN_SIZE_CM)),
           appearDelay: row * ROW_APPEAR_STEP + ((seed * 0.11) % 0.4),
-          duration: (9 + ((seed * 0.9) % 4.5)) * 1.8,
+          // 1.5x faster on average than before, with a wider spread so
+          // some waves are noticeably quicker and others noticeably slower.
+          duration: (9 + ((seed * 0.9) % 9)) * 1.8 * (1 / 1.5),
+          color: WAVE_COLORS[seed % WAVE_COLORS.length],
         })
       }
     }
@@ -170,7 +175,7 @@ export default function TranscribingPage() {
               <path
                 d={makeWavePath(w.seed)}
                 fill="none"
-                stroke="#000000"
+                stroke={w.color}
                 strokeWidth={3.9}
                 strokeLinecap="round"
               />
