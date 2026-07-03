@@ -72,14 +72,14 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="relative border-b-2 border-ink bg-purple sticky top-0 z-10">
+      <header className="relative border-b-2 border-ink bg-surface sticky top-0 z-10">
         <div className="w-full pl-[0.8cm] pr-0 py-[22px] flex items-center gap-0">
           <a
             href="/"
-            className="relative font-serif text-[1.597rem] text-white hover:text-black hover:[text-shadow:0.03em_0.025em_0_rgba(120,120,120,0.65)] transition-[color,text-shadow] duration-150 -translate-y-[3px]"
+            className="relative font-serif text-[1.597rem] text-black hover:text-purple hover:[text-shadow:0.03em_0.025em_0_rgba(120,120,120,0.65)] transition-[color,text-shadow] duration-150 -translate-y-[3px]"
           >
             YourTranscript
-            <span className="absolute right-0 bottom-[2px] h-[9px] w-[9px] bg-black [box-shadow:2px_1.5px_0_rgba(0,0,0,0.25)] pointer-events-none" />
+            <span className="absolute left-0 right-0 bottom-[2px] h-[3.3px] bg-purple [box-shadow:2px_1.5px_0_rgba(78,0,255,0.3)] pointer-events-none" />
           </a>
           <span className="w-0 border-l-2 border-ink self-stretch -my-[22px] ml-[0.8cm]" />
           <span className="flex-1 h-0 border-t-2 border-ink self-center" />
