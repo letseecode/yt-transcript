@@ -81,6 +81,16 @@ export default function TranscribingPage() {
     return () => clearTimeout(t)
   }, [])
 
+  // Guarantee a pure white background behind the waves, regardless of the
+  // body's default theme color, for as long as this page is mounted.
+  useEffect(() => {
+    const prevBg = document.body.style.background
+    document.body.style.background = '#FFFFFF'
+    return () => {
+      document.body.style.background = prevBg
+    }
+  }, [])
+
   useEffect(() => {
     if (startedRef.current) return
     startedRef.current = true
@@ -167,16 +177,15 @@ export default function TranscribingPage() {
                 aspectRatio: `${VIEW_W} / ${VIEW_H}`,
                 opacity: fadingOut ? 0 : active ? 1 : 0,
                 animation: active
-                  ? `wave-appear 1.2s ease-out ${w.appearDelay}s both, wave-rise ${w.duration}s linear ${w.appearDelay}s infinite`
+                  ? `wave-appear-instant 0.05s steps(1,end) ${w.appearDelay}s both, wave-rise ${w.duration}s linear ${w.appearDelay}s infinite`
                   : 'none',
-                transition: fadingOut ? 'opacity 0.9s ease' : undefined,
               }}
             >
               <path
                 d={makeWavePath(w.seed)}
                 fill="none"
                 stroke={w.color}
-                strokeWidth={3.9}
+                strokeWidth={5.85}
                 strokeLinecap="round"
               />
             </svg>
