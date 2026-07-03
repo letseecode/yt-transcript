@@ -73,16 +73,16 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col">
       <header className="relative border-b-2 border-ink bg-surface sticky top-0 z-10">
-        <div className="w-full pl-[0.8cm] pr-0 py-[22px] flex items-center gap-[10px]">
+        <div className="w-full pl-[0.8cm] pr-0 py-[22px] flex items-center gap-0">
           <a
             href="/"
-            className="relative font-serif font-semibold text-[1.597rem] text-black hover:text-purple transition-colors"
+            className="relative font-serif text-[1.597rem] text-black hover:text-purple transition-colors -translate-y-[3px]"
           >
             YourTranscript
             <span className="absolute left-0 right-0 bottom-[2px] h-[3.3px] bg-purple [box-shadow:2px_1.5px_0_rgba(78,0,255,0.3)] pointer-events-none" />
           </a>
-          <span className="w-[2px] bg-black self-stretch -my-[22px]" />
-          <span className="flex-1 h-[2px] bg-black self-center -ml-[10px]" />
+          <span className="w-[2px] bg-ink self-stretch -my-[22px] ml-[0.8cm]" />
+          <span className="flex-1 h-[2px] bg-ink self-center" />
         </div>
         <a
           ref={libraryRef}
@@ -134,7 +134,7 @@ export default function Home() {
               <button
                 onClick={handleSubmit}
                 disabled={loading}
-                className="flex items-center justify-center bg-ink text-cream font-headline font-bold uppercase text-[1.214rem] border-l-2 border-l-purple px-[19px] hover:bg-purple hover:text-black hover:border-l-black hover:[text-shadow:2px_1.5px_0_rgba(255,255,255,0.3)] active:bg-purple active:text-black active:border-l-black transition-colors duration-100 disabled:opacity-50 whitespace-nowrap"
+                className="flex items-center justify-center bg-ink text-cream font-headline font-bold uppercase text-[1.214rem] border-l-2 border-l-purple px-[19px] hover:bg-purple hover:text-black hover:border-l-black hover:[text-shadow:2px_1.5px_0_rgba(255,255,255,0.23)] active:bg-purple active:text-black active:border-l-black transition-colors duration-100 disabled:opacity-50 whitespace-nowrap"
               >
                 {loading ? 'Processing…' : 'Transcribe →'}
               </button>
@@ -163,7 +163,7 @@ export default function Home() {
           <HomeWaves exiting={loading} />
         </div>
       </section>
-      <section className="flex-1 bg-white" />
+      <section className="bg-white border-b-2 border-ink" style={{ height: '10cm' }} />
     </div>
   )
 }
