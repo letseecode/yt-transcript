@@ -4,11 +4,11 @@ import { useMemo } from 'react'
 import { WAVE_COLORS, WAVE_SHADOWS, VIEW_W, VIEW_H, PX_PER_CM, makeWaveOutline } from '@/lib/wavePath'
 
 const ROWS = 6
-const WAVES_PER_ROW = 24
+const WAVES_PER_ROW = 12
 const MIN_SIZE_CM = 46.8
 const MAX_SIZE_CM = 85.2
-// Slows the drift by 10%. Set back to 1 to revert this speed change.
-const SPEED_FACTOR = 1.1
+// Slows the drift down cumulatively. Set back to 1 to revert all speed changes.
+const SPEED_FACTOR = 1.21
 
 interface HomeWavesProps {
   // true once the user has hit Transcribe -- waves stop drifting and
