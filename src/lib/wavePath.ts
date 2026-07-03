@@ -1,9 +1,5 @@
-// 90% black, 8% mint, 2% purple (45 / 4 / 1 out of 50)
-export const WAVE_COLORS = [
-  ...Array(45).fill('#000000'),
-  ...Array(4).fill('#54FFC9'),
-  '#4E00FF',
-]
+// 100% black
+export const WAVE_COLORS = ['#000000']
 // A brighter version of each wave color, used for its drop shadow.
 export const WAVE_SHADOWS: Record<string, string> = {
   '#000000': '#d8d8d8', // black -> 1.1x lighter (was #d4d4d4)
