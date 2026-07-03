@@ -65,7 +65,7 @@ export default function HomeWaves({ exiting }: HomeWavesProps) {
               left: 0,
               width: `min(45vw, ${maxPx}px)`,
               aspectRatio: `${VIEW_W} / ${VIEW_H}`,
-              filter: `drop-shadow(${w.color === '#54FFC9' ? '6px 4px' : '3px 2px'} 0 ${WAVE_SHADOWS[w.color]})`,
+              filter: `drop-shadow(${w.color === '#54FFC9' ? '18px 12px' : '9px 6px'} 0 ${WAVE_SHADOWS[w.color]})`,
               animation: exiting
                 ? 'wave-sink 0.5s ease-in forwards'
                 : `wave-drift ${w.duration}s linear ${w.delay}s infinite`,
