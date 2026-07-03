@@ -6,14 +6,9 @@ export const WAVE_COLORS = [
 ]
 // A brighter version of each wave color, used for its drop shadow.
 export const WAVE_SHADOWS: Record<string, string> = {
-  '#000000': '#949494', // black -> mid grey (brightness lowered)
+  '#000000': '#cfcfcf', // black -> light grey (1.4x brighter)
   '#54FFC9': '#ecfff9', // mint -> very light mint (unchanged)
-  '#4E00FF': '#9791aa', // purple -> muted purple (brightness lowered)
-}
-
-// Black and purple waves get a larger shadow offset; mint keeps the base one.
-export function waveShadowOffset(color: string) {
-  return color === '#54FFC9' ? '6px 4.5px' : '9px 6.75px'
+  '#4E00FF': '#a855f7', // purple -> very bright purple
 }
 
 export const VIEW_W = 200

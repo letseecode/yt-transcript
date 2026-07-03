@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo } from 'react'
-import { WAVE_COLORS, WAVE_SHADOWS, waveShadowOffset, VIEW_W, VIEW_H, PX_PER_CM, makeWaveOutline } from '@/lib/wavePath'
+import { WAVE_COLORS, WAVE_SHADOWS, VIEW_W, VIEW_H, PX_PER_CM, makeWaveOutline } from '@/lib/wavePath'
 
 const ROWS = 6
 const WAVES_PER_ROW = 6
@@ -44,9 +44,9 @@ export default function HomeWaves({ exiting }: HomeWavesProps) {
         })
       }
     }
-    // Trim 10% of the total count, evenly (drop every 10th) rather
-    // than truncating the tail, so no row loses all its waves.
-    return items.filter((_, idx) => (idx + 1) % 10 !== 0)
+    // Thin out the count (drop every 4th, evenly) rather than
+    // truncating the tail, so no row loses all its waves.
+    return items.filter((_, idx) => (idx + 1) % 4 !== 0)
   }, [])
 
   return (
@@ -63,7 +63,7 @@ export default function HomeWaves({ exiting }: HomeWavesProps) {
               left: 0,
               width: `min(45vw, ${maxPx}px)`,
               aspectRatio: `${VIEW_W} / ${VIEW_H}`,
-              filter: `drop-shadow(${waveShadowOffset(w.color)} 0 ${WAVE_SHADOWS[w.color]})`,
+              filter: `drop-shadow(3px 2px 0 ${WAVE_SHADOWS[w.color]})`,
               animation: exiting
                 ? 'wave-sink 0.5s ease-in forwards'
                 : `wave-drift ${w.duration}s linear ${w.delay}s infinite`,
