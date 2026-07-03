@@ -6,9 +6,9 @@ export const WAVE_COLORS = [
 ]
 // A brighter version of each wave color, used for its drop shadow.
 export const WAVE_SHADOWS: Record<string, string> = {
-  '#000000': '#c7c7c7', // black -> light grey
-  '#54FFC9': '#dafff2', // mint -> very light mint
-  '#4E00FF': '#cebdff', // purple -> very light purple
+  '#000000': '#dedede', // black -> lighter grey
+  '#54FFC9': '#ecfff9', // mint -> even lighter mint
+  '#4E00FF': '#e2d9ff', // purple -> even lighter purple
 }
 
 export const VIEW_W = 200
@@ -18,7 +18,7 @@ export const PX_PER_CM = 37.8
 // A smooth, gently rounded sine-like scribble (∿∿∿) rather than a sharp zigzag.
 export function makeWavePath(seed: number) {
   const cycles = 1 + (seed % 2) // 1-2 humps -- even softer, less frequent oscillation
-  const amp = 6 + (seed % 4) // 6-9 amplitude
+  const amp = 4 + (seed % 3) // 4-6 amplitude -- flatter, oscillates less
   const mid = VIEW_H / 2
   const period = VIEW_W / cycles
   let d = `M0 ${mid}`
