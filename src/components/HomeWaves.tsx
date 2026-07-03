@@ -65,7 +65,7 @@ export default function HomeWaves({ exiting }: HomeWavesProps) {
               d={makeWavePath(w.seed)}
               fill="none"
               stroke={w.color}
-              strokeWidth={9.75}
+              strokeWidth={8.125}
               strokeLinecap="round"
             />
           </svg>
