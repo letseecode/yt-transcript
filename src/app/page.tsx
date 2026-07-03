@@ -86,7 +86,7 @@ export default function Home() {
         <a
           ref={libraryRef}
           href="/library"
-          className="absolute top-1/2 -translate-y-1/2 font-headline font-bold uppercase text-[1.214rem] bg-mint text-black border-2 border-ink px-[26px] py-[6px] hover:bg-purple hover:text-white transition-colors"
+          className="absolute top-1/2 -translate-y-1/2 font-headline font-bold uppercase text-[1.214rem] bg-mint text-black border-2 border-ink px-[26px] py-[6px] hover:bg-purple hover:text-white hover:[text-shadow:2px_1.5px_0_rgba(0,0,0,0.4)] transition-colors"
           style={{ right: headerPad !== null ? `${headerPad}px` : '19px' }}
         >
           Library
@@ -131,7 +131,7 @@ export default function Home() {
               <button
                 onClick={handleSubmit}
                 disabled={loading}
-                className="flex items-center justify-center bg-ink text-cream font-headline font-bold uppercase text-[1.214rem] border-l-2 border-l-purple px-[19px] hover:bg-purple hover:text-black hover:border-l-black active:bg-purple active:text-black active:border-l-black transition-colors duration-100 disabled:opacity-50 whitespace-nowrap"
+                className="flex items-center justify-center bg-ink text-cream font-headline font-bold uppercase text-[1.214rem] border-l-2 border-l-purple px-[19px] hover:bg-purple hover:text-black hover:border-l-black hover:[text-shadow:2px_1.5px_0_rgba(255,255,255,0.5)] active:bg-purple active:text-black active:border-l-black transition-colors duration-100 disabled:opacity-50 whitespace-nowrap"
               >
                 {loading ? 'Processing…' : 'Transcribe →'}
               </button>
