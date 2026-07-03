@@ -19,3 +19,44 @@ export function makeWavePath(seed: number) {
   }
   return d
 }
+
+// Same centerline as makeWavePath, but returned as a filled, tapered
+// ribbon (thin at both ends, thickest at the middle) instead of a
+// constant-width stroke -- gives the calligraphy-swoosh texture.
+export function makeWaveOutline(seed: number, maxHalfWidth: number) {
+  const cycles = 1 + (seed % 3)
+  const amp = 6 + (seed % 4)
+  const mid = VIEW_H / 2
+  const N = 48
+
+  const pts: { x: number; y: number }[] = []
+  for (let i = 0; i <= N; i++) {
+    const t = i / N
+    pts.push({
+      x: t * VIEW_W,
+      y: mid + amp * Math.sin(2 * Math.PI * cycles * t),
+    })
+  }
+
+  const top: { x: number; y: number }[] = []
+  const bottom: { x: number; y: number }[] = []
+  for (let i = 0; i <= N; i++) {
+    const t = i / N
+    const half = maxHalfWidth * Math.sin(Math.PI * t) // 0 at both ends, max at the middle
+    const prev = pts[Math.max(0, i - 1)]
+    const next = pts[Math.min(N, i + 1)]
+    const dx = next.x - prev.x
+    const dy = next.y - prev.y
+    const len = Math.hypot(dx, dy) || 1
+    const nx = -dy / len
+    const ny = dx / len
+    top.push({ x: pts[i].x + nx * half, y: pts[i].y + ny * half })
+    bottom.push({ x: pts[i].x - nx * half, y: pts[i].y - ny * half })
+  }
+
+  let d = `M ${top[0].x} ${top[0].y}`
+  for (let i = 1; i <= N; i++) d += ` L ${top[i].x} ${top[i].y}`
+  for (let i = N; i >= 0; i--) d += ` L ${bottom[i].x} ${bottom[i].y}`
+  d += ' Z'
+  return d
+}

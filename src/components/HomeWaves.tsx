@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo } from 'react'
-import { WAVE_COLORS, VIEW_W, VIEW_H, PX_PER_CM, makeWavePath } from '@/lib/wavePath'
+import { WAVE_COLORS, VIEW_W, VIEW_H, PX_PER_CM, makeWaveOutline } from '@/lib/wavePath'
 
 const ROWS = 6
 const WAVES_PER_ROW = 6
@@ -61,13 +61,7 @@ export default function HomeWaves({ exiting }: HomeWavesProps) {
                 : `wave-drift ${w.duration}s linear ${w.delay}s infinite`,
             }}
           >
-            <path
-              d={makeWavePath(w.seed)}
-              fill="none"
-              stroke={w.color}
-              strokeWidth={4.46}
-              strokeLinecap="round"
-            />
+            <path d={makeWaveOutline(w.seed, 2.23)} fill={w.color} stroke="none" />
           </svg>
         )
       })}

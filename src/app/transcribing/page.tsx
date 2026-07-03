@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { WAVE_COLORS, VIEW_W, VIEW_H, PX_PER_CM, makeWavePath } from '@/lib/wavePath'
+import { WAVE_COLORS, VIEW_W, VIEW_H, PX_PER_CM, makeWaveOutline } from '@/lib/wavePath'
 
 const WAVE_ROWS = 10
 const WAVES_PER_ROW = 8
@@ -161,13 +161,7 @@ export default function TranscribingPage() {
                   : 'none',
               }}
             >
-              <path
-                d={makeWavePath(w.seed)}
-                fill="none"
-                stroke={w.color}
-                strokeWidth={11.7}
-                strokeLinecap="round"
-              />
+              <path d={makeWaveOutline(w.seed, 5.85)} fill={w.color} stroke="none" />
             </svg>
           )
         })}
