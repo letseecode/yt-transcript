@@ -185,7 +185,7 @@ export default function TranscribingPage() {
                 d={makeWavePath(w.seed)}
                 fill="none"
                 stroke={w.color}
-                strokeWidth={5.85}
+                strokeWidth={11.7}
                 strokeLinecap="round"
               />
             </svg>
