@@ -66,8 +66,7 @@ export default function Home() {
     try {
       sessionStorage.setItem('pending-url', url)
     } catch {}
-    // Give the waves time to sink out of view before we navigate.
-    setTimeout(() => router.push('/transcribing'), 450)
+    router.push('/transcribing')
   }
 
   return (
@@ -159,7 +158,7 @@ export default function Home() {
 
       <section className="relative bg-white overflow-hidden border-b-2 border-ink" style={{ height: '5cm' }}>
         <div className="absolute left-0 right-0" style={{ top: '0.5cm', bottom: '0.5cm' }}>
-          <HomeWaves exiting={loading} />
+          <HomeWaves />
         </div>
       </section>
       <section className="bg-white border-b-2 border-ink" style={{ height: '10cm' }} />

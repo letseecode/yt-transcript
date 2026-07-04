@@ -2,14 +2,25 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { WAVE_COLORS, WAVE_SHADOWS, VIEW_W, VIEW_H, PX_PER_CM, makeWaveOutline } from '@/lib/wavePath'
+import { WAVE_SHADOWS, VIEW_W, VIEW_H, PX_PER_CM, makeWaveOutline } from '@/lib/wavePath'
+
+// This page keeps its own color mix (70% black / 10% purple / 20%
+// mint) independent from the homepage's palette, since the two are
+// tuned separately.
+const LOADING_WAVE_COLORS = [
+  ...Array(7).fill('#000000'),
+  '#4E00FF',
+  ...Array(2).fill('#54FFC9'),
+]
 
 const WAVE_ROWS = 10
 const WAVES_PER_ROW = 8
 const SETTLE_MS = 28000
 const ROW_APPEAR_STEP = 0.9
-const MIN_SIZE_CM = 5
-const MAX_SIZE_CM = 6.5
+const COL_APPEAR_STEP = 0.12 // staggers appearance left-to-right within a row
+// Half the size of the homepage's current black-wave range (46.8-85.2cm).
+const MIN_SIZE_CM = 23.4
+const MAX_SIZE_CM = 42.6
 
 export default function TranscribingPage() {
   const router = useRouter()
@@ -45,11 +56,13 @@ export default function TranscribingPage() {
           leftPercent: (rowOffset + i * slotPercent + slotPercent / 2 + jitter * slotPercent + 100) % 100,
           slotVw: slotPercent * 0.45,
           sizeCm: MIN_SIZE_CM + ((seed * 0.37) % (MAX_SIZE_CM - MIN_SIZE_CM)),
-          appearDelay: row * ROW_APPEAR_STEP + ((seed * 0.11) % 0.4),
+          // Cascades bottom-up (by row) and left-to-right (by column)
+          // so the fill visibly sweeps in both directions at once.
+          appearDelay: row * ROW_APPEAR_STEP + i * COL_APPEAR_STEP + ((seed * 0.11) % 0.4),
           // 1.5x faster on average than before, with a wider spread so
           // some waves are noticeably quicker and others noticeably slower.
           duration: (9 + ((seed * 0.9) % 9)) * 1.8 * (1 / 1.5),
-          color: WAVE_COLORS[(seed * 7) % WAVE_COLORS.length],
+          color: LOADING_WAVE_COLORS[(seed * 7) % LOADING_WAVE_COLORS.length],
         })
       }
     }
