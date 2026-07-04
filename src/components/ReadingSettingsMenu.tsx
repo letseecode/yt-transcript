@@ -57,7 +57,22 @@ export function useReadingPrefs() {
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY)
-      if (raw) setPrefs((p) => ({ ...p, ...JSON.parse(raw) }))
+      if (raw) {
+        const saved = JSON.parse(raw)
+        setPrefs((p) => {
+          const merged = { ...p, ...saved }
+          // A previous session may have saved a theme/font/step index
+          // that no longer exists (we've removed and reshuffled a few) --
+          // fall back to the default for anything we can't recognize
+          // instead of crashing the page.
+          if (!(merged.font in FONTS)) merged.font = DEFAULT_PREFS.font
+          if (!(merged.theme in THEMES)) merged.theme = DEFAULT_PREFS.theme
+          if (!(merged.sizeIdx >= 0 && merged.sizeIdx < SIZE_STEPS.length)) merged.sizeIdx = DEFAULT_PREFS.sizeIdx
+          if (!(merged.spacingIdx >= 0 && merged.spacingIdx < SPACING_STEPS.length)) merged.spacingIdx = DEFAULT_PREFS.spacingIdx
+          if (!(merged.widthIdx >= 0 && merged.widthIdx < WIDTH_STEPS.length)) merged.widthIdx = DEFAULT_PREFS.widthIdx
+          return merged
+        })
+      }
     } catch {}
     setLoaded(true)
   }, [])
