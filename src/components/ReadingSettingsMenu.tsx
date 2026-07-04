@@ -129,11 +129,11 @@ function FontDropdown({ value, onChange }: { value: FontKey; onChange: (key: Fon
     <div ref={ref} className={`relative ${CONTROL_WIDTH}`}>
       <button
         onClick={() => setOpen((o) => !o)}
-        className="w-full h-9 flex items-center justify-between px-2 border-2 border-black text-sm bg-white"
+        className="w-full h-9 flex items-center border-2 border-black text-sm bg-white"
         style={{ fontFamily: FONTS[value].family }}
       >
-        {FONTS[value].label}
-        <span className="text-[0.6rem]">▾</span>
+        <span className="flex-1 text-left px-2 truncate">{FONTS[value].label}</span>
+        <span className="flex items-center justify-center h-full w-7 border-l-2 border-black text-[0.6rem]">▾</span>
       </button>
       {open && (
         <div
