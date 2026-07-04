@@ -3,20 +3,30 @@
 import { useEffect, useRef, useState } from 'react'
 
 export const THEMES = {
-  white: { label: 'White', bg: '#FFFFFF', text: '#1A1A1A' },
-  sepia: { label: 'Sepia', bg: '#F4ECD8', text: '#4A3728' },
-  paper: { label: 'Paper', bg: '#E6E4E1', text: '#1A1A1A' },
-  dawn: { label: 'Dawn', bg: '#FBEAE7', text: '#5A2A2A' },
+  white: { label: 'White', bg: '#FFFFFF', text: '#1A1A1A', shadow: 'rgba(0,0,0,0.15)' },
+  sepia: { label: 'Sepia', bg: '#F4ECD8', text: '#4A3728', shadow: 'rgba(0,0,0,0.15)' },
+  paper: { label: 'Paper', bg: '#E6E4E1', text: '#1A1A1A', shadow: 'rgba(0,0,0,0.15)' },
+  dark: { label: 'Dark', bg: '#1A1A1A', text: '#F7F2ED', shadow: 'rgba(255,255,255,0.3)' },
+  carbon: { label: 'Carbon', bg: '#000000', text: '#E0DAD3', shadow: 'rgba(255,255,255,0.3)' },
 } as const
+
+// The swatch grid is 8 fixed slots: row 1 is White / Paper / Sepia / (empty,
+// was Dawn -- left open for a future theme), row 2 is Dark / Carbon / (empty) / (empty).
+export const THEME_SLOTS: (ThemeKey | null)[] = ['white', 'paper', 'sepia', null, 'dark', 'carbon', null, null]
 
 export const FONTS = {
   serif: { label: 'Serif', family: 'var(--font-serif-family), serif' },
   sans: { label: 'Sans', family: 'var(--font-body-family), sans-serif' },
+  headline: { label: 'Headline', family: 'var(--font-headline-family), sans-serif' },
+  mono: { label: 'Mono', family: 'ui-monospace, SFMono-Regular, Menlo, monospace' },
 } as const
 
-export const SIZE_STEPS = [1, 1.125, 1.25, 1.375, 1.5]
-export const SPACING_STEPS = [1.4, 1.6, 1.8, 2]
-export const WIDTH_STEPS = ['38rem', '44rem', '50rem', '56rem']
+// One smaller step added at the front of size/spacing; one wider step
+// added at the end of width. Defaults below keep the same visual result
+// as before by shifting their index to match.
+export const SIZE_STEPS = [0.875, 1, 1.125, 1.25, 1.375, 1.5]
+export const SPACING_STEPS = [1.2, 1.4, 1.6, 1.8, 2]
+export const WIDTH_STEPS = ['38rem', '44rem', '50rem', '56rem', '62rem']
 
 export type ThemeKey = keyof typeof THEMES
 export type FontKey = keyof typeof FONTS
@@ -29,7 +39,7 @@ export interface ReadingPrefs {
   widthIdx: number
 }
 
-const DEFAULT_PREFS: ReadingPrefs = { theme: 'white', font: 'serif', sizeIdx: 1, spacingIdx: 1, widthIdx: 1 }
+const DEFAULT_PREFS: ReadingPrefs = { theme: 'white', font: 'serif', sizeIdx: 2, spacingIdx: 2, widthIdx: 1 }
 const STORAGE_KEY = 'reading-prefs'
 
 export function useReadingPrefs() {
@@ -54,6 +64,8 @@ export function useReadingPrefs() {
   return [prefs, setPrefs] as const
 }
 
+const CONTROL_WIDTH = 'w-[104px]'
+
 function Stepper({
   label,
   value,
@@ -68,11 +80,11 @@ function Stepper({
   return (
     <div className="flex items-center justify-between py-2">
       <span className="font-headline text-[0.9rem] text-muted">{label}</span>
-      <div className="flex border-2 border-ink">
+      <div className={`flex border-2 border-ink ${CONTROL_WIDTH}`}>
         <button
           onClick={() => onChange(Math.max(0, value - 1))}
           disabled={value === 0}
-          className="w-9 h-9 flex items-center justify-center text-sm hover:bg-paper disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+          className="flex-1 h-9 flex items-center justify-center text-sm hover:bg-paper disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
           aria-label={`Decrease ${label.toLowerCase()}`}
         >
           −
@@ -80,7 +92,7 @@ function Stepper({
         <button
           onClick={() => onChange(Math.min(max, value + 1))}
           disabled={value === max}
-          className="w-9 h-9 flex items-center justify-center text-base border-l-2 border-ink hover:bg-paper disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+          className="flex-1 h-9 flex items-center justify-center text-base border-l-2 border-ink hover:bg-paper disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
           aria-label={`Increase ${label.toLowerCase()}`}
         >
           +
@@ -116,8 +128,6 @@ export default function ReadingSettingsMenu({
     }
   }, [onClose])
 
-  const themeKeys = Object.keys(THEMES) as ThemeKey[]
-
   return (
     <div
       ref={ref}
@@ -125,20 +135,24 @@ export default function ReadingSettingsMenu({
     >
       <p className="font-headline text-[0.9rem] text-muted mb-2">Theme</p>
       <div className="grid grid-cols-4 gap-2 mb-3 pb-3 border-b-2 border-border">
-        {themeKeys.map((key) => (
-          <button
-            key={key}
-            onClick={() => setPrefs((p) => ({ ...p, theme: key }))}
-            className="h-10 border-2 text-[0.7rem] font-headline"
-            style={{
-              background: THEMES[key].bg,
-              color: THEMES[key].text,
-              borderColor: prefs.theme === key ? '#4E00FF' : '#E0DAD3',
-            }}
-          >
-            {THEMES[key].label}
-          </button>
-        ))}
+        {THEME_SLOTS.map((key, i) =>
+          key === null ? (
+            <div key={`empty-${i}`} className="h-10 border-2 border-dashed border-border" />
+          ) : (
+            <button
+              key={key}
+              onClick={() => setPrefs((p) => ({ ...p, theme: key }))}
+              className="h-10 border-2 text-[0.7rem] font-headline"
+              style={{
+                background: THEMES[key].bg,
+                color: THEMES[key].text,
+                borderColor: prefs.theme === key ? '#4E00FF' : '#E0DAD3',
+              }}
+            >
+              {THEMES[key].label}
+            </button>
+          )
+        )}
       </div>
 
       <div className="flex items-center justify-between py-2 border-b-2 border-border">
@@ -146,7 +160,7 @@ export default function ReadingSettingsMenu({
         <select
           value={prefs.font}
           onChange={(e) => setPrefs((p) => ({ ...p, font: e.target.value as FontKey }))}
-          className="border-2 border-ink px-2 py-1 text-sm font-body bg-white"
+          className={`reading-select border-2 border-ink px-2 py-1 text-sm font-body bg-white ${CONTROL_WIDTH}`}
         >
           {(Object.keys(FONTS) as FontKey[]).map((key) => (
             <option key={key} value={key}>

@@ -170,7 +170,7 @@ export default function TranscriptPage() {
           <div className="absolute top-1/2 -translate-y-1/2 right-[19px] flex items-center gap-[9.5px]">
             <button
               onClick={handleDownload}
-              className="font-headline font-bold uppercase text-[1.214rem] bg-mint text-black border-2 border-ink px-[26px] py-[6px] hover:bg-purple hover:text-white hover:[text-shadow:2px_1.5px_0_rgba(0,0,0,0.4)] transition-colors"
+              className="font-headline font-bold uppercase text-[1.214rem] bg-mint text-black border-2 border-ink px-[26px] py-[6px] hover:bg-purple hover:text-white transition-colors"
             >
               Download
             </button>
@@ -188,7 +188,7 @@ export default function TranscriptPage() {
             </div>
             <Link
               href="/library"
-              className="font-headline font-bold uppercase text-[1.214rem] bg-mint text-black border-2 border-ink px-[26px] py-[6px] hover:bg-purple hover:text-white hover:[text-shadow:2px_1.5px_0_rgba(0,0,0,0.4)] transition-colors"
+              className="font-headline font-bold uppercase text-[1.214rem] bg-mint text-black border-2 border-ink px-[26px] py-[6px] hover:bg-purple hover:text-white transition-colors"
             >
               Library
             </Link>
@@ -202,7 +202,10 @@ export default function TranscriptPage() {
       >
         {title && (
           <div className="flex items-start justify-between gap-4 mb-6">
-            <h1 className="font-serif font-bold text-[3.488rem] leading-tight underline decoration-purple decoration-[5.54px] underline-offset-[7px] [text-shadow:0.078em_0.047em_0_rgba(78,0,255,0.3)]">
+            <h1
+              className="font-serif font-bold text-[3.488rem] leading-tight underline decoration-purple decoration-[5.54px] underline-offset-[7px]"
+              style={{ textShadow: `0.078em 0.047em 0 ${theme.shadow}` }}
+            >
               {title}
             </h1>
             <button
@@ -231,7 +234,7 @@ export default function TranscriptPage() {
           // label in bold italic, magazine-interview style.
           const match = seg.text.match(/^([^:]{1,40}):\s+([\s\S]+)$/)
           return (
-            <p key={i} style={{ fontSize: `${1.125 * fontSizeScale}rem`, lineHeight }}>
+            <p key={i} style={{ fontSize: `${fontSizeScale}rem`, lineHeight }}>
               {match ? (
                 <>
                   <span className="font-bold italic">{match[1]}:</span> {match[2]}
