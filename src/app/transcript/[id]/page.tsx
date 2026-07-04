@@ -172,6 +172,9 @@ export default function TranscriptPage() {
   const fontSizeScale = SIZE_STEPS[prefs.sizeIdx]
   const lineHeight = SPACING_STEPS[prefs.spacingIdx]
   const readingWidth = WIDTH_STEPS[prefs.widthIdx]
+  // Shadows read as too heavy against Dark/Carbon, so scale them down there.
+  const isDarkTheme = prefs.theme === 'dark' || prefs.theme === 'carbon'
+  const shadowScale = isDarkTheme ? 1 / 1.3 : 1
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: theme.bg, color: theme.text }}>
@@ -233,15 +236,21 @@ export default function TranscriptPage() {
               <h1
                 ref={titleRef}
                 className="font-serif font-bold text-[4.186rem] leading-tight"
-                style={{ textShadow: `0.0858em 0.0517em 0 ${theme.shadow}` }}
+                style={{ textShadow: `${0.0858 * shadowScale}em ${0.0517 * shadowScale}em 0 ${theme.shadow}` }}
               >
                 {title}
               </h1>
               {titleLineRects.map((r, i) => (
                 <span
                   key={i}
-                  className="absolute bg-purple [box-shadow:5.75px_3.46px_0_rgba(78,0,255,0.4)] pointer-events-none"
-                  style={{ left: r.left, width: r.width, top: r.bottom - 7, height: '5.54px' }}
+                  className="absolute bg-purple pointer-events-none"
+                  style={{
+                    left: r.left,
+                    width: r.width,
+                    top: r.bottom - 7,
+                    height: '5.54px',
+                    boxShadow: `${5.75 * shadowScale}px ${3.46 * shadowScale}px 0 rgba(78,0,255,0.4)`,
+                  }}
                 />
               ))}
             </div>
