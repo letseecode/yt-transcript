@@ -205,7 +205,7 @@ export default function TranscriptPage() {
               <button
                 onClick={() => setSettingsOpen((o) => !o)}
                 aria-label="Reading settings"
-                className="font-headline font-bold text-[1.214rem] bg-mint text-black border-2 border-ink px-[18px] py-[6px] hover:bg-purple hover:text-white transition-colors"
+                className="font-serif text-[1.214rem] bg-mint text-black border-2 border-ink px-[18px] py-[6px] hover:bg-purple hover:text-white transition-colors"
               >
                 Aa
               </button>
@@ -224,11 +224,11 @@ export default function TranscriptPage() {
       </header>
 
       <main
-        className="flex-1 w-full mx-auto px-6 py-10 space-y-4"
+        className="flex-1 w-full mx-auto px-6 py-10"
         style={{ maxWidth: readingWidth, fontFamily: readingFont }}
       >
         {title && (
-          <div className="flex items-start justify-between gap-4 mb-6">
+          <div className="flex items-start justify-between gap-4 mb-10">
             <div className="relative">
               <h1
                 ref={titleRef}
@@ -252,11 +252,11 @@ export default function TranscriptPage() {
               className="group shrink-0 mt-1 p-2"
             >
               {copied ? (
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
+                <span className="font-serif text-[1.3125rem] leading-none text-black" aria-hidden="true">
+                  ✓
+                </span>
               ) : (
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="21" height="21" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   {/* Front page (drawn on top) */}
                   <rect x="9" y="9" width="13" height="13" rx="2" className="stroke-black transition-colors group-hover:stroke-purple" />
                   {/* Back page (drawn behind) */}
@@ -271,7 +271,7 @@ export default function TranscriptPage() {
           // label in bold italic, magazine-interview style.
           const match = seg.text.match(/^([^:]{1,40}):\s+([\s\S]+)$/)
           return (
-            <p key={i} style={{ fontSize: `${fontSizeScale}rem`, lineHeight }}>
+            <p key={i} className={i === 0 ? undefined : 'mt-4'} style={{ fontSize: `${fontSizeScale}rem`, lineHeight }}>
               {match ? (
                 <>
                   <span className="font-bold italic">{match[1]}:</span> {match[2]}
