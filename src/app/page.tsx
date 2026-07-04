@@ -99,13 +99,13 @@ export default function Home() {
           <p className="font-headline uppercase tracking-wide text-[0.792rem] text-muted mb-[13px] md:mb-[19px]">
             Full Transcripts · Your Own Library&nbsp;&nbsp;<span className="text-[0.66rem] align-middle">||</span>&nbsp;&nbsp;Podcasts · Interviews · Investor Calls
           </p>
-          <h1 className="font-display text-[clamp(3.124rem,9.361vw,10.406rem)] leading-[1.0] tracking-tight [text-shadow:0.06em_0.036em_0_rgba(0,0,0,0.15)]">
+          <h1 className="font-display text-[clamp(3.124rem,9.361vw,10.406rem)] leading-[1.0] tracking-tight [text-shadow:0.066em_0.036em_0_rgba(0,0,0,0.15)]">
             Paste a{' '}
             <span className="relative inline-block">Link<span className="absolute left-[0.035em] -right-[0.04em] -bottom-[0.02em] h-[0.091em] bg-purple [box-shadow:0.065em_0.04em_0_rgba(78,0,255,0.3)]" /></span>
             ;
             <br />
             <span ref={titleEndRef} className="inline-block whitespace-nowrap">
-              <span className="text-purple [text-shadow:0.06em_0.036em_0_rgba(78,0,255,0.25)]">Read</span> the whole thing.
+              <span className="text-purple [text-shadow:0.066em_0.036em_0_rgba(78,0,255,0.25)]">Read</span> the whole thing.
             </span>
           </h1>
         </div>
