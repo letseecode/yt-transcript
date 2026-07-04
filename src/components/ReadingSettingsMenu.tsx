@@ -5,9 +5,9 @@ import { useEffect, useRef, useState } from 'react'
 export const THEMES = {
   white: { label: 'White', bg: '#FFFFFF', text: '#1A1A1A', shadow: 'rgba(0,0,0,0.15)' },
   sepia: { label: 'Sepia', bg: '#F4ECD8', text: '#4A3728', shadow: 'rgba(0,0,0,0.15)' },
-  paper: { label: 'Paper', bg: '#E6E4E1', text: '#1A1A1A', shadow: 'rgba(0,0,0,0.15)' },
-  dark: { label: 'Dark', bg: '#000000', text: '#E0DAD3', shadow: 'rgba(255,255,255,0.3)' },
-  carbon: { label: 'Carbon', bg: '#1A1A1A', text: '#F7F2ED', shadow: 'rgba(255,255,255,0.3)' },
+  paper: { label: 'Paper', bg: '#ECEAE8', text: '#1A1A1A', shadow: 'rgba(0,0,0,0.15)' },
+  dark: { label: 'Dark', bg: '#1A1A1A', text: '#F7F2ED', shadow: 'rgba(255,255,255,0.3)' },
+  carbon: { label: 'Carbon', bg: '#171717', text: '#E0DAD3', shadow: 'rgba(255,255,255,0.3)' },
 } as const
 
 // The swatch grid is 8 fixed slots: row 1 is White / Paper / Sepia / (empty,
@@ -19,6 +19,13 @@ export const FONTS = {
   sans: { label: 'Sans', family: 'var(--font-body-family), sans-serif' },
   headline: { label: 'Headline', family: 'var(--font-headline-family), sans-serif' },
   mono: { label: 'Mono', family: 'ui-monospace, SFMono-Regular, Menlo, monospace' },
+  // Free system-font approximations of well-known editorial faces --
+  // not the licensed originals, just a similar feel.
+  nyt: { label: 'NYT', family: "'Noto Serif', Georgia, serif" },
+  arstechnica: { label: 'Ars Technica', family: 'Arial, Helvetica, sans-serif' },
+  techcrunch: { label: 'TechCrunch', family: "'Helvetica Neue', Helvetica, Arial, sans-serif" },
+  wsj: { label: 'WSJ', family: "Georgia, 'Times New Roman', serif" },
+  ft: { label: 'FT', family: 'Charter, Georgia, serif' },
 } as const
 
 // One smaller step added at the front of size/spacing; one wider step
@@ -65,6 +72,7 @@ export function useReadingPrefs() {
 }
 
 const CONTROL_WIDTH = 'w-[104px]'
+const OPTION_HEIGHT = 36 // px, must match the option button's h-9 below
 
 function Stepper({
   label,
@@ -80,7 +88,7 @@ function Stepper({
   return (
     <div className="flex items-center justify-between py-2">
       <span className="font-headline text-[0.9rem] text-muted">{label}</span>
-      <div className={`flex border-2 border-ink ${CONTROL_WIDTH}`}>
+      <div className={`flex border-2 border-black ${CONTROL_WIDTH}`}>
         <button
           onClick={() => onChange(Math.max(0, value - 1))}
           disabled={value === 0}
@@ -92,12 +100,62 @@ function Stepper({
         <button
           onClick={() => onChange(Math.min(max, value + 1))}
           disabled={value === max}
-          className="flex-1 h-9 flex items-center justify-center text-base border-l-2 border-ink hover:bg-paper disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+          className="flex-1 h-9 flex items-center justify-center text-base border-l-2 border-black hover:bg-paper disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
           aria-label={`Increase ${label.toLowerCase()}`}
         >
           +
         </button>
       </div>
+    </div>
+  )
+}
+
+function FontDropdown({ value, onChange }: { value: FontKey; onChange: (key: FontKey) => void }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  const keys = Object.keys(FONTS) as FontKey[]
+
+  useEffect(() => {
+    if (!open) return
+    const onClick = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', onClick)
+    return () => document.removeEventListener('mousedown', onClick)
+  }, [open])
+
+  return (
+    <div ref={ref} className={`relative ${CONTROL_WIDTH}`}>
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="w-full h-9 flex items-center justify-between px-2 border-2 border-black text-sm bg-white"
+        style={{ fontFamily: FONTS[value].family }}
+      >
+        {FONTS[value].label}
+        <span className="text-[0.6rem]">▾</span>
+      </button>
+      {open && (
+        <div
+          className="absolute right-0 top-full mt-1 w-full border-2 border-black bg-white overflow-y-auto z-40"
+          style={{ maxHeight: OPTION_HEIGHT * 4 }}
+        >
+          {keys.map((key) => (
+            <button
+              key={key}
+              onClick={() => {
+                onChange(key)
+                setOpen(false)
+              }}
+              className={`w-full h-9 flex items-center px-2 text-sm text-left transition-colors ${
+                key === value ? 'bg-mint' : 'hover:bg-mint/40'
+              }`}
+              style={{ fontFamily: FONTS[key].family }}
+            >
+              {FONTS[key].label}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
@@ -131,7 +189,10 @@ export default function ReadingSettingsMenu({
   return (
     <div
       ref={ref}
-      className="absolute right-0 top-full mt-2 w-[300px] bg-white border-2 border-ink shadow-[6px_6px_0_rgba(0,0,0,0.15)] p-4 z-30"
+      // Explicit text color so the menu always reads the same regardless
+      // of which reading theme (e.g. Dark/Carbon) the page currently has.
+      className="reading-menu absolute right-0 top-full mt-2 w-[300px] bg-white border-2 border-black shadow-[6px_6px_0_rgba(0,0,0,0.15)] p-4 z-30"
+      style={{ color: '#1A1A1A' }}
     >
       <p className="font-headline text-[0.9rem] text-muted mb-2">Theme</p>
       <div className="grid grid-cols-4 gap-2 mb-3 pb-3 border-b-2 border-border">
@@ -146,7 +207,7 @@ export default function ReadingSettingsMenu({
               style={{
                 background: THEMES[key].bg,
                 color: THEMES[key].text,
-                borderColor: prefs.theme === key ? '#4E00FF' : '#E0DAD3',
+                borderColor: prefs.theme === key ? '#54FFC9' : '#000000',
               }}
             >
               {THEMES[key].label}
@@ -157,17 +218,7 @@ export default function ReadingSettingsMenu({
 
       <div className="flex items-center justify-between py-2 border-b-2 border-border">
         <span className="font-headline text-[0.9rem] text-muted">Font</span>
-        <select
-          value={prefs.font}
-          onChange={(e) => setPrefs((p) => ({ ...p, font: e.target.value as FontKey }))}
-          className={`reading-select border-2 border-ink px-2 py-1 text-sm font-body bg-white ${CONTROL_WIDTH}`}
-        >
-          {(Object.keys(FONTS) as FontKey[]).map((key) => (
-            <option key={key} value={key}>
-              {FONTS[key].label}
-            </option>
-          ))}
-        </select>
+        <FontDropdown value={prefs.font} onChange={(font) => setPrefs((p) => ({ ...p, font }))} />
       </div>
 
       <div className="border-b-2 border-border">

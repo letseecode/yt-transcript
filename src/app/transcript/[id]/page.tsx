@@ -232,15 +232,15 @@ export default function TranscriptPage() {
             <div className="relative">
               <h1
                 ref={titleRef}
-                className="font-serif font-bold text-[3.488rem] leading-tight"
-                style={{ textShadow: `0.078em 0.047em 0 ${theme.shadow}` }}
+                className="font-serif font-bold text-[4.186rem] leading-tight"
+                style={{ textShadow: `0.0858em 0.0517em 0 ${theme.shadow}` }}
               >
                 {title}
               </h1>
               {titleLineRects.map((r, i) => (
                 <span
                   key={i}
-                  className="absolute bg-purple [box-shadow:2px_1.5px_0_rgba(78,0,255,0.3)] pointer-events-none"
+                  className="absolute bg-purple [box-shadow:5.75px_3.46px_0_rgba(78,0,255,0.4)] pointer-events-none"
                   style={{ left: r.left, width: r.width, top: r.bottom - 7, height: '5.54px' }}
                 />
               ))}
