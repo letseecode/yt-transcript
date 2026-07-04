@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import HomeWaves from '@/components/HomeWaves'
 
@@ -9,42 +9,6 @@ export default function Home() {
   const [url, setUrl] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const titleEndRef = useRef<HTMLSpanElement>(null)
-  const [headerPad, setHeaderPad] = useState<number | null>(null)
-  const libraryRef = useRef<HTMLAnchorElement>(null)
-  const urlRowRef = useRef<HTMLDivElement>(null)
-  const [urlRowWidth, setUrlRowWidth] = useState<number | null>(null)
-
-  useEffect(() => {
-    const sync = () => {
-      if (titleEndRef.current) {
-        const rect = titleEndRef.current.getBoundingClientRect()
-        const viewportWidth = document.documentElement.clientWidth
-        setHeaderPad(Math.max(0, viewportWidth - rect.right + 16))
-      }
-    }
-    sync()
-    document.fonts?.ready?.then(sync)
-    window.addEventListener('resize', sync)
-    return () => window.removeEventListener('resize', sync)
-  }, [])
-
-  // Stretch the URL input row so its right edge reaches exactly where
-  // the Library button ends (only the input grows -- the button beside
-  // it keeps its own natural size since it isn't flex-1).
-  useEffect(() => {
-    const syncRow = () => {
-      if (libraryRef.current && urlRowRef.current) {
-        const libRect = libraryRef.current.getBoundingClientRect()
-        const rowRect = urlRowRef.current.getBoundingClientRect()
-        setUrlRowWidth(Math.max(0, libRect.right - rowRect.left))
-      }
-    }
-    syncRow()
-    document.fonts?.ready?.then(syncRow)
-    window.addEventListener('resize', syncRow)
-    return () => window.removeEventListener('resize', syncRow)
-  }, [headerPad])
 
   const isValidYoutubeUrl = (value: string) =>
     value.includes('youtube.com') || value.includes('youtu.be')
@@ -83,14 +47,6 @@ export default function Home() {
           <span className="w-0 border-l-2 border-ink self-stretch -my-[22px] ml-[0.8cm]" />
           <span className="flex-1 h-0 border-t-2 border-ink self-center" />
         </div>
-        <a
-          ref={libraryRef}
-          href="/library"
-          className="absolute top-1/2 -translate-y-1/2 font-headline font-bold uppercase text-[1.214rem] bg-mint text-black border-2 border-ink px-[26px] py-[6px] hover:bg-purple hover:text-white hover:[text-shadow:2px_1.5px_0_rgba(0,0,0,0.4)] transition-colors"
-          style={{ right: headerPad !== null ? `${headerPad}px` : '19px' }}
-        >
-          Library
-        </a>
       </header>
 
       <section className="relative border-b-2 border-ink bg-surface text-ink">
@@ -104,7 +60,7 @@ export default function Home() {
             <span className="relative inline-block">Link<span className="absolute left-[0.035em] -right-[0.04em] -bottom-[0.02em] h-[0.091em] bg-purple [box-shadow:0.065em_0.04em_0_rgba(78,0,255,0.3)]" /></span>
             ;
             <br />
-            <span ref={titleEndRef} className="inline-block whitespace-nowrap">
+            <span className="inline-block whitespace-nowrap">
               <span className="text-purple [text-shadow:0.066em_0.036em_0_rgba(78,0,255,0.25)]">Read</span> the whole thing.
             </span>
           </h1>
@@ -113,11 +69,7 @@ export default function Home() {
 
       <section className="relative w-full bg-paper border-b-2 border-ink">
         <div className="max-w-5xl ml-0 mr-auto pl-[0.8cm] pr-[0.8cm] pt-[38px] pb-[51px]">
-          <div
-            ref={urlRowRef}
-            className="max-w-[40.3rem] space-y-[10px]"
-            style={urlRowWidth !== null ? { width: `${urlRowWidth}px`, maxWidth: 'none' } : undefined}
-          >
+          <div className="max-w-[40.3rem] space-y-[10px]">
             <label className="font-headline uppercase text-[1.102rem] text-black block">
               YouTube URL:
             </label>
