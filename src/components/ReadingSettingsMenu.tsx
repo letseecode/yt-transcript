@@ -6,13 +6,17 @@ export const THEMES = {
   white: { label: 'White', bg: '#FFFFFF', text: '#1A1A1A', shadow: 'rgba(0,0,0,0.15)' },
   sepia: { label: 'Sepia', bg: '#F4ECD8', text: '#4A3728', shadow: 'rgba(0,0,0,0.15)' },
   paper: { label: 'Paper', bg: '#ECEAE8', text: '#1A1A1A', shadow: 'rgba(0,0,0,0.15)' },
+  cream: { label: 'Cream', bg: '#F7F2ED', text: '#1A1A1A', shadow: 'rgba(0,0,0,0.15)' },
   dark: { label: 'Dark', bg: '#000000', text: '#FFFFFF', shadow: 'rgba(255,255,255,0.3)' },
   carbon: { label: 'Carbon', bg: '#2B2B2B', text: '#FFFFFF', shadow: 'rgba(255,255,255,0.3)' },
+  ink: { label: 'Ink', bg: '#1A1A1A', text: '#F7F2ED', shadow: 'rgba(255,255,255,0.3)' },
+  forest: { label: 'Forest', bg: '#0B8F63', text: '#F7F2ED', shadow: 'rgba(255,255,255,0.3)' },
 } as const
 
-// The swatch grid is 8 fixed slots: row 1 is White / Paper / Sepia / (empty,
-// was Dawn -- left open for a future theme), row 2 is Dark / Carbon / (empty) / (empty).
-export const THEME_SLOTS: (ThemeKey | null)[] = ['white', 'paper', 'sepia', null, 'dark', 'carbon', null, null]
+// The swatch grid is 8 fixed slots, all filled now: row 1 is light
+// themes (White / Paper / Sepia / Cream), row 2 is dark themes
+// (Dark / Carbon / Ink / Forest).
+export const THEME_SLOTS: (ThemeKey | null)[] = ['white', 'paper', 'sepia', 'cream', 'dark', 'carbon', 'ink', 'forest']
 
 export const FONTS = {
   serif: { label: 'Serif', family: 'var(--font-serif-family), serif' },
@@ -87,7 +91,7 @@ export function useReadingPrefs() {
   return [prefs, setPrefs] as const
 }
 
-const CONTROL_WIDTH = 'w-[104px]'
+const CONTROL_WIDTH = 'w-[146px]'
 const OPTION_HEIGHT = 36 // px, must match the option button's h-9 below
 
 function Stepper({

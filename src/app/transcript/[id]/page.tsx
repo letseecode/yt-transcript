@@ -173,7 +173,7 @@ export default function TranscriptPage() {
   const lineHeight = SPACING_STEPS[prefs.spacingIdx]
   const readingWidth = WIDTH_STEPS[prefs.widthIdx]
   // Shadows read as too heavy against Dark/Carbon, so scale them down there.
-  const isDarkTheme = prefs.theme === 'dark' || prefs.theme === 'carbon'
+  const isDarkTheme = prefs.theme === 'dark' || prefs.theme === 'carbon' || prefs.theme === 'ink' || prefs.theme === 'forest'
   const shadowScale = isDarkTheme ? 1 / 1.3 : 1
 
   return (
@@ -261,9 +261,9 @@ export default function TranscriptPage() {
               className="group shrink-0 mt-1 p-2"
             >
               {copied ? (
-                <span className="font-serif text-[1.3125rem] leading-none text-black" aria-hidden="true">
-                  ✓
-                </span>
+                <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#4E00FF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
               ) : (
                 <svg width="21" height="21" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   {/* Front page (drawn on top) */}
