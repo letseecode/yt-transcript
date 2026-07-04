@@ -41,6 +41,23 @@ body {
   outline: none;
 }
 
+/* Thin black rectangle scrollbar for the font dropdown, instead of the
+   OS-default scrollbar with its up/down arrow buttons. */
+.font-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #000000 transparent;
+}
+.font-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.font-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.font-scroll::-webkit-scrollbar-thumb {
+  background: #000000;
+  border-radius: 0;
+}
+
 @keyframes wave-rise {
   0% {
     transform: translateY(0);

@@ -205,7 +205,7 @@ export default function TranscriptPage() {
               <button
                 onClick={() => setSettingsOpen((o) => !o)}
                 aria-label="Reading settings"
-                className="font-serif text-[1.214rem] bg-mint text-black border-2 border-ink px-[18px] py-[6px] hover:bg-purple hover:text-white transition-colors"
+                className="font-headline font-bold text-[1.214rem] bg-mint text-black border-2 border-ink px-[18px] py-[6px] hover:bg-purple hover:text-white transition-colors"
               >
                 Aa
               </button>
