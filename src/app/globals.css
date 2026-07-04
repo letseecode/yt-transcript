@@ -35,6 +35,11 @@ body {
   outline: none;
 }
 
+.reading-select:focus-visible {
+  outline: 2px solid var(--color-purple);
+  outline-offset: 2px;
+}
+
 @keyframes wave-rise {
   0% {
     transform: translateY(0);
