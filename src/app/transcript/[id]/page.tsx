@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import ReadingSettingsMenu, {
@@ -29,6 +29,33 @@ export default function TranscriptPage() {
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [prefs, setPrefs] = useReadingPrefs()
   const [headerHidden, setHeaderHidden] = useState(false)
+  const titleRef = useRef<HTMLHeadingElement>(null)
+  const [titleLineRects, setTitleLineRects] = useState<{ left: number; width: number; bottom: number }[]>([])
+
+  // The title's underline needs its own purple-toned shadow, independent
+  // of the black shadow on the text -- native text-decoration can't have
+  // a separate shadow color, so instead we measure each wrapped line via
+  // Range.getClientRects() and draw our own purple bar under each one.
+  useLayoutEffect(() => {
+    const measure = () => {
+      const el = titleRef.current
+      if (!el || !el.firstChild) return
+      const range = document.createRange()
+      range.selectNodeContents(el)
+      const parentRect = el.getBoundingClientRect()
+      const rects = Array.from(range.getClientRects())
+      setTitleLineRects(
+        rects.map((r) => ({
+          left: r.left - parentRect.left,
+          width: r.width,
+          bottom: r.bottom - parentRect.top,
+        }))
+      )
+    }
+    measure()
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
+  }, [title, prefs])
 
   // Hide the header on scroll-down, bring it back on scroll-up.
   useEffect(() => {
@@ -159,7 +186,7 @@ export default function TranscriptPage() {
           <div className="w-full pl-[0.8cm] pr-0 py-[22px] flex items-center gap-0">
             <Link
               href="/"
-              className="relative font-serif text-[1.597rem] text-black hover:text-purple hover:[text-shadow:0.0245em_0.021em_0_rgba(120,120,120,0.54)] transition-[color,text-shadow] duration-150 -translate-y-[3px]"
+              className="relative font-serif text-[1.597rem] text-black hover:text-purple hover:[text-shadow:0.0245em_0.021em_0_rgba(78,0,255,0.4)] transition-[color,text-shadow] duration-150 -translate-y-[3px]"
             >
               YourTranscript
               <span className="absolute left-0 right-0 bottom-[2px] h-[3.3px] bg-purple [box-shadow:2px_1.5px_0_rgba(78,0,255,0.3)] pointer-events-none" />
@@ -202,12 +229,22 @@ export default function TranscriptPage() {
       >
         {title && (
           <div className="flex items-start justify-between gap-4 mb-6">
-            <h1
-              className="font-serif font-bold text-[3.488rem] leading-tight underline decoration-purple decoration-[5.54px] underline-offset-[7px]"
-              style={{ textShadow: `0.078em 0.047em 0 ${theme.shadow}` }}
-            >
-              {title}
-            </h1>
+            <div className="relative">
+              <h1
+                ref={titleRef}
+                className="font-serif font-bold text-[3.488rem] leading-tight"
+                style={{ textShadow: `0.078em 0.047em 0 ${theme.shadow}` }}
+              >
+                {title}
+              </h1>
+              {titleLineRects.map((r, i) => (
+                <span
+                  key={i}
+                  className="absolute bg-purple [box-shadow:2px_1.5px_0_rgba(78,0,255,0.3)] pointer-events-none"
+                  style={{ left: r.left, width: r.width, top: r.bottom - 7, height: '5.54px' }}
+                />
+              ))}
+            </div>
             <button
               onClick={handleCopy}
               aria-label="Copy transcript"
