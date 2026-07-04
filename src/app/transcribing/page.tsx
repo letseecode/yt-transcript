@@ -14,14 +14,14 @@ const LOADING_WAVE_COLORS = [
 ]
 
 const WAVE_ROWS = 10
-const WAVES_PER_ROW = 8
+const WAVES_PER_ROW = 13
 const SETTLE_MS = 28000
 const ROW_APPEAR_STEP = 0.9
-// 70% of the homepage's current black-wave range (46.8-85.2cm).
-const MIN_SIZE_CM = 32.76
-const MAX_SIZE_CM = 59.64
+// Previous range (32.76-59.64cm) cut by a factor of 1.5.
+const MIN_SIZE_CM = 21.84
+const MAX_SIZE_CM = 39.76
 // Same stroke thickness as the homepage's waves.
-const HALF_STROKE_WIDTH = 2.23
+const HALF_STROKE_WIDTH = 1.59
 
 // How long the bottom-up fill takes to visibly finish, derived from the
 // constants above (not a guessed number). We keep the page visible for
@@ -61,12 +61,13 @@ export default function TranscribingPage() {
         items.push({
           row,
           seed,
-          topPercent: 10 + (row + 0.5) * (80 / WAVE_ROWS) + (((seed * 6) % 6) - 3),
+          topPercent: 5 + (row + 0.5) * (93 / WAVE_ROWS) + (((seed * 6) % 6) - 3),
           sizeCm: MIN_SIZE_CM + ((seed * 0.37) % (MAX_SIZE_CM - MIN_SIZE_CM)),
           appearDelay: rowAppearDelay + ((seed * 0.11) % 0.4),
           // 1.5x faster on average than before, with a wider spread so
-          // some waves are noticeably quicker and others noticeably slower.
-          duration: (9 + ((seed * 0.9) % 9)) * 1.8 * (1 / 1.5),
+          // some waves are noticeably quicker and others noticeably slower,
+          // then slowed another 1.2x.
+          duration: (9 + ((seed * 0.9) % 9)) * 1.8 * (1 / 1.5) * 1.2,
           color: LOADING_WAVE_COLORS[(seed * 7) % LOADING_WAVE_COLORS.length],
           fromRight: i % 2 === 0,
         })
