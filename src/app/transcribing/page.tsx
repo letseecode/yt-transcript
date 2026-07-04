@@ -17,10 +17,19 @@ const WAVE_ROWS = 10
 const WAVES_PER_ROW = 8
 const SETTLE_MS = 28000
 const ROW_APPEAR_STEP = 0.9
-const COL_APPEAR_STEP = 0.12 // staggers appearance left-to-right within a row
+const COL_APPEAR_STEP = 0.12 // staggers left-and-right edges converging toward the center
 // Half the size of the homepage's current black-wave range (46.8-85.2cm).
 const MIN_SIZE_CM = 23.4
 const MAX_SIZE_CM = 42.6
+
+// How long the bottom-up, edges-to-center fill takes to visibly finish,
+// derived from the constants above (not a guessed number). We keep the
+// page visible for at least this long -- even when the transcript comes
+// back from cache almost instantly -- so every visit sees the same
+// unhurried fill, and real (uncached) fetches simply ride along with it.
+const HALF_ROW = (WAVES_PER_ROW - 1) / 2
+const FILL_COMPLETE_S = (WAVE_ROWS - 1) * ROW_APPEAR_STEP + HALF_ROW * COL_APPEAR_STEP + 0.4
+const MIN_VISIBLE_MS = Math.ceil((FILL_COMPLETE_S + 0.6) * 1000)
 
 export default function TranscribingPage() {
   const router = useRouter()
@@ -56,9 +65,11 @@ export default function TranscribingPage() {
           leftPercent: (rowOffset + i * slotPercent + slotPercent / 2 + jitter * slotPercent + 100) % 100,
           slotVw: slotPercent * 0.45,
           sizeCm: MIN_SIZE_CM + ((seed * 0.37) % (MAX_SIZE_CM - MIN_SIZE_CM)),
-          // Cascades bottom-up (by row) and left-to-right (by column)
-          // so the fill visibly sweeps in both directions at once.
-          appearDelay: row * ROW_APPEAR_STEP + i * COL_APPEAR_STEP + ((seed * 0.11) % 0.4),
+          // Cascades bottom-up (by row); within each row, the left and
+          // right edges appear first and the fill advances inward from
+          // both sides, meeting in the middle last.
+          appearDelay:
+            row * ROW_APPEAR_STEP + (HALF_ROW - Math.abs(i - HALF_ROW)) * COL_APPEAR_STEP + ((seed * 0.11) % 0.4),
           // 1.5x faster on average than before, with a wider spread so
           // some waves are noticeably quicker and others noticeably slower.
           duration: (9 + ((seed * 0.9) % 9)) * 1.8 * (1 / 1.5),
@@ -93,8 +104,6 @@ export default function TranscribingPage() {
       router.replace('/')
       return
     }
-
-    const MIN_VISIBLE_MS = 3000
 
     const run = async () => {
       const startedAt = Date.now()
