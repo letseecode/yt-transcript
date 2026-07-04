@@ -114,39 +114,58 @@ export default function TranscriptPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="border-b-2 border-ink bg-cream sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto px-6 py-3 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <Link href="/" className="font-headline font-bold text-base uppercase tracking-tight hover:text-red transition-colors">
-              YT Transcript
-            </Link>
-            <span className="text-border select-none">/</span>
-            <Link href="/library" className="font-body text-sm text-muted hover:text-ink transition-colors">
-              Library
-            </Link>
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={handleCopy}
-              className="font-headline font-bold uppercase tracking-wide text-xs border-2 border-ink px-4 py-2 hover:bg-yellow transition-colors"
-            >
-              {copied ? 'Copied ✓' : 'Copy'}
-            </button>
-            <button
-              onClick={handleDownload}
-              className="font-headline font-bold uppercase tracking-wide text-xs border-2 border-ink px-4 py-2 hover:bg-yellow transition-colors"
-            >
-              Download
-            </button>
-          </div>
+      <header className="relative border-b-2 border-ink bg-surface sticky top-0 z-10">
+        <div className="w-full pl-[0.8cm] pr-0 py-[22px] flex items-center gap-0">
+          <Link
+            href="/"
+            className="relative font-serif text-[1.597rem] text-black hover:text-purple hover:[text-shadow:0.0245em_0.021em_0_rgba(120,120,120,0.54)] transition-[color,text-shadow] duration-150 -translate-y-[3px]"
+          >
+            YourTranscript
+            <span className="absolute left-0 right-0 bottom-[2px] h-[3.3px] bg-purple [box-shadow:2px_1.5px_0_rgba(78,0,255,0.3)] pointer-events-none" />
+          </Link>
+          <span className="w-0 border-l-2 border-ink self-stretch -my-[22px] ml-[0.8cm]" />
+          <span className="flex-1 h-0 border-t-2 border-ink self-center" />
+        </div>
+        <div className="absolute top-1/2 -translate-y-1/2 right-[19px] flex items-center gap-[10px]">
+          <Link
+            href="/library"
+            className="font-headline font-bold uppercase text-[1.214rem] bg-mint text-black border-2 border-ink px-[26px] py-[6px] hover:bg-purple hover:text-white hover:[text-shadow:2px_1.5px_0_rgba(0,0,0,0.4)] transition-colors"
+          >
+            Library
+          </Link>
+          <button
+            onClick={handleDownload}
+            className="font-headline font-bold uppercase text-[1.214rem] bg-mint text-black border-2 border-ink px-[26px] py-[6px] hover:bg-purple hover:text-white hover:[text-shadow:2px_1.5px_0_rgba(0,0,0,0.4)] transition-colors"
+          >
+            Download
+          </button>
         </div>
       </header>
 
       <main className="flex-1 max-w-3xl w-full mx-auto px-6 py-10 space-y-4">
         {title && (
-          <h1 className="font-headline font-bold text-3xl md:text-4xl leading-tight mb-6 text-ink">
-            {title}
-          </h1>
+          <div className="flex items-start justify-between gap-4 mb-6">
+            <h1 className="font-headline font-bold text-3xl md:text-4xl leading-tight text-ink">
+              {title}
+            </h1>
+            <button
+              onClick={handleCopy}
+              aria-label="Copy transcript"
+              title={copied ? 'Copied' : 'Copy transcript'}
+              className="shrink-0 mt-1 p-2 text-muted hover:text-ink transition-colors"
+            >
+              {copied ? (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              ) : (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="9" y="9" width="13" height="13" rx="2" />
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                </svg>
+              )}
+            </button>
+          </div>
         )}
         {segments.map((seg, i) => {
           // If the paragraph begins with a short "Name:" label, render that
@@ -171,20 +190,6 @@ export default function TranscriptPage() {
           <Link href="/" className="font-body text-sm text-muted hover:text-ink transition-colors">
             ← Transcribe another
           </Link>
-          <div className="flex gap-2">
-            <button
-              onClick={handleCopy}
-              className="font-headline font-bold uppercase tracking-wide text-xs border-2 border-ink px-4 py-2 hover:bg-yellow transition-colors"
-            >
-              {copied ? 'Copied ✓' : 'Copy all'}
-            </button>
-            <button
-              onClick={handleDownload}
-              className="font-headline font-bold uppercase tracking-wide text-xs bg-ink text-cream px-4 py-2 hover:bg-red transition-colors"
-            >
-              Download .txt
-            </button>
-          </div>
         </div>
       </footer>
     </div>
