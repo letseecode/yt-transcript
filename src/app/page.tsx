@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import HomeWaves from '@/components/HomeWaves'
 
@@ -9,6 +9,27 @@ export default function Home() {
   const [url, setUrl] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const titleEndRef = useRef<HTMLSpanElement>(null)
+  const urlRowRef = useRef<HTMLDivElement>(null)
+  const [urlRowWidth, setUrlRowWidth] = useState<number | null>(null)
+
+  // Stretch the URL input row so its right edge lines up with the end
+  // of "Read the whole thing." -- previously this matched the Library
+  // button's edge, but Library is gone from the homepage now, so we
+  // measure the title itself instead.
+  useEffect(() => {
+    const sync = () => {
+      if (titleEndRef.current && urlRowRef.current) {
+        const titleRect = titleEndRef.current.getBoundingClientRect()
+        const rowRect = urlRowRef.current.getBoundingClientRect()
+        setUrlRowWidth(Math.max(0, titleRect.right - rowRect.left))
+      }
+    }
+    sync()
+    document.fonts?.ready?.then(sync)
+    window.addEventListener('resize', sync)
+    return () => window.removeEventListener('resize', sync)
+  }, [])
 
   const isValidYoutubeUrl = (value: string) =>
     value.includes('youtube.com') || value.includes('youtu.be')
@@ -39,7 +60,7 @@ export default function Home() {
         <div className="w-full pl-[0.8cm] pr-0 py-[22px] flex items-center gap-0">
           <a
             href="/"
-            className="relative font-serif text-[1.597rem] text-black hover:text-purple hover:[text-shadow:0.0245em_0.021em_0_rgba(120,120,120,0.54)] transition-[color,text-shadow] duration-150 -translate-y-[3px]"
+            className="relative font-serif text-[1.597rem] text-black hover:text-purple hover:[text-shadow:0.0245em_0.021em_0_rgba(78,0,255,0.4)] transition-[color,text-shadow] duration-150 -translate-y-[3px]"
           >
             YourTranscript
             <span className="absolute left-0 right-0 bottom-[2px] h-[3.3px] bg-purple [box-shadow:2px_1.5px_0_rgba(78,0,255,0.3)] pointer-events-none" />
@@ -60,7 +81,7 @@ export default function Home() {
             <span className="relative inline-block">Link<span className="absolute left-[0.035em] -right-[0.04em] -bottom-[0.02em] h-[0.091em] bg-purple [box-shadow:0.065em_0.04em_0_rgba(78,0,255,0.3)]" /></span>
             ;
             <br />
-            <span className="inline-block whitespace-nowrap">
+            <span ref={titleEndRef} className="inline-block whitespace-nowrap">
               <span className="text-purple [text-shadow:0.066em_0.036em_0_rgba(78,0,255,0.25)]">Read</span> the whole thing.
             </span>
           </h1>
@@ -69,7 +90,11 @@ export default function Home() {
 
       <section className="relative w-full bg-paper border-b-2 border-ink">
         <div className="max-w-5xl ml-0 mr-auto pl-[0.8cm] pr-[0.8cm] pt-[38px] pb-[51px]">
-          <div className="max-w-[40.3rem] space-y-[10px]">
+          <div
+            ref={urlRowRef}
+            className="max-w-[40.3rem] space-y-[10px]"
+            style={urlRowWidth !== null ? { width: `${urlRowWidth}px`, maxWidth: 'none' } : undefined}
+          >
             <label className="font-headline uppercase text-[1.102rem] text-black block">
               YouTube URL:
             </label>

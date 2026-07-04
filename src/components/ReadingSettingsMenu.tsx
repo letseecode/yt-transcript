@@ -6,8 +6,8 @@ export const THEMES = {
   white: { label: 'White', bg: '#FFFFFF', text: '#1A1A1A', shadow: 'rgba(0,0,0,0.15)' },
   sepia: { label: 'Sepia', bg: '#F4ECD8', text: '#4A3728', shadow: 'rgba(0,0,0,0.15)' },
   paper: { label: 'Paper', bg: '#E6E4E1', text: '#1A1A1A', shadow: 'rgba(0,0,0,0.15)' },
-  dark: { label: 'Dark', bg: '#1A1A1A', text: '#F7F2ED', shadow: 'rgba(255,255,255,0.3)' },
-  carbon: { label: 'Carbon', bg: '#000000', text: '#E0DAD3', shadow: 'rgba(255,255,255,0.3)' },
+  dark: { label: 'Dark', bg: '#000000', text: '#E0DAD3', shadow: 'rgba(255,255,255,0.3)' },
+  carbon: { label: 'Carbon', bg: '#1A1A1A', text: '#F7F2ED', shadow: 'rgba(255,255,255,0.3)' },
 } as const
 
 // The swatch grid is 8 fixed slots: row 1 is White / Paper / Sepia / (empty,
