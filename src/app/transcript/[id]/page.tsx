@@ -3,6 +3,14 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
+import ReadingSettingsMenu, {
+  useReadingPrefs,
+  THEMES,
+  FONTS,
+  SIZE_STEPS,
+  SPACING_STEPS,
+  WIDTH_STEPS,
+} from '@/components/ReadingSettingsMenu'
 
 interface Segment {
   text: string
@@ -18,6 +26,26 @@ export default function TranscriptPage() {
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  const [prefs, setPrefs] = useReadingPrefs()
+  const [headerHidden, setHeaderHidden] = useState(false)
+
+  // Hide the header on scroll-down, bring it back on scroll-up.
+  useEffect(() => {
+    let lastY = window.scrollY
+    const onScroll = () => {
+      const y = window.scrollY
+      const goingDown = y > lastY
+      if (y > 80 && goingDown) {
+        setHeaderHidden(true)
+      } else if (y < lastY) {
+        setHeaderHidden(false)
+      }
+      lastY = y
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -112,40 +140,69 @@ export default function TranscriptPage() {
     )
   }
 
+  const theme = THEMES[prefs.theme]
+  const readingFont = FONTS[prefs.font].family
+  const fontSizeScale = SIZE_STEPS[prefs.sizeIdx]
+  const lineHeight = SPACING_STEPS[prefs.spacingIdx]
+  const readingWidth = WIDTH_STEPS[prefs.widthIdx]
+
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="relative border-b-2 border-ink bg-surface sticky top-0 z-10">
-        <div className="w-full pl-[0.8cm] pr-0 py-[22px] flex items-center gap-0">
-          <Link
-            href="/"
-            className="relative font-serif text-[1.597rem] text-black hover:text-purple hover:[text-shadow:0.0245em_0.021em_0_rgba(120,120,120,0.54)] transition-[color,text-shadow] duration-150 -translate-y-[3px]"
-          >
-            YourTranscript
-            <span className="absolute left-0 right-0 bottom-[2px] h-[3.3px] bg-purple [box-shadow:2px_1.5px_0_rgba(78,0,255,0.3)] pointer-events-none" />
-          </Link>
-          <span className="w-0 border-l-2 border-ink self-stretch -my-[22px] ml-[0.8cm]" />
-          <span className="flex-1 h-0 border-t-2 border-ink self-center" />
-        </div>
-        <div className="absolute top-1/2 -translate-y-1/2 right-[19px] flex items-center gap-[9.5px]">
-          <Link
-            href="/library"
-            className="font-headline font-bold uppercase text-[1.214rem] bg-mint text-black border-2 border-ink px-[26px] py-[6px] hover:bg-purple hover:text-white hover:[text-shadow:2px_1.5px_0_rgba(0,0,0,0.4)] transition-colors"
-          >
-            Library
-          </Link>
-          <button
-            onClick={handleDownload}
-            className="font-headline font-bold uppercase text-[1.214rem] bg-mint text-black border-2 border-ink px-[26px] py-[6px] hover:bg-purple hover:text-white hover:[text-shadow:2px_1.5px_0_rgba(0,0,0,0.4)] transition-colors"
-          >
-            Download
-          </button>
+    <div className="min-h-screen flex flex-col" style={{ background: theme.bg, color: theme.text }}>
+      <header
+        className="border-b-2 border-ink bg-surface sticky top-0 z-10 transition-transform duration-200"
+        style={{
+          position: 'sticky',
+          transform: headerHidden ? 'translateY(-100%)' : 'translateY(0)',
+        }}
+      >
+        <div className="relative">
+          <div className="w-full pl-[0.8cm] pr-0 py-[22px] flex items-center gap-0">
+            <Link
+              href="/"
+              className="relative font-serif text-[1.597rem] text-black hover:text-purple hover:[text-shadow:0.0245em_0.021em_0_rgba(120,120,120,0.54)] transition-[color,text-shadow] duration-150 -translate-y-[3px]"
+            >
+              YourTranscript
+              <span className="absolute left-0 right-0 bottom-[2px] h-[3.3px] bg-purple [box-shadow:2px_1.5px_0_rgba(78,0,255,0.3)] pointer-events-none" />
+            </Link>
+            <span className="w-0 border-l-2 border-ink self-stretch -my-[22px] ml-[0.8cm]" />
+            <span className="flex-1 h-0 border-t-2 border-ink self-center" />
+          </div>
+          <div className="absolute top-1/2 -translate-y-1/2 right-[19px] flex items-center gap-[9.5px]">
+            <button
+              onClick={handleDownload}
+              className="font-headline font-bold uppercase text-[1.214rem] bg-mint text-black border-2 border-ink px-[26px] py-[6px] hover:bg-purple hover:text-white hover:[text-shadow:2px_1.5px_0_rgba(0,0,0,0.4)] transition-colors"
+            >
+              Download
+            </button>
+            <div className="relative">
+              <button
+                onClick={() => setSettingsOpen((o) => !o)}
+                aria-label="Reading settings"
+                className="font-serif text-[1.214rem] bg-mint text-black border-2 border-ink px-[18px] py-[6px] hover:bg-purple hover:text-white transition-colors"
+              >
+                Aa
+              </button>
+              {settingsOpen && (
+                <ReadingSettingsMenu prefs={prefs} setPrefs={setPrefs} onClose={() => setSettingsOpen(false)} />
+              )}
+            </div>
+            <Link
+              href="/library"
+              className="font-headline font-bold uppercase text-[1.214rem] bg-mint text-black border-2 border-ink px-[26px] py-[6px] hover:bg-purple hover:text-white hover:[text-shadow:2px_1.5px_0_rgba(0,0,0,0.4)] transition-colors"
+            >
+              Library
+            </Link>
+          </div>
         </div>
       </header>
 
-      <main className="flex-1 max-w-3xl w-full mx-auto px-6 py-10 space-y-4">
+      <main
+        className="flex-1 w-full mx-auto px-6 py-10 space-y-4"
+        style={{ maxWidth: readingWidth, fontFamily: readingFont }}
+      >
         {title && (
           <div className="flex items-start justify-between gap-4 mb-6">
-            <h1 className="font-serif font-bold text-[2.236rem] leading-tight underline decoration-purple decoration-[4.62px] underline-offset-[6px] [text-shadow:0.05em_0.03em_0_rgba(0,0,0,0.15)] text-ink">
+            <h1 className="font-serif font-bold text-[2.907rem] leading-tight underline decoration-purple decoration-[4.62px] underline-offset-[6px] [text-shadow:0.065em_0.039em_0_rgba(0,0,0,0.15)]">
               {title}
             </h1>
             <button
@@ -174,7 +231,7 @@ export default function TranscriptPage() {
           // label in bold italic, magazine-interview style.
           const match = seg.text.match(/^([^:]{1,40}):\s+([\s\S]+)$/)
           return (
-            <p key={i} className="font-serif text-[1.125rem] leading-[1.6] text-ink">
+            <p key={i} style={{ fontSize: `${1.125 * fontSizeScale}rem`, lineHeight }}>
               {match ? (
                 <>
                   <span className="font-bold italic">{match[1]}:</span> {match[2]}
@@ -186,14 +243,6 @@ export default function TranscriptPage() {
           )
         })}
       </main>
-
-      <footer className="border-t-2 border-ink">
-        <div className="max-w-5xl mx-auto px-6 py-4 flex justify-between items-center">
-          <Link href="/" className="font-body text-sm text-muted hover:text-ink transition-colors">
-            ← Transcribe another
-          </Link>
-        </div>
-      </footer>
     </div>
   )
 }
