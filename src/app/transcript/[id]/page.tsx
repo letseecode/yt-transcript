@@ -126,7 +126,7 @@ export default function TranscriptPage() {
           <span className="w-0 border-l-2 border-ink self-stretch -my-[22px] ml-[0.8cm]" />
           <span className="flex-1 h-0 border-t-2 border-ink self-center" />
         </div>
-        <div className="absolute top-1/2 -translate-y-1/2 right-[19px] flex items-center gap-[10px]">
+        <div className="absolute top-1/2 -translate-y-1/2 right-[19px] flex items-center gap-[9.5px]">
           <Link
             href="/library"
             className="font-headline font-bold uppercase text-[1.214rem] bg-mint text-black border-2 border-ink px-[26px] py-[6px] hover:bg-purple hover:text-white hover:[text-shadow:2px_1.5px_0_rgba(0,0,0,0.4)] transition-colors"
@@ -145,23 +145,25 @@ export default function TranscriptPage() {
       <main className="flex-1 max-w-3xl w-full mx-auto px-6 py-10 space-y-4">
         {title && (
           <div className="flex items-start justify-between gap-4 mb-6">
-            <h1 className="font-headline font-bold text-3xl md:text-4xl leading-tight text-ink">
+            <h1 className="font-serif font-bold text-[2.236rem] leading-tight underline decoration-purple decoration-[4.62px] underline-offset-[6px] [text-shadow:0.05em_0.03em_0_rgba(0,0,0,0.15)] text-ink">
               {title}
             </h1>
             <button
               onClick={handleCopy}
               aria-label="Copy transcript"
               title={copied ? 'Copied' : 'Copy transcript'}
-              className="shrink-0 mt-1 p-2 text-muted hover:text-ink transition-colors"
+              className="group shrink-0 mt-1 p-2"
             >
               {copied ? (
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
               ) : (
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="9" y="9" width="13" height="13" rx="2" />
-                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  {/* Front page (drawn on top) */}
+                  <rect x="9" y="9" width="13" height="13" rx="2" className="stroke-black transition-colors group-hover:stroke-purple" />
+                  {/* Back page (drawn behind) */}
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" className="stroke-black transition-colors group-hover:stroke-mint" />
                 </svg>
               )}
             </button>
