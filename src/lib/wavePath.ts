@@ -2,7 +2,7 @@
 export const WAVE_COLORS = ['#000000']
 // A brighter version of each wave color, used for its drop shadow.
 export const WAVE_SHADOWS: Record<string, string> = {
-  '#000000': '#9C9895', // black -> the palette's gray, 1.5x brighter
+  '#000000': '#B3B0AD', // black -> the palette's gray, 1.3x brighter still
   '#54FFC9': '#79eecb', // mint -> 1.2x lighter
   '#4E00FF': '#d88aff', // purple -> 1.3x lighter
 }
