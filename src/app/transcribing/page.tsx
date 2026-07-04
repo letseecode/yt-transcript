@@ -17,18 +17,18 @@ const WAVE_ROWS = 10
 const WAVES_PER_ROW = 8
 const SETTLE_MS = 28000
 const ROW_APPEAR_STEP = 0.9
-const COL_APPEAR_STEP = 0.12 // staggers left-and-right edges converging toward the center
-// Half the size of the homepage's current black-wave range (46.8-85.2cm).
-const MIN_SIZE_CM = 23.4
-const MAX_SIZE_CM = 42.6
+// 70% of the homepage's current black-wave range (46.8-85.2cm).
+const MIN_SIZE_CM = 32.76
+const MAX_SIZE_CM = 59.64
+// Same stroke thickness as the homepage's waves.
+const HALF_STROKE_WIDTH = 2.23
 
-// How long the bottom-up, edges-to-center fill takes to visibly finish,
-// derived from the constants above (not a guessed number). We keep the
-// page visible for at least this long -- even when the transcript comes
-// back from cache almost instantly -- so every visit sees the same
-// unhurried fill, and real (uncached) fetches simply ride along with it.
-const HALF_ROW = (WAVES_PER_ROW - 1) / 2
-const FILL_COMPLETE_S = (WAVE_ROWS - 1) * ROW_APPEAR_STEP + HALF_ROW * COL_APPEAR_STEP + 0.4
+// How long the bottom-up fill takes to visibly finish, derived from the
+// constants above (not a guessed number). We keep the page visible for
+// at least this long -- even when the transcript comes back from cache
+// almost instantly -- so every visit sees the same unhurried fill, and
+// real (uncached) fetches simply ride along with it.
+const FILL_COMPLETE_S = (WAVE_ROWS - 1) * ROW_APPEAR_STEP + 0.4
 const MIN_VISIBLE_MS = Math.ceil((FILL_COMPLETE_S + 0.6) * 1000)
 
 export default function TranscribingPage() {
@@ -37,43 +37,38 @@ export default function TranscribingPage() {
   const [errorMsg, setErrorMsg] = useState('')
   const startedRef = useRef(false)
 
-  // row 0 = lowest row (appears first), higher rows appear later as the
-  // page fills from the bottom up toward the ceiling. Each wave sits in
-  // its own horizontal slot so neighbors can pass close by without
-  // ever rendering on top of one another.
+  // row 0 = top, row WAVE_ROWS-1 = bottom. Rows reveal bottom-up (the
+  // highest row index appears first). Within every row, half the waves
+  // enter from the left and drift rightward, the other half enter from
+  // the right and drift leftward -- so they continuously move toward
+  // and past one another, like two currents facing off.
   const waves = useMemo(() => {
     const items: {
       row: number
       seed: number
-      leftPercent: number
-      slotVw: number
+      topPercent: number
       sizeCm: number
       appearDelay: number
       duration: number
       color: string
+      fromRight: boolean
     }[] = []
-    const slotPercent = 100 / WAVES_PER_ROW
     let seed = 0
     for (let row = 0; row < WAVE_ROWS; row++) {
-      const rowOffset = (row % 2) * (slotPercent / 2)
+      const rowAppearDelay = (WAVE_ROWS - 1 - row) * ROW_APPEAR_STEP
       for (let i = 0; i < WAVES_PER_ROW; i++) {
         seed++
-        const jitter = ((seed * 13) % 16) / 100 - 0.08 // +/-0.08 of a slot
         items.push({
           row,
           seed,
-          leftPercent: (rowOffset + i * slotPercent + slotPercent / 2 + jitter * slotPercent + 100) % 100,
-          slotVw: slotPercent * 0.45,
+          topPercent: 10 + (row + 0.5) * (80 / WAVE_ROWS) + (((seed * 6) % 6) - 3),
           sizeCm: MIN_SIZE_CM + ((seed * 0.37) % (MAX_SIZE_CM - MIN_SIZE_CM)),
-          // Cascades bottom-up (by row); within each row, the left and
-          // right edges appear first and the fill advances inward from
-          // both sides, meeting in the middle last.
-          appearDelay:
-            row * ROW_APPEAR_STEP + (HALF_ROW - Math.abs(i - HALF_ROW)) * COL_APPEAR_STEP + ((seed * 0.11) % 0.4),
+          appearDelay: rowAppearDelay + ((seed * 0.11) % 0.4),
           // 1.5x faster on average than before, with a wider spread so
           // some waves are noticeably quicker and others noticeably slower.
           duration: (9 + ((seed * 0.9) % 9)) * 1.8 * (1 / 1.5),
           color: LOADING_WAVE_COLORS[(seed * 7) % LOADING_WAVE_COLORS.length],
+          fromRight: i % 2 === 0,
         })
       }
     }
@@ -162,7 +157,9 @@ export default function TranscribingPage() {
     <div className="fixed inset-0 bg-white flex flex-col items-center justify-center overflow-hidden">
       <div className="absolute inset-0">
         {waves.map((w) => {
-          const upperHalf = w.row >= WAVE_ROWS / 2
+          // Top rows (small row index) keep moving longest if the real
+          // fetch runs past SETTLE_MS; bottom rows fade out first.
+          const upperHalf = w.row < WAVE_ROWS / 2
           const active = phase === 'loading' || (phase === 'settling' && upperHalf)
           const fadingOut = phase === 'done' || (phase === 'settling' && !upperHalf)
           const maxPx = w.sizeCm * PX_PER_CM
@@ -172,19 +169,18 @@ export default function TranscribingPage() {
               viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
               className="absolute"
               style={{
-                left: `${w.leftPercent}%`,
-                bottom: '-40px',
-                transform: 'translateX(-50%)',
-                width: `clamp(50px, ${w.slotVw}vw, ${maxPx}px)`,
+                top: `${w.topPercent}%`,
+                left: 0,
+                width: `min(45vw, ${maxPx}px)`,
                 aspectRatio: `${VIEW_W} / ${VIEW_H}`,
                 filter: `drop-shadow(15px 10px 0 ${WAVE_SHADOWS[w.color]})`,
                 opacity: fadingOut ? 0 : active ? 1 : 0,
                 animation: active
-                  ? `wave-appear-instant 0.05s steps(1,end) ${w.appearDelay}s both, wave-rise ${w.duration}s linear ${w.appearDelay}s infinite`
+                  ? `wave-appear-instant 0.05s steps(1,end) ${w.appearDelay}s both, ${w.fromRight ? 'wave-drift-reverse' : 'wave-drift'} ${w.duration}s linear ${w.appearDelay}s infinite`
                   : 'none',
               }}
             >
-              <path d={makeWaveOutline(w.seed, 5.85)} fill={w.color} stroke="none" />
+              <path d={makeWaveOutline(w.seed, HALF_STROKE_WIDTH)} fill={w.color} stroke="none" />
             </svg>
           )
         })}

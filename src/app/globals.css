@@ -61,3 +61,13 @@ body {
     transform: translateX(140vw) translateY(-50%);
   }
 }
+
+/* Mirror of wave-drift: enters from the right, drifts toward the left. */
+@keyframes wave-drift-reverse {
+  0% {
+    transform: translateX(140vw) translateY(-50%);
+  }
+  100% {
+    transform: translateX(-40vw) translateY(-50%);
+  }
+}
