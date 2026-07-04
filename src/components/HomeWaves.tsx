@@ -62,7 +62,7 @@ export default function HomeWaves() {
               animation: `wave-drift ${w.duration}s linear ${w.delay}s infinite`,
             }}
           >
-            <path d={makeWaveOutline(w.seed, 2.23)} fill={w.color} stroke="none" />
+            <path d={makeWaveOutline(w.seed, 1.59)} fill={w.color} stroke="none" />
           </svg>
         )
       })}
