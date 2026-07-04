@@ -22,11 +22,9 @@ export const FONTS = {
   // Free system-font approximations of well-known editorial faces --
   // not the licensed originals, labeled by their actual type style
   // rather than the publication's name.
-  nyt: { label: 'Transitional Serif', family: "'Noto Serif', Georgia, serif" },
-  arstechnica: { label: 'Grotesque Sans', family: 'Arial, Helvetica, sans-serif' },
-  techcrunch: { label: 'Neo-Grotesque', family: "'Helvetica Neue', Helvetica, Arial, sans-serif" },
-  wsj: { label: 'Old Style Serif', family: "Georgia, 'Times New Roman', serif" },
-  sanfrancisco: { label: 'San Francisco', family: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' },
+  nyt: { label: 'T-Serif', family: "'Noto Serif', Georgia, serif" },
+  techcrunch: { label: 'Grotesque', family: "'Helvetica Neue', Helvetica, Arial, sans-serif" },
+  sanfrancisco: { label: 'SF', family: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' },
   tiempos: { label: 'Tiempos', family: 'Charter, Cambria, Georgia, serif' },
   amer: { label: 'Amer', family: "'American Typewriter', Courier, monospace" },
 } as const
