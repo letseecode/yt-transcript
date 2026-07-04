@@ -8,7 +8,9 @@ const WAVES_PER_ROW = 14
 const MIN_SIZE_CM = 46.8
 const MAX_SIZE_CM = 85.2
 // Slows the drift down cumulatively. Set back to 1 to revert all speed changes.
-const SPEED_FACTOR = 1.452
+const SPEED_FACTOR = 1.7424
+// Reverted to the pre-1.4x-thinning value (2.23), then thinned 1.1x from there.
+const HALF_STROKE_WIDTH = 2.23 / 1.1
 
 export default function HomeWaves() {
   const waves = useMemo(() => {
@@ -62,7 +64,7 @@ export default function HomeWaves() {
               animation: `wave-drift ${w.duration}s linear ${w.delay}s infinite`,
             }}
           >
-            <path d={makeWaveOutline(w.seed, 1.59)} fill={w.color} stroke="none" />
+            <path d={makeWaveOutline(w.seed, HALF_STROKE_WIDTH)} fill={w.color} stroke="none" />
           </svg>
         )
       })}

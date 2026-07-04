@@ -14,7 +14,7 @@ const LOADING_WAVE_COLORS = [
 ]
 
 const WAVE_ROWS = 10
-const WAVES_PER_ROW = 13
+const WAVES_PER_ROW = 14 // even, so each row splits into mirrored left/right pairs
 const SETTLE_MS = 28000
 const ROW_APPEAR_STEP = 0.9
 // Previous range (32.76-59.64cm) cut by a factor of 1.5.
@@ -38,10 +38,11 @@ export default function TranscribingPage() {
   const startedRef = useRef(false)
 
   // row 0 = top, row WAVE_ROWS-1 = bottom. Rows reveal bottom-up (the
-  // highest row index appears first). Within every row, half the waves
-  // enter from the left and drift rightward, the other half enter from
-  // the right and drift leftward -- so they continuously move toward
-  // and past one another, like two currents facing off.
+  // highest row index appears first). Within every row, waves are built
+  // as mirrored left/right pairs: one enters from the left and drifts
+  // rightward, its mirror enters from the right and drifts leftward, and
+  // the two always share the same appear-delay and duration -- so they
+  // genuinely start and move in lockstep, not just alternate randomly.
   const waves = useMemo(() => {
     const items: {
       row: number
@@ -53,24 +54,33 @@ export default function TranscribingPage() {
       color: string
       fromRight: boolean
     }[] = []
+    const half = WAVES_PER_ROW / 2
     let seed = 0
     for (let row = 0; row < WAVE_ROWS; row++) {
       const rowAppearDelay = (WAVE_ROWS - 1 - row) * ROW_APPEAR_STEP
-      for (let i = 0; i < WAVES_PER_ROW; i++) {
-        seed++
-        items.push({
-          row,
-          seed,
-          topPercent: 5 + (row + 0.5) * (93 / WAVE_ROWS) + (((seed * 6) % 6) - 3),
-          sizeCm: MIN_SIZE_CM + ((seed * 0.37) % (MAX_SIZE_CM - MIN_SIZE_CM)),
-          appearDelay: rowAppearDelay + ((seed * 0.11) % 0.4),
-          // 1.5x faster on average than before, with a wider spread so
-          // some waves are noticeably quicker and others noticeably slower,
-          // then slowed another 1.2x.
-          duration: (9 + ((seed * 0.9) % 9)) * 1.8 * (1 / 1.5) * 1.2,
-          color: LOADING_WAVE_COLORS[(seed * 7) % LOADING_WAVE_COLORS.length],
-          fromRight: i % 2 === 0,
-        })
+      for (let pairIndex = 0; pairIndex < half; pairIndex++) {
+        const pairSeed = row * half + pairIndex + 1
+        const appearDelay = rowAppearDelay + ((pairSeed * 0.11) % 0.4)
+        // 1.5x faster on average than before, with a wider spread so
+        // some pairs are noticeably quicker and others noticeably
+        // slower, then slowed another 1.2x.
+        const duration = (9 + ((pairSeed * 0.9) % 9)) * 1.8 * (1 / 1.5) * 1.2
+        const sizeCm = MIN_SIZE_CM + ((pairSeed * 0.37) % (MAX_SIZE_CM - MIN_SIZE_CM))
+        const topPercent = 5 + (row + 0.5) * (93 / WAVE_ROWS) + (((pairSeed * 6) % 6) - 3)
+
+        for (const fromRight of [false, true]) {
+          seed++
+          items.push({
+            row,
+            seed,
+            topPercent,
+            sizeCm,
+            appearDelay,
+            duration,
+            color: LOADING_WAVE_COLORS[(seed * 7) % LOADING_WAVE_COLORS.length],
+            fromRight,
+          })
+        }
       }
     }
     return items
