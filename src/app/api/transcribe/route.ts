@@ -41,6 +41,26 @@ async function fetchTitle(videoId: string): Promise<{ title: string; author: str
   return { title: videoId, author: '' }
 }
 
+// Scrape the video's own publish date from the public watch page (no API
+// key). YouTube embeds it as "publishDate":"YYYY-MM-DD..." and as a
+// datePublished meta tag. Returns an ISO date string, or null.
+async function fetchPublishDate(videoId: string): Promise<string | null> {
+  try {
+    const res = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; YourTranscript/1.0)' },
+    })
+    if (!res.ok) return null
+    const html = await res.text()
+    const m =
+      html.match(/"publishDate":"([^"]+)"/) ||
+      html.match(/itemprop="datePublished"\s+content="([^"]+)"/) ||
+      html.match(/"uploadDate":"([^"]+)"/)
+    return m ? m[1] : null
+  } catch {
+    return null
+  }
+}
+
 export async function POST(req: Request) {
   const { url } = await req.json()
 
@@ -163,9 +183,13 @@ export async function POST(req: Request) {
   const cleaned = await cleanupTranscript(rawText)
   const finalSegments = cleaned ?? merged
 
-  // Look up the title, then store in the database for caching + the library.
-  const { title, author } = await fetchTitle(videoId)
-  await saveTranscript({ videoId, url, title, author, segments: finalSegments })
+  // Look up the title + original publish date, then store in the database
+  // for caching + the library.
+  const [{ title, author }, publishedAt] = await Promise.all([
+    fetchTitle(videoId),
+    fetchPublishDate(videoId),
+  ])
+  await saveTranscript({ videoId, url, title, author, segments: finalSegments, publishedAt })
 
   return NextResponse.json({ id: videoId, segments: finalSegments, title })
 }

@@ -9,6 +9,14 @@ interface TranscriptSummary {
   title: string
   author: string
   createdAt: string
+  publishedAt: string | null
+}
+
+// Prefer the video's own publish date; fall back to when we saved it.
+function displayDate(item: TranscriptSummary): string {
+  const raw = item.publishedAt || item.createdAt
+  const d = new Date(raw)
+  return isNaN(d.getTime()) ? '' : d.toLocaleDateString()
 }
 
 export default function LibraryPage() {
@@ -30,52 +38,80 @@ export default function LibraryPage() {
   }, [])
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="border-b-2 border-ink bg-cream sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto px-6 py-3 flex items-center gap-3">
-          <Link href="/" className="font-headline font-bold text-base uppercase tracking-tight hover:text-red transition-colors">
-            YT Transcript
-          </Link>
-          <span className="text-border select-none">/</span>
-          <span className="font-body text-sm text-muted">Library</span>
-          <Link
-            href="/"
-            className="ml-auto font-headline font-bold uppercase tracking-wide text-xs border-2 border-ink px-4 py-2 hover:bg-yellow transition-colors"
-          >
-            New transcript
-          </Link>
+    <div className="min-h-screen flex flex-col bg-white text-black">
+      {/* Header adopted from the transcript page: logo + rule, single button. */}
+      <header className="border-b-2 border-ink bg-white sticky top-0 z-10">
+        <div className="relative">
+          <div className="w-full pl-[0.8cm] pr-0 py-[22px] flex items-center gap-0">
+            <Link
+              href="/"
+              className="relative font-serif text-[1.597rem] text-black hover:text-purple hover:[text-shadow:0.0245em_0.021em_0_rgba(78,0,255,0.4)] transition-[color,text-shadow] duration-150 -translate-y-[3px]"
+            >
+              YourTranscript
+              <span className="absolute left-0 right-0 bottom-[2px] h-[3.3px] bg-purple [box-shadow:2px_1.5px_0_rgba(78,0,255,0.3)] pointer-events-none" />
+            </Link>
+            <span className="w-0 border-l-2 border-ink self-stretch -my-[22px] ml-[0.8cm]" />
+            <span className="flex-1 h-0 border-t-2 border-ink self-center" />
+          </div>
+          <div className="absolute top-1/2 -translate-y-1/2 right-[9.3px] flex items-center gap-[9.5px]">
+            <Link
+              href="/library"
+              className="font-headline font-bold uppercase text-[1.214rem] bg-mint text-black border-2 border-ink px-[26px] py-[6px] hover:bg-purple hover:text-white transition-colors"
+            >
+              Library
+            </Link>
+          </div>
         </div>
       </header>
 
-      <main className="flex-1 max-w-3xl w-full mx-auto px-6 py-10">
-        <h1 className="font-headline font-bold text-4xl leading-none mb-8">Saved transcripts</h1>
+      {/* Everything here is sized in em off a 1.6rem base, i.e. ~60% larger
+          than the previous rem-based sizing. */}
+      <main
+        className="flex-1 w-full mx-auto px-6 py-16"
+        style={{ maxWidth: '68rem', fontSize: '1.6rem' }}
+      >
+        <div className="relative inline-block mb-[0.9em]">
+          <h1 className="font-display uppercase text-[2.6em] leading-[1.0] tracking-tight [text-shadow:0.05em_0.03em_0_rgba(0,0,0,0.16)]">
+            Saved Transcripts
+          </h1>
+          {/* Two mint highlighter lines with a soft mint shadow. */}
+          <span className="absolute left-0 right-0 -bottom-[0.02em] h-[0.075em] bg-mint [box-shadow:0.05em_0.035em_0_rgba(84,255,201,0.5)] pointer-events-none" />
+          <span className="absolute left-0 right-0 -bottom-[0.2em] h-[0.075em] bg-mint [box-shadow:0.05em_0.035em_0_rgba(84,255,201,0.5)] pointer-events-none" />
+        </div>
+
+        {/* The separator below the title, in purple. */}
+        <div className="h-[3px] bg-purple [box-shadow:0.13em_0.09em_0_rgba(78,0,255,0.25)]" />
 
         {loading ? (
-          <p className="font-headline text-lg font-bold">Loading…</p>
+          <p className="font-headline text-[1.1em] font-bold mt-[1.2em]">Loading…</p>
         ) : items.length === 0 ? (
-          <div className="space-y-3">
-            <p className="font-body text-base text-muted">No transcripts saved yet.</p>
+          <div className="space-y-[0.8em] mt-[1.2em]">
+            <p className="font-body text-[0.9em] text-muted">No transcripts saved yet.</p>
             <Link
               href="/"
-              className="inline-block font-headline font-bold uppercase tracking-wide text-xs border-2 border-ink px-4 py-2 hover:bg-yellow transition-colors"
+              className="inline-block font-headline font-bold uppercase tracking-wide text-[0.65em] border-2 border-ink px-[1.2em] py-[0.7em] hover:bg-mint transition-colors"
             >
               Transcribe your first video →
             </Link>
           </div>
         ) : (
-          <ul className="divide-y-2 divide-border border-y-2 border-ink">
+          <ul className="divide-y divide-border">
             {items.map((item) => (
               <li key={item.videoId}>
                 <Link
                   href={`/transcript/${item.videoId}`}
-                  className="block py-4 group hover:bg-surface transition-colors"
+                  className="group block py-[1.1em]"
                 >
-                  <p className="font-serif text-lg leading-snug text-ink group-hover:text-red transition-colors">
-                    {item.title || item.videoId}
-                  </p>
-                  <p className="font-body text-sm text-muted mt-1">
-                    {item.author && <span>{item.author} · </span>}
-                    {new Date(item.createdAt).toLocaleDateString()}
+                  <span className="relative inline-block">
+                    <span className="font-serif font-bold text-[1.15em] leading-snug text-black">
+                      {item.title || item.videoId}
+                    </span>
+                    {/* Purple highlighter that appears on hover. */}
+                    <span className="absolute left-0 right-0 -bottom-[0.06em] h-[0.06em] bg-purple opacity-0 group-hover:opacity-100 transition-opacity [box-shadow:0.05em_0.035em_0_rgba(78,0,255,0.3)] pointer-events-none" />
+                  </span>
+                  <p className="font-body text-[0.8em] mt-[0.5em]">
+                    {item.author && <span className="text-muted">{item.author} · </span>}
+                    <span className="text-black">{displayDate(item)}</span>
                   </p>
                 </Link>
               </li>
