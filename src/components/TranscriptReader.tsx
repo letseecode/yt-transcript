@@ -334,7 +334,7 @@ export default function TranscriptReader({
         <div
           data-reader-popup
           className="fixed z-50 -translate-x-1/2 -translate-y-full mb-2 flex overflow-hidden border-2 border-black bg-white shadow-[3px_3px_0_rgba(0,0,0,0.2)]"
-          style={{ left: popup.x, top: popup.y - 8, fontFamily: SERIF_FONT, width: popup.isWord ? 232 : 116 }}
+          style={{ left: popup.x, top: popup.y - 8, fontFamily: SERIF_FONT, width: popup.isWord ? 186 : 93 }}
         >
           <button
             onMouseDown={(e) => e.preventDefault()}
@@ -342,7 +342,7 @@ export default function TranscriptReader({
               addHighlight(popup.paragraph, popup.start, popup.end, popup.text)
               setPopup(null)
             }}
-            className="flex-1 py-[5px] text-[1.006rem] text-black text-center hover:bg-mint transition-colors"
+            className="flex-1 py-[4px] text-[0.805rem] text-black text-center hover:bg-purple hover:text-white transition-colors"
           >
             Highlight
           </button>
@@ -350,7 +350,7 @@ export default function TranscriptReader({
             <button
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => define(popup.text, popup.x, popup.y)}
-              className="flex-1 py-[5px] text-[1.006rem] text-black text-center border-l-2 border-black hover:bg-mint transition-colors"
+              className="flex-1 py-[4px] text-[0.805rem] text-black text-center border-l-2 border-black hover:bg-purple hover:text-white transition-colors"
             >
               Dictionary
             </button>
@@ -374,19 +374,21 @@ export default function TranscriptReader({
                 onChange={(e) => setNote(h.id, e.target.value)}
                 placeholder="Write a note…"
                 rows={3}
-                className="w-full resize-none bg-white text-black text-sm outline-none border border-black/20 rounded p-2"
-                style={{ fontFamily: SF_FONT }}
+                className="w-full resize-none bg-white text-black text-sm outline-none focus:outline-none focus-visible:outline-none border border-black/20 p-2"
+                style={{ fontFamily: SERIF_FONT }}
               />
               <div className="mt-2 flex justify-between">
                 <button
                   onClick={() => removeHighlight(h.id)}
-                  className="text-[0.7rem] uppercase tracking-wide text-black/50 hover:text-purple transition"
+                  className="text-[0.7rem] uppercase tracking-wide text-black/50 hover:text-black transition"
+                  style={{ fontFamily: SERIF_FONT }}
                 >
                   Remove highlight
                 </button>
                 <button
                   onClick={() => setPopup(null)}
-                  className="text-[0.7rem] uppercase tracking-wide font-bold text-black hover:text-purple transition"
+                  className="text-[0.7rem] uppercase tracking-wide font-bold text-black hover:text-black/60 transition"
+                  style={{ fontFamily: SERIF_FONT }}
                 >
                   Done
                 </button>
