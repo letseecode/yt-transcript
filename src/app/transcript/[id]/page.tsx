@@ -11,6 +11,7 @@ import ReadingSettingsMenu, {
   SPACING_STEPS,
   WIDTH_STEPS,
 } from '@/components/ReadingSettingsMenu'
+import TranscriptReader from '@/components/TranscriptReader'
 
 interface Segment {
   text: string
@@ -300,22 +301,15 @@ export default function TranscriptPage() {
             </button>
           </div>
         )}
-        {segments.map((seg, i) => {
-          // If the paragraph begins with a short "Name:" label, render that
-          // label in bold italic, magazine-interview style.
-          const match = seg.text.match(/^([^:]{1,40}):\s+([\s\S]+)$/)
-          return (
-            <p key={i} className={i === 0 ? undefined : 'mt-4'} style={{ fontSize: `${fontSizeScale}rem`, lineHeight }}>
-              {match ? (
-                <>
-                  <span className="font-bold italic">{match[1]}:</span> {match[2]}
-                </>
-              ) : (
-                seg.text
-              )}
-            </p>
-          )
-        })}
+        <TranscriptReader
+          transcriptId={id}
+          lang="en"
+          segments={segments}
+          fontSizeRem={fontSizeScale}
+          lineHeight={lineHeight}
+          fontFamily={readingFont}
+          isDark={isDarkTheme}
+        />
       </main>
     </div>
   )
