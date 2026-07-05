@@ -43,8 +43,15 @@ export const SPACING_STEPS = [1.2, 1.4, 1.6, 1.8, 2]
 // low end of the range.
 export const WIDTH_STEPS = ['44rem', '50rem', '56rem', '62rem']
 
+export const LANGS = {
+  en: { label: 'English' },
+  fr: { label: 'Français' },
+  es: { label: 'Español' },
+} as const
+
 export type ThemeKey = keyof typeof THEMES
 export type FontKey = keyof typeof FONTS
+export type LangKey = keyof typeof LANGS
 
 export interface ReadingPrefs {
   theme: ThemeKey
@@ -52,9 +59,10 @@ export interface ReadingPrefs {
   sizeIdx: number
   spacingIdx: number
   widthIdx: number
+  lang: LangKey
 }
 
-const DEFAULT_PREFS: ReadingPrefs = { theme: 'white', font: 'serif', sizeIdx: 2, spacingIdx: 2, widthIdx: 0 }
+const DEFAULT_PREFS: ReadingPrefs = { theme: 'white', font: 'serif', sizeIdx: 2, spacingIdx: 2, widthIdx: 0, lang: 'en' }
 const STORAGE_KEY = 'reading-prefs'
 
 export function useReadingPrefs() {
@@ -74,6 +82,7 @@ export function useReadingPrefs() {
           // instead of crashing the page.
           if (!(merged.font in FONTS)) merged.font = DEFAULT_PREFS.font
           if (!(merged.theme in THEMES)) merged.theme = DEFAULT_PREFS.theme
+          if (!(merged.lang in LANGS)) merged.lang = DEFAULT_PREFS.lang
           if (!(merged.sizeIdx >= 0 && merged.sizeIdx < SIZE_STEPS.length)) merged.sizeIdx = DEFAULT_PREFS.sizeIdx
           if (!(merged.spacingIdx >= 0 && merged.spacingIdx < SPACING_STEPS.length)) merged.spacingIdx = DEFAULT_PREFS.spacingIdx
           if (!(merged.widthIdx >= 0 && merged.widthIdx < WIDTH_STEPS.length)) merged.widthIdx = DEFAULT_PREFS.widthIdx
@@ -266,12 +275,32 @@ export default function ReadingSettingsMenu({
           onChange={(v) => setPrefs((p) => ({ ...p, spacingIdx: v }))}
         />
       </div>
-      <Stepper
-        label="Width"
-        value={prefs.widthIdx}
-        max={WIDTH_STEPS.length - 1}
-        onChange={(v) => setPrefs((p) => ({ ...p, widthIdx: v }))}
-      />
+      <div className="border-b-2 border-border">
+        <Stepper
+          label="Width"
+          value={prefs.widthIdx}
+          max={WIDTH_STEPS.length - 1}
+          onChange={(v) => setPrefs((p) => ({ ...p, widthIdx: v }))}
+        />
+      </div>
+
+      <div className="flex items-center justify-between py-[10px]">
+        <span className="font-headline text-[0.9rem] text-muted">Language</span>
+        <div className={`flex border-2 border-black ${CONTROL_WIDTH}`}>
+          {(Object.keys(LANGS) as LangKey[]).map((key, i) => (
+            <button
+              key={key}
+              onClick={() => setPrefs((p) => ({ ...p, lang: key }))}
+              className={`flex-1 h-9 flex items-center justify-center text-[0.72rem] transition-colors ${
+                i > 0 ? 'border-l-2 border-black' : ''
+              } ${prefs.lang === key ? 'bg-mint font-bold' : 'hover:bg-mint/40'}`}
+              title={LANGS[key].label}
+            >
+              {key.toUpperCase()}
+            </button>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }

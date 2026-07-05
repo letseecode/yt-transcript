@@ -47,8 +47,18 @@ export default function TranscriptPage() {
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [prefs, setPrefs] = useReadingPrefs()
   const [headerHidden, setHeaderHidden] = useState(false)
+  // Cache of translated versions, keyed by language. 'en' is the original.
+  const [translations, setTranslations] = useState<Record<string, { title: string; segments: Segment[] }>>({})
+  const [translating, setTranslating] = useState(false)
+  const [translateError, setTranslateError] = useState('')
   const titleRef = useRef<HTMLHeadingElement>(null)
   const [titleLineRects, setTitleLineRects] = useState<{ left: number; width: number; bottom: number }[]>([])
+
+  // What's actually shown: the original, or a cached translation.
+  const lang = prefs.lang
+  const active = lang !== 'en' && translations[lang] ? translations[lang] : { title, segments }
+  const displayTitle = active.title
+  const displaySegments = active.segments
 
   // The title's underline needs its own purple-toned shadow, independent
   // of the black shadow on the text -- native text-decoration can't have
@@ -73,7 +83,7 @@ export default function TranscriptPage() {
     measure()
     window.addEventListener('resize', measure)
     return () => window.removeEventListener('resize', measure)
-  }, [title, prefs])
+  }, [displayTitle, prefs])
 
   // Hide the header on scroll-down, bring it back on scroll-up.
   useEffect(() => {
@@ -146,8 +156,61 @@ export default function TranscriptPage() {
     }
   }, [id])
 
+  // Translate on demand when the reading language isn't English. Cached in
+  // memory and localStorage so switching back and forth is instant.
+  useEffect(() => {
+    if (lang === 'en' || segments.length === 0) return
+    if (translations[lang]) return
+
+    // Try localStorage cache first.
+    try {
+      const raw = localStorage.getItem(`translation-${id}-${lang}`)
+      if (raw) {
+        const cached = JSON.parse(raw)
+        if (cached?.segments?.length === segments.length) {
+          setTranslations((t) => ({ ...t, [lang]: cached }))
+          return
+        }
+      }
+    } catch {}
+
+    let cancelled = false
+    setTranslating(true)
+    setTranslateError('')
+    ;(async () => {
+      try {
+        const res = await fetch('/api/translate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, paragraphs: segments.map((s) => s.text), target: lang }),
+        })
+        const data = await res.json()
+        if (cancelled) return
+        if (res.ok && Array.isArray(data.paragraphs) && data.paragraphs.length === segments.length) {
+          const entry = {
+            title: data.title ?? title,
+            segments: data.paragraphs.map((text: string, i: number) => ({ text, startMs: segments[i].startMs })),
+          }
+          setTranslations((t) => ({ ...t, [lang]: entry }))
+          try {
+            localStorage.setItem(`translation-${id}-${lang}`, JSON.stringify(entry))
+          } catch {}
+        } else {
+          setTranslateError(data.error ?? 'Could not translate.')
+        }
+      } catch {
+        if (!cancelled) setTranslateError('Could not translate.')
+      } finally {
+        if (!cancelled) setTranslating(false)
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [lang, id, segments, title, translations])
+
   const buildExportText = () =>
-    segments.map((s) => s.text).join('\n\n')
+    displaySegments.map((s) => s.text).join('\n\n')
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(buildExportText())
@@ -264,7 +327,7 @@ export default function TranscriptPage() {
                 className="font-serif font-bold text-[4.186rem] leading-tight"
                 style={{ textShadow: `${0.0858 * wordShadowScale}em ${0.0517 * wordShadowScale}em 0 ${wordShadowColor}` }}
               >
-                {title}
+                {displayTitle}
               </h1>
               {titleLineRects.map((r, i) => (
                 <span
@@ -301,10 +364,20 @@ export default function TranscriptPage() {
             </button>
           </div>
         )}
+        {translating && (
+          <p className="mb-6 text-sm opacity-60" style={{ fontFamily: readingFont }}>
+            Translating to {prefs.lang === 'fr' ? 'French' : 'Spanish'}…
+          </p>
+        )}
+        {translateError && (
+          <p className="mb-6 text-sm text-red" style={{ fontFamily: readingFont }}>
+            {translateError} Showing the original.
+          </p>
+        )}
         <TranscriptReader
           transcriptId={id}
-          lang="en"
-          segments={segments}
+          lang={lang}
+          segments={displaySegments}
           fontSizeRem={fontSizeScale}
           lineHeight={lineHeight}
           fontFamily={readingFont}
