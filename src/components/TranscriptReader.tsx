@@ -24,6 +24,7 @@ interface Props {
 }
 
 const SF_FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
+const SERIF_FONT = 'var(--font-serif-family), serif' // matches the YourTranscript / title font
 const MINT = '#54FFC9'
 
 type Popup =
@@ -289,7 +290,7 @@ export default function TranscriptReader({
                   onChange={(e) => setNote(h.id, e.target.value)}
                   placeholder="Add a note…"
                   rows={h.note ? Math.max(2, h.note.split('\n').length) : 1}
-                  className="w-full resize-y bg-transparent outline-none text-[0.95rem] leading-relaxed placeholder:opacity-40 border border-transparent focus:border-purple/40 rounded p-2"
+                  className="w-full resize-none bg-transparent outline-none text-[0.95rem] leading-relaxed placeholder:opacity-40 border border-transparent focus:border-purple/40 rounded p-2"
                   style={{ fontFamily: SF_FONT, color: 'inherit' }}
                 />
                 <button
@@ -310,7 +311,7 @@ export default function TranscriptReader({
         <div
           data-reader-popup
           className="fixed z-50 -translate-x-1/2 -translate-y-full mb-2 flex overflow-hidden rounded-md border-2 border-black bg-white shadow-[3px_3px_0_rgba(0,0,0,0.2)]"
-          style={{ left: popup.x, top: popup.y - 8, fontFamily: SF_FONT }}
+          style={{ left: popup.x, top: popup.y - 8, fontFamily: SERIF_FONT }}
         >
           <button
             onMouseDown={(e) => e.preventDefault()}
@@ -350,7 +351,7 @@ export default function TranscriptReader({
                 onChange={(e) => setNote(h.id, e.target.value)}
                 placeholder="Write a note…"
                 rows={3}
-                className="w-full resize-y bg-white text-black text-sm outline-none border border-black/20 rounded p-2"
+                className="w-full resize-none bg-white text-black text-sm outline-none border border-black/20 rounded p-2"
                 style={{ fontFamily: SF_FONT }}
               />
               <div className="mt-2 flex justify-between">
