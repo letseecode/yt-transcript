@@ -79,6 +79,12 @@ export async function saveTranscript(rec: {
   `
 }
 
+export async function deleteTranscript(videoId: string): Promise<void> {
+  if (!sql) return
+  await ensureTable()
+  await sql`DELETE FROM transcripts WHERE video_id = ${videoId}`
+}
+
 export interface TranscriptSummary {
   videoId: string
   url: string

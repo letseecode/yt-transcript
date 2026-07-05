@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { countHighlights, clearLocalTranscript } from '@/lib/highlights'
 
 interface TranscriptSummary {
   videoId: string
@@ -19,9 +20,54 @@ function displayDate(item: TranscriptSummary): string {
   return isNaN(d.getTime()) ? '' : d.toLocaleDateString()
 }
 
+// --- Icons (inline so the strict CSP has nothing external to fetch) --------
+const iconProps = {
+  viewBox: '0 0 24 24',
+  fill: 'none',
+  stroke: 'currentColor',
+  strokeWidth: 2,
+  strokeLinecap: 'round' as const,
+  strokeLinejoin: 'round' as const,
+}
+// A highlighter / brush.
+const BrushIcon = () => (
+  <svg width="1em" height="1em" {...iconProps}>
+    <path d="M15 3l6 6-8.5 8.5H6.5V11.5z" />
+    <path d="M6.5 17.5 4 22l4.5-2.5" />
+  </svg>
+)
+// A rolled scroll (pergamino) for notes.
+const ScrollIcon = () => (
+  <svg width="1em" height="1em" {...iconProps}>
+    <path d="M6 4h11a2 2 0 0 1 2 2v10a2 2 0 0 0 2 2H9a2 2 0 0 1-2-2V6a2 2 0 0 0-2-2z" />
+    <path d="M5 4a2 2 0 0 0-2 2v1h4" />
+    <path d="M10 9h6M10 13h6" />
+  </svg>
+)
+const TrashIcon = () => (
+  <svg width="1em" height="1em" {...iconProps}>
+    <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+    <path d="M10 11v6M14 11v6" />
+  </svg>
+)
+
+// A round pill showing a count + icon (highlights / notes).
+function CountBadge({ icon, count, tone }: { icon: React.ReactNode; count: number; tone: 'mint' | 'purple' }) {
+  return (
+    <span
+      className="inline-flex items-center gap-[0.3em] rounded-full border-2 border-ink bg-white px-[0.7em] h-[2.2em] text-[1.05em] leading-none select-none"
+      title={tone === 'mint' ? `${count} highlight${count === 1 ? '' : 's'}` : `${count} note${count === 1 ? '' : 's'}`}
+    >
+      <span className={tone === 'mint' ? 'text-black' : 'text-purple'}>{icon}</span>
+      <span className="font-serif font-bold text-black">{count}</span>
+    </span>
+  )
+}
+
 export default function LibraryPage() {
   const [items, setItems] = useState<TranscriptSummary[]>([])
   const [loading, setLoading] = useState(true)
+  const [counts, setCounts] = useState<Record<string, { highlights: number; notes: number }>>({})
 
   useEffect(() => {
     const load = async () => {
@@ -37,9 +83,26 @@ export default function LibraryPage() {
     load()
   }, [])
 
+  // Highlights/notes live in this browser's localStorage; tally them once the
+  // list is in.
+  useEffect(() => {
+    const next: Record<string, { highlights: number; notes: number }> = {}
+    for (const item of items) next[item.videoId] = countHighlights(item.videoId)
+    setCounts(next)
+  }, [items])
+
+  const handleDelete = async (videoId: string, title: string) => {
+    if (!window.confirm(`Delete “${title || videoId}” from your library? This can't be undone.`)) return
+    setItems((prev) => prev.filter((i) => i.videoId !== videoId))
+    clearLocalTranscript(videoId)
+    try {
+      await fetch(`/api/transcripts/${videoId}`, { method: 'DELETE' })
+    } catch {}
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-white text-black">
-      {/* Header adopted from the transcript page: logo + rule, single button. */}
+      {/* Header adopted from the transcript page: logo + rule. */}
       <header className="border-b-2 border-ink bg-white sticky top-0 z-10">
         <div className="relative">
           <div className="w-full pl-[0.8cm] pr-0 py-[22px] flex items-center gap-0">
@@ -56,8 +119,7 @@ export default function LibraryPage() {
         </div>
       </header>
 
-      {/* Everything here is sized in em off a 1.6rem base, i.e. ~60% larger
-          than the previous rem-based sizing. */}
+      {/* Title sized in em off a 1.6rem base. */}
       <main
         className="flex-1 w-full mx-auto px-6 py-16"
         style={{ maxWidth: '68rem', fontSize: '1.6rem' }}
@@ -89,26 +151,43 @@ export default function LibraryPage() {
           </div>
         ) : (
           <ul className="divide-y divide-black">
-            {items.map((item) => (
-              <li key={item.videoId}>
-                <Link
-                  href={`/transcript/${item.videoId}`}
-                  className="group block py-[1.1em]"
-                >
-                  <span className="relative inline-block">
-                    <span className="font-serif font-bold text-[1.15em] leading-snug text-black">
-                      {item.title || item.videoId}
+            {items.map((item) => {
+              const c = counts[item.videoId] ?? { highlights: 0, notes: 0 }
+              return (
+                <li key={item.videoId} className="relative group">
+                  <Link
+                    href={`/transcript/${item.videoId}`}
+                    className="block py-[1.1em] pr-[11em]"
+                  >
+                    <span className="relative inline-block">
+                      <span className="font-serif font-bold text-[1.15em] leading-snug text-black">
+                        {item.title || item.videoId}
+                      </span>
+                      {/* Black highlighter that appears on hover. */}
+                      <span className="absolute left-0 right-0 -bottom-[0.06em] h-[0.06em] bg-black opacity-0 group-hover:opacity-100 transition-opacity [box-shadow:0.05em_0.035em_0_rgba(0,0,0,0.3)] pointer-events-none" />
                     </span>
-                    {/* Black highlighter that appears on hover. */}
-                    <span className="absolute left-0 right-0 -bottom-[0.06em] h-[0.06em] bg-black opacity-0 group-hover:opacity-100 transition-opacity [box-shadow:0.05em_0.035em_0_rgba(0,0,0,0.3)] pointer-events-none" />
-                  </span>
-                  <p className="font-serif text-[0.8em] mt-[0.5em] text-black">
-                    {item.author && <span>{item.author} · </span>}
-                    <span>{displayDate(item)}</span>
-                  </p>
-                </Link>
-              </li>
-            ))}
+                    <p className="font-serif text-[0.8em] mt-[0.5em] text-black">
+                      {item.author && <span>{item.author} · </span>}
+                      <span>{displayDate(item)}</span>
+                    </p>
+                  </Link>
+
+                  {/* Action circles, pinned to the right of the row. */}
+                  <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-[0.6em]">
+                    <CountBadge icon={<BrushIcon />} count={c.highlights} tone="mint" />
+                    <CountBadge icon={<ScrollIcon />} count={c.notes} tone="purple" />
+                    <button
+                      onClick={() => handleDelete(item.videoId, item.title)}
+                      aria-label="Delete transcript"
+                      title="Delete transcript"
+                      className="inline-flex items-center justify-center w-[2.2em] h-[2.2em] rounded-full border-2 border-ink bg-white text-black text-[1.05em] opacity-0 group-hover:opacity-100 hover:bg-trash hover:text-white hover:border-trash transition-all"
+                    >
+                      <TrashIcon />
+                    </button>
+                  </div>
+                </li>
+              )
+            })}
           </ul>
         )}
         </div>
