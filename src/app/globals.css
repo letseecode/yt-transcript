@@ -15,6 +15,9 @@
   --color-paper: #ECEAE8;
   --color-black: #000000;
   --color-forest: #0B8F63;
+  /* Delete/danger red -- the one place we step outside the core palette.
+     A warm vermilion that sits well next to the purple and mint. */
+  --color-trash: #F5402E;
 
   --font-headline: var(--font-headline-family);
   --font-serif: var(--font-serif-family);

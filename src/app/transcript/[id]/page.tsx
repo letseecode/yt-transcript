@@ -1,8 +1,9 @@
 'use client'
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { clearLocalTranscript } from '@/lib/highlights'
 import ReadingSettingsMenu, {
   useReadingPrefs,
   THEMES,
@@ -37,7 +38,17 @@ function readLocalTranscript(id: string): { segments: Segment[]; title: string }
 
 export default function TranscriptPage() {
   const params = useParams()
+  const router = useRouter()
   const id = params.id as string
+
+  const handleDelete = async () => {
+    if (!window.confirm('Delete this transcript from your library? This can’t be undone.')) return
+    clearLocalTranscript(id)
+    try {
+      await fetch(`/api/transcripts/${id}`, { method: 'DELETE' })
+    } catch {}
+    router.push('/library')
+  }
 
   const [segments, setSegments] = useState<Segment[]>(() => readLocalTranscript(id)?.segments ?? [])
   const [title, setTitle] = useState(() => readLocalTranscript(id)?.title ?? '')
@@ -415,6 +426,21 @@ export default function TranscriptPage() {
           fontFamily={readingFont}
           isDark={isDarkTheme}
         />
+
+        {!loading && !notFound && (
+          <div className="mt-16 pt-8 border-t border-black/15 flex justify-center">
+            <button
+              onClick={handleDelete}
+              className="group inline-flex items-center gap-2 rounded-full border-2 border-ink bg-transparent px-5 py-2 text-sm font-headline uppercase tracking-wide text-black hover:bg-trash hover:text-white hover:border-trash transition-colors"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                <path d="M10 11v6M14 11v6" />
+              </svg>
+              Delete transcript
+            </button>
+          </div>
+        )}
       </main>
     </div>
 
