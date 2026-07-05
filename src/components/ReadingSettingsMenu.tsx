@@ -9,14 +9,15 @@ export const THEMES = {
   cream: { label: 'Cream', bg: '#F7F2ED', text: '#1A1A1A', shadow: 'rgba(0,0,0,0.15)' },
   dark: { label: 'Dark', bg: '#000000', text: '#FFFFFF', shadow: 'rgba(255,255,255,0.3)' },
   carbon: { label: 'Carbon', bg: '#2B2B2B', text: '#FFFFFF', shadow: 'rgba(255,255,255,0.3)' },
-  ink: { label: 'Ink', bg: '#1A1A1A', text: '#F7F2ED', shadow: 'rgba(255,255,255,0.3)' },
+  // Kindle-style warm dark reading tone (amber "night" reading).
+  nightshade: { label: 'Nightshade', bg: '#1C1814', text: '#E8DFCF', shadow: 'rgba(255,255,255,0.3)' },
   forest: { label: 'Forest', bg: '#0B8F63', text: '#F7F2ED', shadow: 'rgba(255,255,255,0.3)' },
 } as const
 
-// The swatch grid is 8 fixed slots, all filled now: row 1 is light
-// themes (White / Paper / Sepia / Cream), row 2 is dark themes
-// (Dark / Carbon / Ink / Forest).
-export const THEME_SLOTS: (ThemeKey | null)[] = ['white', 'paper', 'sepia', 'cream', 'dark', 'carbon', 'ink', 'forest']
+// The swatch grid is 8 fixed slots, all filled: row 1 is light themes
+// (White / Paper / Cream / Sepia), row 2 is dark themes
+// (Dark / Carbon / Nightshade / Forest).
+export const THEME_SLOTS: (ThemeKey | null)[] = ['white', 'paper', 'cream', 'sepia', 'dark', 'carbon', 'nightshade', 'forest']
 
 export const FONTS = {
   serif: { label: 'Serif', family: 'var(--font-serif-family), serif' },
@@ -28,7 +29,7 @@ export const FONTS = {
   // rather than the publication's name.
   nyt: { label: 'T-Serif', family: "'Noto Serif', Georgia, serif" },
   techcrunch: { label: 'Grotesque', family: "'Helvetica Neue', Helvetica, Arial, sans-serif" },
-  sanfrancisco: { label: 'SF', family: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' },
+  sanfrancisco: { label: 'San Francisco', family: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' },
   tiempos: { label: 'Tiempos', family: 'Charter, Cambria, Georgia, serif' },
   amer: { label: 'Amer', family: "'American Typewriter', Courier, monospace" },
 } as const
@@ -117,10 +118,13 @@ function Stepper({
         >
           −
         </button>
+        {/* Standalone divider so it always stays black -- putting the
+            border on the button itself made it fade with disabled:opacity. */}
+        <span className="w-[2px] self-stretch bg-black" />
         <button
           onClick={() => onChange(Math.min(max, value + 1))}
           disabled={value === max}
-          className="flex-1 h-9 flex items-center justify-center text-base border-l-2 border-black hover:bg-paper disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+          className="flex-1 h-9 flex items-center justify-center text-base hover:bg-paper disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
           aria-label={`Increase ${label.toLowerCase()}`}
         >
           +
@@ -212,7 +216,10 @@ export default function ReadingSettingsMenu({
       // Explicit text color so the menu always reads the same regardless
       // of which reading theme (e.g. Dark/Carbon) the page currently has.
       className="reading-menu absolute right-0 top-full mt-2 w-[300px] bg-white border-2 border-black shadow-[6px_6px_0_rgba(0,0,0,0.15)] p-4 z-30"
-      style={{ color: '#1A1A1A' }}
+      // Scale the whole menu (and its shadow + contents) up 1.1x from its
+      // top-right corner, so it grows toward the left while staying pinned
+      // exactly where it is on the right.
+      style={{ color: '#1A1A1A', transform: 'scale(1.1)', transformOrigin: 'top right' }}
     >
       <p className="font-headline text-[0.9rem] text-muted mb-2">Theme</p>
       <div className="grid grid-cols-4 gap-2 mb-3 pb-3 border-b-2 border-border">

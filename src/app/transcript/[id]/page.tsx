@@ -173,7 +173,7 @@ export default function TranscriptPage() {
   const lineHeight = SPACING_STEPS[prefs.spacingIdx]
   const readingWidth = WIDTH_STEPS[prefs.widthIdx]
   // Shadows read as too heavy against Dark/Carbon, so scale them down there.
-  const isDarkTheme = prefs.theme === 'dark' || prefs.theme === 'carbon' || prefs.theme === 'ink' || prefs.theme === 'forest'
+  const isDarkTheme = prefs.theme === 'dark' || prefs.theme === 'carbon' || prefs.theme === 'nightshade' || prefs.theme === 'forest'
   const shadowScale = isDarkTheme ? 1 / 1.3 : 1
 
   return (
@@ -248,8 +248,8 @@ export default function TranscriptPage() {
                     left: r.left,
                     width: r.width,
                     top: r.bottom - 7,
-                    height: '5.54px',
-                    boxShadow: `${5.75 * shadowScale}px ${3.46 * shadowScale}px 0 rgba(78,0,255,0.4)`,
+                    height: '7.2px',
+                    boxShadow: `${6.9 * shadowScale}px ${4.15 * shadowScale}px 0 rgba(78,0,255,0.4)`,
                   }}
                 />
               ))}
