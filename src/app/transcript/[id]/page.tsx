@@ -297,7 +297,7 @@ export default function TranscriptPage() {
             <span className="w-0 border-l-2 border-ink self-stretch -my-[22px] ml-[0.8cm]" />
             <span className="flex-1 h-0 border-t-2 border-ink self-center" />
           </div>
-          <div className="absolute top-1/2 -translate-y-1/2 right-[14.25px] flex items-center gap-[9.5px]">
+          <div className="absolute top-1/2 -translate-y-1/2 right-[13.25px] flex items-center gap-[9.5px]">
             <div className="relative">
               <button
                 onClick={() => setDownloadOpen((o) => !o)}
