@@ -10,14 +10,14 @@ export const THEMES = {
   dark: { label: 'Dark', bg: '#000000', text: '#FFFFFF', shadow: 'rgba(255,255,255,0.3)' },
   carbon: { label: 'Carbon', bg: '#2B2B2B', text: '#FFFFFF', shadow: 'rgba(255,255,255,0.3)' },
   // Kindle-style warm dark reading tone (amber "night" reading).
-  nightshade: { label: 'Nightshade', bg: '#1C1814', text: '#E8DFCF', shadow: 'rgba(255,255,255,0.3)' },
+  shaded: { label: 'Shaded', bg: '#1C1814', text: '#E8DFCF', shadow: 'rgba(255,255,255,0.3)' },
   forest: { label: 'Forest', bg: '#0B8F63', text: '#F7F2ED', shadow: 'rgba(255,255,255,0.3)' },
 } as const
 
 // The swatch grid is 8 fixed slots, all filled: row 1 is light themes
 // (White / Paper / Cream / Sepia), row 2 is dark themes
-// (Dark / Carbon / Nightshade / Forest).
-export const THEME_SLOTS: (ThemeKey | null)[] = ['white', 'paper', 'cream', 'sepia', 'dark', 'carbon', 'nightshade', 'forest']
+// (Dark / Carbon / Shaded / Forest).
+export const THEME_SLOTS: (ThemeKey | null)[] = ['white', 'paper', 'cream', 'sepia', 'dark', 'carbon', 'shaded', 'forest']
 
 export const FONTS = {
   serif: { label: 'Serif', family: 'var(--font-serif-family), serif' },
@@ -39,7 +39,9 @@ export const FONTS = {
 // as before by shifting their index to match.
 export const SIZE_STEPS = [0.875, 1, 1.125, 1.25, 1.375, 1.5]
 export const SPACING_STEPS = [1.2, 1.4, 1.6, 1.8, 2]
-export const WIDTH_STEPS = ['38rem', '44rem', '50rem', '56rem', '62rem']
+// Dropped the narrowest ('38rem', the most "stretched" column) from the
+// low end of the range.
+export const WIDTH_STEPS = ['44rem', '50rem', '56rem', '62rem']
 
 export type ThemeKey = keyof typeof THEMES
 export type FontKey = keyof typeof FONTS
@@ -52,7 +54,7 @@ export interface ReadingPrefs {
   widthIdx: number
 }
 
-const DEFAULT_PREFS: ReadingPrefs = { theme: 'white', font: 'serif', sizeIdx: 2, spacingIdx: 2, widthIdx: 1 }
+const DEFAULT_PREFS: ReadingPrefs = { theme: 'white', font: 'serif', sizeIdx: 2, spacingIdx: 2, widthIdx: 0 }
 const STORAGE_KEY = 'reading-prefs'
 
 export function useReadingPrefs() {
@@ -155,7 +157,7 @@ function FontDropdown({ value, onChange }: { value: FontKey; onChange: (key: Fon
         className="w-full h-9 flex items-center border-2 border-black text-sm bg-white"
         style={{ fontFamily: FONTS[value].family }}
       >
-        <span className="flex-1 text-left px-2 truncate">{FONTS[value].label}</span>
+        <span className="flex-1 text-left px-2 truncate font-bold">{FONTS[value].label}</span>
         <span className="flex items-center justify-center h-full w-7 border-l-2 border-black text-[0.78rem]">▾</span>
       </button>
       {open && (
@@ -230,7 +232,7 @@ export default function ReadingSettingsMenu({
             <button
               key={key}
               onClick={() => setPrefs((p) => ({ ...p, theme: key }))}
-              className="h-10 border-2 text-[0.7rem] font-headline"
+              className="h-10 border-2 text-[0.7rem] font-headline hover:brightness-90 transition-[filter] duration-150"
               style={{
                 background: THEMES[key].bg,
                 color: THEMES[key].text,
@@ -243,7 +245,7 @@ export default function ReadingSettingsMenu({
         )}
       </div>
 
-      <div className="flex items-center justify-between py-2 border-b-2 border-border">
+      <div className="flex items-center justify-between py-[10px] border-b-2 border-border">
         <span className="font-headline text-[0.9rem] text-muted">Font</span>
         <FontDropdown value={prefs.font} onChange={(font) => setPrefs((p) => ({ ...p, font }))} />
       </div>

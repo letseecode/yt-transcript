@@ -173,7 +173,7 @@ export default function TranscriptPage() {
   const lineHeight = SPACING_STEPS[prefs.spacingIdx]
   const readingWidth = WIDTH_STEPS[prefs.widthIdx]
   // Shadows read as too heavy against Dark/Carbon, so scale them down there.
-  const isDarkTheme = prefs.theme === 'dark' || prefs.theme === 'carbon' || prefs.theme === 'nightshade' || prefs.theme === 'forest'
+  const isDarkTheme = prefs.theme === 'dark' || prefs.theme === 'carbon' || prefs.theme === 'shaded' || prefs.theme === 'forest'
   const shadowScale = isDarkTheme ? 1 / 1.3 : 1
 
   return (
