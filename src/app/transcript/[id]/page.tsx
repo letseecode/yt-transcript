@@ -227,7 +227,7 @@ export default function TranscriptPage() {
       </header>
 
       <main
-        className="flex-1 w-full mx-auto px-6 py-10"
+        className="flex-1 w-full mx-auto px-6 pt-6 pb-10"
         style={{ maxWidth: readingWidth, fontFamily: readingFont }}
       >
         {title && (
