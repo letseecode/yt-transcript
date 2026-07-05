@@ -161,6 +161,9 @@ export default function TranscriptReader({
   const define = async (word: string, x: number, y: number) => {
     setPopup({ kind: 'define', x, y, word, loading: true, result: null })
     let result: DefineResult | null = null
+
+    // Free dictionary first (real dictionary data, instant) -- reliable for
+    // English but spotty for fr/es.
     try {
       const res = await fetch(
         `https://api.dictionaryapi.dev/api/v2/entries/${lang}/${encodeURIComponent(word.toLowerCase())}`
@@ -175,14 +178,34 @@ export default function TranscriptReader({
             if (def) meanings.push({ partOfSpeech: m.partOfSpeech ?? '', definition: def })
             if (meanings.length >= 3) break
           }
-          result = {
-            word: entry.word ?? word,
-            phonetic: entry.phonetic ?? entry.phonetics?.find((p: { text?: string }) => p.text)?.text,
-            meanings,
+          if (meanings.length > 0) {
+            result = {
+              word: entry.word ?? word,
+              phonetic: entry.phonetic ?? entry.phonetics?.find((p: { text?: string }) => p.text)?.text,
+              meanings,
+            }
           }
         }
       }
     } catch {}
+
+    // Fall back to the Gemini-backed definer (works in every language).
+    if (!result) {
+      try {
+        const res = await fetch('/api/define', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ word, lang }),
+        })
+        if (res.ok) {
+          const data = await res.json()
+          if (Array.isArray(data.meanings) && data.meanings.length > 0) {
+            result = { word, meanings: data.meanings }
+          }
+        }
+      } catch {}
+    }
+
     setPopup((p) => (p && p.kind === 'define' && p.word === word ? { ...p, loading: false, result } : p))
   }
 
@@ -310,8 +333,8 @@ export default function TranscriptReader({
       {popup?.kind === 'actions' && (
         <div
           data-reader-popup
-          className="fixed z-50 -translate-x-1/2 -translate-y-full mb-2 flex overflow-hidden rounded-md border-2 border-black bg-white shadow-[3px_3px_0_rgba(0,0,0,0.2)]"
-          style={{ left: popup.x, top: popup.y - 8, fontFamily: SERIF_FONT }}
+          className="fixed z-50 -translate-x-1/2 -translate-y-full mb-2 flex overflow-hidden border-2 border-black bg-white shadow-[3px_3px_0_rgba(0,0,0,0.2)]"
+          style={{ left: popup.x, top: popup.y - 8, fontFamily: SERIF_FONT, width: popup.isWord ? 232 : 116 }}
         >
           <button
             onMouseDown={(e) => e.preventDefault()}
@@ -319,7 +342,7 @@ export default function TranscriptReader({
               addHighlight(popup.paragraph, popup.start, popup.end, popup.text)
               setPopup(null)
             }}
-            className="px-3 py-2 text-sm text-black hover:bg-mint transition-colors"
+            className="flex-1 py-[5px] text-[1.006rem] text-black text-center hover:bg-mint transition-colors"
           >
             Highlight
           </button>
@@ -327,9 +350,9 @@ export default function TranscriptReader({
             <button
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => define(popup.text, popup.x, popup.y)}
-              className="px-3 py-2 text-sm text-black border-l-2 border-black hover:bg-mint transition-colors"
+              className="flex-1 py-[5px] text-[1.006rem] text-black text-center border-l-2 border-black hover:bg-mint transition-colors"
             >
-              Define
+              Dictionary
             </button>
           )}
         </div>
@@ -342,7 +365,7 @@ export default function TranscriptReader({
           return (
             <div
               data-reader-popup
-              className="fixed z-50 w-[260px] -translate-x-1/2 -translate-y-full rounded-md border-2 border-black bg-white p-3 shadow-[3px_3px_0_rgba(0,0,0,0.2)]"
+              className="fixed z-50 w-[260px] -translate-x-1/2 -translate-y-full border-2 border-black bg-white p-3 shadow-[3px_3px_0_rgba(0,0,0,0.2)]"
               style={{ left: popup.x, top: popup.y - 8, fontFamily: SF_FONT }}
             >
               <textarea
@@ -359,7 +382,7 @@ export default function TranscriptReader({
                   onClick={() => removeHighlight(h.id)}
                   className="text-[0.7rem] uppercase tracking-wide text-black/50 hover:text-purple transition"
                 >
-                  Remove
+                  Remove highlight
                 </button>
                 <button
                   onClick={() => setPopup(null)}
@@ -375,8 +398,8 @@ export default function TranscriptReader({
       {popup?.kind === 'define' && (
         <div
           data-reader-popup
-          className="fixed z-50 w-[280px] -translate-x-1/2 -translate-y-full rounded-md border-2 border-black bg-white p-4 shadow-[3px_3px_0_rgba(0,0,0,0.2)] text-black"
-          style={{ left: popup.x, top: popup.y - 8, fontFamily: SF_FONT }}
+          className="fixed z-50 w-[280px] -translate-x-1/2 -translate-y-full border-2 border-black bg-white p-4 shadow-[3px_3px_0_rgba(0,0,0,0.2)] text-black"
+          style={{ left: popup.x, top: popup.y - 8, fontFamily: SERIF_FONT }}
         >
           <div className="flex items-baseline gap-2">
             <span className="font-bold text-base">{popup.word}</span>
