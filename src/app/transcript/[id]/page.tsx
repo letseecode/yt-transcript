@@ -17,13 +17,30 @@ interface Segment {
   startMs: number
 }
 
+// Read a locally-saved transcript synchronously (the loading page stores
+// it in localStorage before navigating here), so the common flow never
+// flashes a loading screen.
+function readLocalTranscript(id: string): { segments: Segment[]; title: string } | null {
+  if (typeof window === 'undefined') return null
+  try {
+    const raw = localStorage.getItem(`transcript-${id}`)
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    const segs = Array.isArray(parsed) ? parsed : parsed.segments
+    if (!segs) return null
+    return { segments: segs, title: Array.isArray(parsed) ? '' : parsed.title ?? '' }
+  } catch {
+    return null
+  }
+}
+
 export default function TranscriptPage() {
   const params = useParams()
   const id = params.id as string
 
-  const [segments, setSegments] = useState<Segment[]>([])
-  const [title, setTitle] = useState('')
-  const [loading, setLoading] = useState(true)
+  const [segments, setSegments] = useState<Segment[]>(() => readLocalTranscript(id)?.segments ?? [])
+  const [title, setTitle] = useState(() => readLocalTranscript(id)?.title ?? '')
+  const [loading, setLoading] = useState(() => readLocalTranscript(id) === null)
   const [notFound, setNotFound] = useState(false)
   const [copied, setCopied] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
@@ -147,12 +164,12 @@ export default function TranscriptPage() {
     URL.revokeObjectURL(url)
   }
 
+  // No loading screen -- the common path (arriving from the loading page)
+  // reads localStorage synchronously above, so there's nothing to show;
+  // for the rare uncached direct link we render a blank surface rather
+  // than a "Loading transcript…" placeholder.
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="font-headline text-xl font-bold">Loading transcript…</p>
-      </div>
-    )
+    return <div className="min-h-screen bg-cream" />
   }
 
   if (notFound) {
@@ -205,7 +222,7 @@ export default function TranscriptPage() {
             <span className="w-0 border-l-2 border-ink self-stretch -my-[22px] ml-[0.8cm]" />
             <span className="flex-1 h-0 border-t-2 border-ink self-center" />
           </div>
-          <div className="absolute top-1/2 -translate-y-1/2 right-[17px] flex items-center gap-[9.5px]">
+          <div className="absolute top-1/2 -translate-y-1/2 right-[15px] flex items-center gap-[9.5px] -rotate-2">
             <button
               onClick={handleDownload}
               className="font-headline font-bold uppercase text-[1.214rem] bg-mint text-black border-2 border-ink px-[26px] py-[6px] hover:bg-purple hover:text-white transition-colors"
