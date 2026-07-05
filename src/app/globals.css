@@ -35,6 +35,15 @@ body {
   outline: none;
 }
 
+@media print {
+  @page {
+    margin: 1.4cm;
+  }
+  body {
+    background: #ffffff !important;
+  }
+}
+
 /* No focus ring at all inside the reading settings menu -- not red, not
    purple, nothing. */
 .reading-menu *:focus-visible {
