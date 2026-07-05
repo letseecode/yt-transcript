@@ -197,7 +197,7 @@ export default function TranscriptPage() {
             <span className="w-0 border-l-2 border-ink self-stretch -my-[22px] ml-[0.8cm]" />
             <span className="flex-1 h-0 border-t-2 border-ink self-center" />
           </div>
-          <div className="absolute top-1/2 -translate-y-1/2 right-[19px] flex items-center gap-[9.5px]">
+          <div className="absolute top-1/2 -translate-y-1/2 right-[17px] flex items-center gap-[9.5px]">
             <button
               onClick={handleDownload}
               className="font-headline font-bold uppercase text-[1.214rem] bg-mint text-black border-2 border-ink px-[26px] py-[6px] hover:bg-purple hover:text-white transition-colors"

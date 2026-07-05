@@ -156,7 +156,7 @@ function FontDropdown({ value, onChange }: { value: FontKey; onChange: (key: Fon
         style={{ fontFamily: FONTS[value].family }}
       >
         <span className="flex-1 text-left px-2 truncate">{FONTS[value].label}</span>
-        <span className="flex items-center justify-center h-full w-7 border-l-2 border-black text-[0.6rem]">▾</span>
+        <span className="flex items-center justify-center h-full w-7 border-l-2 border-black text-[0.78rem]">▾</span>
       </button>
       {open && (
         <div
