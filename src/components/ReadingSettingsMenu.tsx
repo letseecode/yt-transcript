@@ -157,7 +157,7 @@ function FontDropdown({ value, onChange }: { value: FontKey; onChange: (key: Fon
         className="w-full h-9 flex items-center border-2 border-black text-sm bg-white"
         style={{ fontFamily: FONTS[value].family }}
       >
-        <span className="flex-1 text-left px-2 truncate font-bold">{FONTS[value].label}</span>
+        <span className="flex-1 text-left px-2 truncate">{FONTS[value].label}</span>
         <span className="flex items-center justify-center h-full w-7 border-l-2 border-black text-[0.78rem]">▾</span>
       </button>
       {open && (
@@ -174,7 +174,7 @@ function FontDropdown({ value, onChange }: { value: FontKey; onChange: (key: Fon
               }}
               className={`w-full h-9 flex items-center px-2 text-sm text-left transition-colors ${
                 i > 0 ? 'border-t border-black' : ''
-              } ${key === value ? 'bg-mint' : 'hover:bg-mint/40'}`}
+              } ${key === value ? 'bg-mint font-bold' : 'hover:bg-mint/40'}`}
               style={{ fontFamily: FONTS[key].family }}
             >
               {FONTS[key].label}

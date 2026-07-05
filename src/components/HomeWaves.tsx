@@ -8,7 +8,7 @@ const WAVES_PER_ROW = 14
 const MIN_SIZE_CM = 46.8
 const MAX_SIZE_CM = 85.2
 // Slows the drift down cumulatively. Set back to 1 to revert all speed changes.
-const SPEED_FACTOR = 1.7424
+const SPEED_FACTOR = 1.9166
 // Reverted to the pre-1.4x-thinning value (2.23), then thinned 1.1x from there.
 const HALF_STROKE_WIDTH = 2.23 / 1.1
 
@@ -60,7 +60,7 @@ export default function HomeWaves() {
               left: 0,
               width: `min(45vw, ${maxPx}px)`,
               aspectRatio: `${VIEW_W} / ${VIEW_H}`,
-              filter: `drop-shadow(15px 10px 0 ${WAVE_SHADOWS[w.color]})`,
+              filter: `drop-shadow(18px 12px 0 ${WAVE_SHADOWS[w.color]})`,
               animation: `wave-drift ${w.duration}s linear ${w.delay}s infinite`,
             }}
           >
