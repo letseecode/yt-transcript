@@ -71,16 +71,15 @@ export default function LibraryPage() {
         style={{ maxWidth: '68rem', fontSize: '1.6rem' }}
       >
         <div className="relative inline-block mb-[0.9em]">
-          <h1 className="font-display uppercase text-[2.6em] leading-[1.0] tracking-tight [text-shadow:0.05em_0.03em_0_rgba(0,0,0,0.16)]">
+          <h1 className="font-display uppercase text-[4.16em] leading-[1.0] tracking-tight [text-shadow:0.05em_0.03em_0_rgba(0,0,0,0.16)]">
             Saved Transcripts
           </h1>
-          {/* Two mint highlighter lines with a soft mint shadow. */}
-          <span className="absolute left-0 right-0 -bottom-[0.02em] h-[0.075em] bg-mint [box-shadow:0.05em_0.035em_0_rgba(84,255,201,0.5)] pointer-events-none" />
-          <span className="absolute left-0 right-0 -bottom-[0.2em] h-[0.075em] bg-mint [box-shadow:0.05em_0.035em_0_rgba(84,255,201,0.5)] pointer-events-none" />
+          {/* Single mint highlighter line, 50% thicker, with a soft mint shadow. */}
+          <span className="absolute left-0 right-0 -bottom-[0.02em] h-[0.1125em] bg-mint [box-shadow:0.05em_0.035em_0_rgba(84,255,201,0.5)] pointer-events-none" />
         </div>
 
-        {/* The separator below the title, in purple. */}
-        <div className="h-[3px] bg-purple [box-shadow:0.13em_0.09em_0_rgba(78,0,255,0.25)]" />
+        {/* The separator below the title, in black. */}
+        <div className="h-[3px] bg-black [box-shadow:0.13em_0.09em_0_rgba(0,0,0,0.25)]" />
 
         {loading ? (
           <p className="font-headline text-[1.1em] font-bold mt-[1.2em]">Loading…</p>
@@ -95,7 +94,7 @@ export default function LibraryPage() {
             </Link>
           </div>
         ) : (
-          <ul className="divide-y divide-border">
+          <ul className="divide-y divide-black">
             {items.map((item) => (
               <li key={item.videoId}>
                 <Link
@@ -106,8 +105,8 @@ export default function LibraryPage() {
                     <span className="font-serif font-bold text-[1.15em] leading-snug text-black">
                       {item.title || item.videoId}
                     </span>
-                    {/* Purple highlighter that appears on hover. */}
-                    <span className="absolute left-0 right-0 -bottom-[0.06em] h-[0.06em] bg-purple opacity-0 group-hover:opacity-100 transition-opacity [box-shadow:0.05em_0.035em_0_rgba(78,0,255,0.3)] pointer-events-none" />
+                    {/* Black highlighter that appears on hover. */}
+                    <span className="absolute left-0 right-0 -bottom-[0.06em] h-[0.06em] bg-black opacity-0 group-hover:opacity-100 transition-opacity [box-shadow:0.05em_0.035em_0_rgba(0,0,0,0.3)] pointer-events-none" />
                   </span>
                   <p className="font-body text-[0.8em] mt-[0.5em]">
                     {item.author && <span className="text-muted">{item.author} · </span>}
