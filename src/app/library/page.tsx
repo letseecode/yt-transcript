@@ -53,14 +53,6 @@ export default function LibraryPage() {
             <span className="w-0 border-l-2 border-ink self-stretch -my-[22px] ml-[0.8cm]" />
             <span className="flex-1 h-0 border-t-2 border-ink self-center" />
           </div>
-          <div className="absolute top-1/2 -translate-y-1/2 right-[9.3px] flex items-center gap-[9.5px]">
-            <Link
-              href="/library"
-              className="font-headline font-bold uppercase text-[1.214rem] bg-mint text-black border-2 border-ink px-[26px] py-[6px] hover:bg-purple hover:text-white transition-colors"
-            >
-              Library
-            </Link>
-          </div>
         </div>
       </header>
 
@@ -71,13 +63,15 @@ export default function LibraryPage() {
         style={{ maxWidth: '68rem', fontSize: '1.6rem' }}
       >
         <div className="relative inline-block mb-[0.9em]">
-          <h1 className="font-display uppercase text-[4.16em] leading-[1.0] tracking-tight [text-shadow:0.05em_0.03em_0_rgba(0,0,0,0.16)]">
+          <h1 className="font-display uppercase text-[5.408em] leading-[1.0] tracking-tight [text-shadow:0.05em_0.03em_0_rgba(0,0,0,0.16)]">
             Saved Transcripts
           </h1>
           {/* Single mint highlighter line, 50% thicker, with a soft mint shadow. */}
           <span className="absolute left-0 right-0 -bottom-[0.02em] h-[0.1125em] bg-mint [box-shadow:0.05em_0.035em_0_rgba(84,255,201,0.5)] pointer-events-none" />
         </div>
 
+        {/* Everything below the title is 60% smaller (0.4x the title's base). */}
+        <div style={{ fontSize: '0.64rem' }}>
         {/* The separator below the title, in black. */}
         <div className="h-[3px] bg-black [box-shadow:0.13em_0.09em_0_rgba(0,0,0,0.25)]" />
 
@@ -108,15 +102,16 @@ export default function LibraryPage() {
                     {/* Black highlighter that appears on hover. */}
                     <span className="absolute left-0 right-0 -bottom-[0.06em] h-[0.06em] bg-black opacity-0 group-hover:opacity-100 transition-opacity [box-shadow:0.05em_0.035em_0_rgba(0,0,0,0.3)] pointer-events-none" />
                   </span>
-                  <p className="font-body text-[0.8em] mt-[0.5em]">
-                    {item.author && <span className="text-muted">{item.author} · </span>}
-                    <span className="text-black">{displayDate(item)}</span>
+                  <p className="font-serif text-[0.8em] mt-[0.5em] text-black">
+                    {item.author && <span>{item.author} · </span>}
+                    <span>{displayDate(item)}</span>
                   </p>
                 </Link>
               </li>
             ))}
           </ul>
         )}
+        </div>
       </main>
     </div>
   )
