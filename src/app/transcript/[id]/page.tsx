@@ -45,6 +45,7 @@ export default function TranscriptPage() {
   const [notFound, setNotFound] = useState(false)
   const [copied, setCopied] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [downloadOpen, setDownloadOpen] = useState(false)
   const [prefs, setPrefs] = useReadingPrefs()
   const [headerHidden, setHeaderHidden] = useState(false)
   // Cache of translated versions, keyed by language. 'en' is the original.
@@ -218,7 +219,7 @@ export default function TranscriptPage() {
     setTimeout(() => setCopied(false), 2000)
   }
 
-  const handleDownload = () => {
+  const handleDownloadTxt = () => {
     const blob = new Blob([buildExportText()], { type: 'text/plain' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -226,6 +227,15 @@ export default function TranscriptPage() {
     a.download = 'transcript.txt'
     a.click()
     URL.revokeObjectURL(url)
+    setDownloadOpen(false)
+  }
+
+  // PDF export = the browser's own print-to-PDF, so the exact reading font
+  // is preserved. A print-only, two-column render of the transcript lives
+  // in the DOM (hidden on screen); print() targets it.
+  const handleDownloadPdf = () => {
+    setDownloadOpen(false)
+    setTimeout(() => window.print(), 50)
   }
 
   // No loading screen -- the common path (arriving from the loading page)
@@ -266,7 +276,8 @@ export default function TranscriptPage() {
   const underlineOpacity = isElectricTheme ? 0.48 : 0.4
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: theme.bg, color: theme.text }}>
+    <>
+    <div className="min-h-screen flex flex-col print:hidden" style={{ background: theme.bg, color: theme.text }}>
       <header
         className="border-b-2 border-ink bg-surface sticky top-0 z-10 transition-transform duration-200"
         style={{
@@ -287,12 +298,33 @@ export default function TranscriptPage() {
             <span className="flex-1 h-0 border-t-2 border-ink self-center" />
           </div>
           <div className="absolute top-1/2 -translate-y-1/2 right-[17px] flex items-center gap-[9.5px]">
-            <button
-              onClick={handleDownload}
-              className="font-headline font-bold uppercase text-[1.214rem] bg-mint text-black border-2 border-ink px-[26px] py-[6px] hover:bg-purple hover:text-white transition-colors"
-            >
-              Download
-            </button>
+            <div className="relative">
+              <button
+                onClick={() => setDownloadOpen((o) => !o)}
+                className="font-headline font-bold uppercase text-[1.214rem] bg-mint text-black border-2 border-ink px-[26px] py-[6px] hover:bg-purple hover:text-white transition-colors"
+              >
+                Download
+              </button>
+              {downloadOpen && (
+                <>
+                  <div className="fixed inset-0 z-20" onClick={() => setDownloadOpen(false)} />
+                  <div className="absolute right-0 top-full mt-2 z-30 w-[150px] bg-white border-2 border-black shadow-[4px_4px_0_rgba(0,0,0,0.15)]">
+                    <button
+                      onClick={handleDownloadTxt}
+                      className="w-full text-left px-3 py-2 font-headline text-sm text-black hover:bg-mint transition-colors"
+                    >
+                      Text (.txt)
+                    </button>
+                    <button
+                      onClick={handleDownloadPdf}
+                      className="w-full text-left px-3 py-2 font-headline text-sm text-black border-t-2 border-black hover:bg-mint transition-colors"
+                    >
+                      PDF
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
             <div className="relative">
               <button
                 onClick={() => setSettingsOpen((o) => !o)}
@@ -385,5 +417,30 @@ export default function TranscriptPage() {
         />
       </main>
     </div>
+
+    {/* Print-only, two-column document. Uses the chosen reading font, so
+        the browser's Save-as-PDF keeps the exact typeface. */}
+    <div className="hidden print:block" style={{ fontFamily: readingFont, color: '#000' }}>
+      <h1 className="font-serif font-bold text-3xl mb-6" style={{ columnSpan: 'all' } as React.CSSProperties}>
+        {displayTitle}
+      </h1>
+      <div style={{ columnCount: 2, columnGap: '2rem' }}>
+        {displaySegments.map((seg, i) => {
+          const m = seg.text.match(/^([^:]{1,40}):\s+([\s\S]+)$/)
+          return (
+            <p key={i} className={i === 0 ? undefined : 'mt-3'} style={{ fontSize: '0.72rem', lineHeight: 1.5 }}>
+              {m ? (
+                <>
+                  <span className="font-bold italic">{m[1]}:</span> {m[2]}
+                </>
+              ) : (
+                seg.text
+              )}
+            </p>
+          )
+        })}
+      </div>
+    </div>
+    </>
   )
 }
