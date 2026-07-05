@@ -174,7 +174,7 @@ function FontDropdown({ value, onChange }: { value: FontKey; onChange: (key: Fon
               }}
               className={`w-full h-9 flex items-center px-2 text-sm text-left transition-colors ${
                 i > 0 ? 'border-t border-black' : ''
-              } ${key === value ? 'bg-mint font-bold' : 'hover:bg-mint/40'}`}
+              } ${key === value ? 'bg-mint' : 'hover:bg-mint/40'}`}
               style={{ fontFamily: FONTS[key].family }}
             >
               {FONTS[key].label}
