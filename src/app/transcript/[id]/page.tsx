@@ -172,9 +172,17 @@ export default function TranscriptPage() {
   const fontSizeScale = SIZE_STEPS[prefs.sizeIdx]
   const lineHeight = SPACING_STEPS[prefs.spacingIdx]
   const readingWidth = WIDTH_STEPS[prefs.widthIdx]
-  // Shadows read as too heavy against Dark/Carbon, so scale them down there.
+  // Shadows read as too heavy against Dark/Carbon/Shaded, so we tune them
+  // per surface. On those three dark backgrounds:
+  //  - the white-ish word shadow is dialed further down in opacity, and
+  //  - the purple underline shadow goes bigger + darker ("more electric").
+  // Forest keeps the plain down-scaled treatment.
   const isDarkTheme = prefs.theme === 'dark' || prefs.theme === 'carbon' || prefs.theme === 'shaded' || prefs.theme === 'forest'
-  const shadowScale = isDarkTheme ? 1 / 1.3 : 1
+  const isElectricTheme = prefs.theme === 'dark' || prefs.theme === 'carbon' || prefs.theme === 'shaded'
+  const wordShadowScale = isDarkTheme ? 1 / 1.3 : 1
+  const wordShadowColor = isElectricTheme ? 'rgba(255,255,255,0.25)' : theme.shadow
+  const underlineScale = isElectricTheme ? 1.2 : isDarkTheme ? 1 / 1.3 : 1
+  const underlineOpacity = isElectricTheme ? 0.48 : 0.4
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: theme.bg, color: theme.text }}>
@@ -236,7 +244,7 @@ export default function TranscriptPage() {
               <h1
                 ref={titleRef}
                 className="font-serif font-bold text-[4.186rem] leading-tight"
-                style={{ textShadow: `${0.0858 * shadowScale}em ${0.0517 * shadowScale}em 0 ${theme.shadow}` }}
+                style={{ textShadow: `${0.0858 * wordShadowScale}em ${0.0517 * wordShadowScale}em 0 ${wordShadowColor}` }}
               >
                 {title}
               </h1>
@@ -249,7 +257,7 @@ export default function TranscriptPage() {
                     width: r.width,
                     top: r.bottom - 7,
                     height: '7.2px',
-                    boxShadow: `${6.9 * shadowScale}px ${4.15 * shadowScale}px 0 rgba(78,0,255,0.4)`,
+                    boxShadow: `${6.9 * underlineScale}px ${4.15 * underlineScale}px 0 rgba(78,0,255,${underlineOpacity})`,
                   }}
                 />
               ))}
