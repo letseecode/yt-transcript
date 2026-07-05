@@ -27,8 +27,15 @@ const SF_FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
 const SERIF_FONT = 'var(--font-serif-family), serif' // matches the YourTranscript / title font
 const MINT = '#54FFC9'
 
+interface Span {
+  paragraph: number
+  start: number
+  end: number
+  text: string
+}
+
 type Popup =
-  | { kind: 'actions'; x: number; y: number; paragraph: number; start: number; end: number; text: string; isWord: boolean }
+  | { kind: 'actions'; x: number; y: number; spans: Span[]; text: string; isWord: boolean }
   | { kind: 'note'; x: number; y: number; highlightId: string }
   | { kind: 'define'; x: number; y: number; word: string; loading: boolean; result: DefineResult | null }
   | null
@@ -77,30 +84,41 @@ export default function TranscriptReader({
       const text = sel.toString()
       if (!text.trim()) return
 
-      const startPara = (range.startContainer as HTMLElement).parentElement?.closest?.('[data-p]') as HTMLElement | null
-      const endPara = (range.endContainer as HTMLElement).parentElement?.closest?.('[data-p]') as HTMLElement | null
-      const paraEl = (range.startContainer.nodeType === Node.TEXT_NODE
-        ? (range.startContainer.parentElement?.closest('[data-p]') as HTMLElement | null)
-        : ((range.startContainer as HTMLElement).closest?.('[data-p]') as HTMLElement | null)) ?? startPara
-      // Only support selections that stay within a single paragraph.
-      if (!paraEl || startPara !== endPara) return
+      const root = containerRef.current
+      if (!root) return
+      const elFor = (node: Node): HTMLElement | null =>
+        (node.nodeType === Node.TEXT_NODE
+          ? node.parentElement?.closest('[data-p]')
+          : (node as HTMLElement).closest?.('[data-p]')) as HTMLElement | null
+      const startPara = elFor(range.startContainer)
+      const endPara = elFor(range.endContainer)
+      if (!startPara || !endPara) return
 
-      const paragraph = Number(paraEl.dataset.p)
-      let start = charOffsetWithin(paraEl, range.startContainer, range.startOffset)
-      let end = charOffsetWithin(paraEl, range.endContainer, range.endOffset)
-      if (start > end) [start, end] = [end, start]
-      if (start === end) return
+      // Walk every paragraph the selection touches (in document order) and
+      // record a per-paragraph span, since highlights are stored per paragraph.
+      const paraEls = Array.from(root.querySelectorAll<HTMLElement>('[data-p]'))
+      const spans: Span[] = []
+      for (const el of paraEls) {
+        if (!range.intersectsNode(el)) continue
+        const paragraph = Number(el.dataset.p)
+        const full = segments[paragraph]?.text.length ?? 0
+        const start = el === startPara ? charOffsetWithin(el, range.startContainer, range.startOffset) : 0
+        const end = el === endPara ? charOffsetWithin(el, range.endContainer, range.endOffset) : full
+        const a = Math.min(start, end)
+        const b = Math.max(start, end)
+        if (a >= b) continue
+        spans.push({ paragraph, start: a, end: b, text: segments[paragraph].text.slice(a, b) })
+      }
+      if (spans.length === 0) return
 
       const rect = range.getBoundingClientRect()
       setPopup({
         kind: 'actions',
         x: rect.left + rect.width / 2,
         y: rect.top,
-        paragraph,
-        start,
-        end,
+        spans,
         text: text.trim(),
-        isWord: isSingleWord(text),
+        isWord: spans.length === 1 && isSingleWord(text),
       })
     }, 0)
   }, [])
@@ -126,17 +144,19 @@ export default function TranscriptReader({
   }, [popup])
 
   // --- Actions --------------------------------------------------------------
-  const addHighlight = (paragraph: number, start: number, end: number, text: string) => {
-    // Merge with any existing highlight in the same paragraph that overlaps.
-    const overlapping = highlights.filter(
+  // Merge one span into a working list, absorbing any overlapping highlight in
+  // the same paragraph. Returns the new list and the merged highlight.
+  const mergeSpan = (list: Highlight[], span: Span): { list: Highlight[]; merged: Highlight } => {
+    const { paragraph, start, end } = span
+    const overlapping = list.filter(
       (h) => h.paragraph === paragraph && h.start < end && h.end > start
     )
     const mergedStart = Math.min(start, ...overlapping.map((h) => h.start))
     const mergedEnd = Math.max(end, ...overlapping.map((h) => h.end))
     const keptNote = overlapping.map((h) => h.note).filter(Boolean).join('\n')
-    const rest = highlights.filter((h) => !overlapping.includes(h))
+    const rest = list.filter((h) => !overlapping.includes(h))
     const merged: Highlight = {
-      id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}-${paragraph}`,
       paragraph,
       start: mergedStart,
       end: mergedEnd,
@@ -144,9 +164,14 @@ export default function TranscriptReader({
       note: keptNote,
       createdAt: Date.now(),
     }
-    persist([...rest, merged])
+    return { list: [...rest, merged], merged }
+  }
+
+  const addHighlights = (spans: Span[]) => {
+    let list = highlights
+    for (const span of spans) list = mergeSpan(list, span).list
+    persist(list)
     window.getSelection()?.removeAllRanges()
-    return merged
   }
 
   const removeHighlight = (id: string) => {
@@ -334,15 +359,15 @@ export default function TranscriptReader({
         <div
           data-reader-popup
           className="fixed z-50 -translate-x-1/2 -translate-y-full mb-2 flex overflow-hidden border-2 border-black bg-white shadow-[3px_3px_0_rgba(0,0,0,0.2)]"
-          style={{ left: popup.x, top: popup.y - 8, fontFamily: SERIF_FONT, width: popup.isWord ? 232 : 116 }}
+          style={{ left: popup.x, top: popup.y - 8, fontFamily: SERIF_FONT, width: popup.isWord ? 186 : 93 }}
         >
           <button
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => {
-              addHighlight(popup.paragraph, popup.start, popup.end, popup.text)
+              addHighlights(popup.spans)
               setPopup(null)
             }}
-            className="flex-1 py-[5px] text-[1.006rem] text-black text-center hover:bg-mint transition-colors"
+            className="flex-1 py-[4px] text-[0.805rem] text-black text-center hover:bg-purple hover:text-white transition-colors"
           >
             Highlight
           </button>
@@ -350,7 +375,7 @@ export default function TranscriptReader({
             <button
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => define(popup.text, popup.x, popup.y)}
-              className="flex-1 py-[5px] text-[1.006rem] text-black text-center border-l-2 border-black hover:bg-mint transition-colors"
+              className="flex-1 py-[4px] text-[0.805rem] text-black text-center border-l-2 border-black hover:bg-purple hover:text-white transition-colors"
             >
               Dictionary
             </button>
@@ -374,19 +399,21 @@ export default function TranscriptReader({
                 onChange={(e) => setNote(h.id, e.target.value)}
                 placeholder="Write a note…"
                 rows={3}
-                className="w-full resize-none bg-white text-black text-sm outline-none border border-black/20 rounded p-2"
-                style={{ fontFamily: SF_FONT }}
+                className="w-full resize-none bg-white text-black text-sm outline-none focus:outline-none focus-visible:outline-none border border-black/20 p-2"
+                style={{ fontFamily: SERIF_FONT }}
               />
               <div className="mt-2 flex justify-between">
                 <button
                   onClick={() => removeHighlight(h.id)}
-                  className="text-[0.7rem] uppercase tracking-wide text-black/50 hover:text-purple transition"
+                  className="text-[0.7rem] uppercase tracking-wide text-black/50 hover:text-black transition"
+                  style={{ fontFamily: SERIF_FONT }}
                 >
                   Remove highlight
                 </button>
                 <button
                   onClick={() => setPopup(null)}
-                  className="text-[0.7rem] uppercase tracking-wide font-bold text-black hover:text-purple transition"
+                  className="text-[0.7rem] uppercase tracking-wide font-bold text-black hover:text-black/60 transition"
+                  style={{ fontFamily: SERIF_FONT }}
                 >
                   Done
                 </button>
