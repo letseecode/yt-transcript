@@ -46,7 +46,9 @@ interface DefineResult {
   meanings: { partOfSpeech: string; definition: string }[]
 }
 
-const isSingleWord = (s: string) => /^[\p{L}\p{M}'’-]+$/u.test(s.trim())
+// Look-up-able: a single word or a two-word expression (e.g. "teed up",
+// "New York"), so the dictionary works for short phrases too.
+const isLookupable = (s: string) => /^[\p{L}\p{M}'’-]+(?:\s[\p{L}\p{M}'’-]+)?$/u.test(s.trim())
 
 export default function TranscriptReader({
   transcriptId,
@@ -118,7 +120,7 @@ export default function TranscriptReader({
         y: rect.top,
         spans,
         text: text.trim(),
-        isWord: spans.length === 1 && isSingleWord(text),
+        isWord: spans.length === 1 && isLookupable(text),
       })
     }, 0)
   }, [])
