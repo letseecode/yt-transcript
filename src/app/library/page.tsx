@@ -129,8 +129,9 @@ export default function LibraryPage() {
           <h1 className="font-display text-[clamp(2.655rem,7.957vw,8.845rem)] leading-[1.0] tracking-tight [text-shadow:0.066em_0.036em_0_rgba(0,0,0,0.15)]">
             Saved Transcripts
           </h1>
-          {/* Single mint highlighter line, with a soft mint shadow. */}
-          <span className="absolute left-0 right-0 -bottom-[0.026em] h-[0.4557em] bg-mint [box-shadow:0.05em_0.035em_0_rgba(84,255,201,0.625)] pointer-events-none" />
+          {/* Mint highlighter line, separated from the title with the same gap
+              and shadow as the purple line under "Link" on the home page. */}
+          <span className="absolute left-0 right-0 -bottom-[0.3847em] h-[0.4557em] bg-mint [box-shadow:0.065em_0.04em_0_rgba(84,255,201,0.3)] pointer-events-none" />
         </div>
 
         {/* Everything below the title, sized 25% up from the prior 0.64rem. */}
@@ -149,7 +150,7 @@ export default function LibraryPage() {
           </div>
         ) : (
           // Full black border + dividers box each row into its own rectangle.
-          <ul className="divide-y divide-black border border-black">
+          <ul className="divide-y-2 divide-black border-2 border-black">
             {items.map((item) => {
               const c = counts[item.videoId] ?? { highlights: 0, notes: 0 }
               return (
@@ -159,13 +160,13 @@ export default function LibraryPage() {
                     className="block py-[1.1em] pl-[1em] pr-[12em]"
                   >
                     <span className="relative inline-block">
-                      <span className="font-serif font-bold text-[1.3225em] leading-snug text-black">
+                      <span className="font-serif font-bold text-[1.5209em] leading-snug text-black">
                         {item.title || item.videoId}
                       </span>
                       {/* Purple highlighter that appears on hover. */}
                       <span className="absolute left-0 right-0 -bottom-[0.06em] h-[0.06em] bg-purple opacity-0 group-hover:opacity-100 transition-opacity [box-shadow:0.05em_0.035em_0_rgba(78,0,255,0.3)] pointer-events-none" />
                     </span>
-                    <p className="font-serif text-[0.872em] mt-[0.5em] text-black">
+                    <p className="font-serif text-[0.9418em] mt-[0.5em] text-black">
                       {item.author && <span>{item.author} · </span>}
                       <span>{displayDate(item)}</span>
                     </p>
