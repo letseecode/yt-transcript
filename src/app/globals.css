@@ -69,7 +69,17 @@ body {
   background: #000000;
   border-radius: 0;
 }
-.font-scroll::-webkit-scrollbar-button {
+/* Kill the up/down arrow buttons in every variant WebKit exposes (some
+   platforms draw single-button and directional increment/decrement arrows
+   that a plain ::-webkit-scrollbar-button rule leaves behind). */
+.font-scroll::-webkit-scrollbar-button,
+.font-scroll::-webkit-scrollbar-button:single-button,
+.font-scroll::-webkit-scrollbar-button:start,
+.font-scroll::-webkit-scrollbar-button:end,
+.font-scroll::-webkit-scrollbar-button:vertical:start:decrement,
+.font-scroll::-webkit-scrollbar-button:vertical:end:increment,
+.font-scroll::-webkit-scrollbar-button:horizontal:start:decrement,
+.font-scroll::-webkit-scrollbar-button:horizontal:end:increment {
   display: none;
   width: 0;
   height: 0;

@@ -41,7 +41,7 @@ export const SIZE_STEPS = [0.875, 1, 1.125, 1.25, 1.375, 1.5]
 export const SPACING_STEPS = [1.2, 1.4, 1.6, 1.8, 2]
 // Dropped the narrowest ('38rem', the most "stretched" column) from the
 // low end of the range.
-export const WIDTH_STEPS = ['44rem', '50rem', '56rem', '62rem']
+export const WIDTH_STEPS = ['44rem', '50rem', '56rem', '62rem', '68rem']
 
 export const LANGS = {
   en: { label: 'English' },

@@ -339,7 +339,7 @@ export default function TranscriptReader({
       {/* Highlights subsection (chronological, Kindle-style) */}
       {highlightsChrono.length > 0 && (
         <section id="highlights" className="mt-16 pt-8 border-t-2 scroll-mt-24" style={{ borderColor: isDark ? 'rgba(255,255,255,0.25)' : '#1A1A1A' }}>
-          <h2 className="font-headline font-bold uppercase text-sm tracking-wide mb-6" style={{ fontFamily }}>
+          <h2 className="font-headline font-bold uppercase text-[1.05rem] tracking-wide mb-6" style={{ fontFamily }}>
             Highlights
           </h2>
           <div className="space-y-6">
@@ -375,7 +375,7 @@ export default function TranscriptReader({
       {/* Notes subsection (only highlights that carry a note, chronological) */}
       {notesChrono.length > 0 && (
         <section id="notes" className="mt-16 pt-8 border-t-2 scroll-mt-24" style={{ borderColor: isDark ? 'rgba(255,255,255,0.25)' : '#1A1A1A' }}>
-          <h2 className="font-headline font-bold uppercase text-sm tracking-wide mb-6" style={{ fontFamily }}>
+          <h2 className="font-headline font-bold uppercase text-[1.05rem] tracking-wide mb-6" style={{ fontFamily }}>
             Notes
           </h2>
           <div className="space-y-6">
