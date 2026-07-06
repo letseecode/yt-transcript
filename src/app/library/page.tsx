@@ -101,7 +101,7 @@ function CountBadge({ icon, count, tone, href }: { icon: React.ReactNode; count:
   return (
     <Link
       href={href}
-      className="inline-flex items-center gap-[0.3em] border-2 border-ink bg-white px-[0.7em] h-[2.2em] text-[1.05em] leading-none select-none hover:bg-muted hover:text-white active:bg-[#B5B2AF] active:text-white transition-colors"
+      className="inline-flex items-center gap-[0.3em] border-2 border-ink bg-white px-[0.7em] h-[2.2em] text-[1.05em] leading-none select-none hover:bg-muted hover:text-white active:bg-[#4A4642] active:text-white transition-colors"
     >
       <span className={tone === 'mint' ? '' : 'text-purple'}>{icon}</span>
       <span className="font-serif font-bold">{count}</span>

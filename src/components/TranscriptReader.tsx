@@ -412,7 +412,7 @@ export default function TranscriptReader({
         <div
           data-reader-popup
           className="fixed z-50 -translate-x-1/2 -translate-y-full mb-2 flex overflow-hidden border-2 border-black bg-white shadow-[3px_3px_0_rgba(0,0,0,0.2)]"
-          style={{ left: popup.x, top: popup.y - 8, fontFamily: SERIF_FONT, width: popup.isWord ? 186 : 93 }}
+          style={{ left: popup.x, top: popup.y - 8, fontFamily: SERIF_FONT, width: popup.isWord ? 171 : 86 }}
         >
           <button
             onMouseDown={(e) => e.preventDefault()}
@@ -420,7 +420,7 @@ export default function TranscriptReader({
               addHighlights(popup.spans)
               setPopup(null)
             }}
-            className="flex-1 py-[4px] text-[0.805rem] text-black text-center hover:bg-purple hover:text-white transition-colors"
+            className="flex-1 py-[3.7px] text-[0.805rem] text-black text-center hover:bg-purple hover:text-white transition-colors"
           >
             Highlight
           </button>
@@ -428,7 +428,7 @@ export default function TranscriptReader({
             <button
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => define(popup.text, popup.x, popup.y)}
-              className="flex-1 py-[4px] text-[0.805rem] text-black text-center border-l-2 border-black hover:bg-purple hover:text-white transition-colors"
+              className="flex-1 py-[3.7px] text-[0.805rem] text-black text-center border-l-2 border-black hover:bg-purple hover:text-white transition-colors"
             >
               Dictionary
             </button>
