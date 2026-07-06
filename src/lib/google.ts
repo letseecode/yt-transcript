@@ -72,35 +72,59 @@ export interface FeedVideo {
   thumbnail: string
 }
 
+// Parse an ISO-8601 duration (e.g. "PT1M5S") into seconds.
+function isoSeconds(iso: string): number {
+  const m = iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/)
+  if (!m) return 0
+  return (+(m[1] ?? 0)) * 3600 + (+(m[2] ?? 0)) * 60 + (+(m[3] ?? 0))
+}
+
 // YouTube has no single "subscription feed" endpoint, so we assemble one:
-// subscriptions -> each channel's uploads playlist -> newest few uploads ->
-// merge and sort by date. Capped to keep API quota small.
+// subscriptions -> each channel's uploads playlist -> recent uploads within the
+// last 30 days -> drop Shorts -> merge and sort by date.
 export async function getFeed(token: string): Promise<FeedVideo[]> {
-  const subs = await yt<{ items?: { snippet: { title: string; resourceId: { channelId: string } } }[] }>(
-    'subscriptions?part=snippet&mine=true&maxResults=25&order=alphabetical',
-    token
-  )
-  const channelIds = (subs.items ?? []).map((i) => i.snippet.resourceId.channelId)
-  if (channelIds.length === 0) return []
+  const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000
+
+  // Gather subscriptions (paginate up to ~100 channels).
   const channelTitle: Record<string, string> = {}
-  for (const i of subs.items ?? []) channelTitle[i.snippet.resourceId.channelId] = i.snippet.title
+  const channelIds: string[] = []
+  let pageToken = ''
+  for (let page = 0; page < 2; page++) {
+    const subs = await yt<{
+      nextPageToken?: string
+      items?: { snippet: { title: string; resourceId: { channelId: string } } }[]
+    }>(`subscriptions?part=snippet&mine=true&maxResults=50&order=alphabetical${pageToken ? `&pageToken=${pageToken}` : ''}`, token)
+    for (const i of subs.items ?? []) {
+      channelIds.push(i.snippet.resourceId.channelId)
+      channelTitle[i.snippet.resourceId.channelId] = i.snippet.title
+    }
+    if (!subs.nextPageToken) break
+    pageToken = subs.nextPageToken
+  }
+  if (channelIds.length === 0) return []
 
-  const channels = await yt<{ items?: { id: string; contentDetails: { relatedPlaylists: { uploads: string } } }[] }>(
-    `channels?part=contentDetails&id=${channelIds.join(',')}&maxResults=50`,
-    token
-  )
-  const uploads = (channels.items ?? []).map((c) => ({ id: c.id, playlist: c.contentDetails.relatedPlaylists.uploads }))
+  // Resolve each channel's uploads playlist (channels.list takes up to 50 ids).
+  const uploads: { id: string; playlist: string }[] = []
+  for (let i = 0; i < channelIds.length; i += 50) {
+    const channels = await yt<{ items?: { id: string; contentDetails: { relatedPlaylists: { uploads: string } } }[] }>(
+      `channels?part=contentDetails&id=${channelIds.slice(i, i + 50).join(',')}&maxResults=50`,
+      token
+    )
+    for (const c of channels.items ?? []) uploads.push({ id: c.id, playlist: c.contentDetails.relatedPlaylists.uploads })
+  }
 
-  const videos: FeedVideo[] = []
+  // Recent uploads per channel, keeping only the last 30 days.
+  const candidates: FeedVideo[] = []
   await Promise.all(
-    uploads.slice(0, 25).map(async (u) => {
+    uploads.map(async (u) => {
       try {
         const pl = await yt<{
           items?: { snippet: { title: string; publishedAt: string; resourceId: { videoId: string }; thumbnails?: { medium?: { url: string } } } }[]
-        }>(`playlistItems?part=snippet&playlistId=${u.playlist}&maxResults=3`, token)
+        }>(`playlistItems?part=snippet&playlistId=${u.playlist}&maxResults=20`, token)
         for (const it of pl.items ?? []) {
           const s = it.snippet
-          videos.push({
+          if (+new Date(s.publishedAt) < cutoff) continue
+          candidates.push({
             videoId: s.resourceId.videoId,
             title: s.title,
             channel: channelTitle[u.id] ?? '',
@@ -111,6 +135,26 @@ export async function getFeed(token: string): Promise<FeedVideo[]> {
       } catch {}
     })
   )
-  videos.sort((a, b) => +new Date(b.publishedAt) - +new Date(a.publishedAt))
-  return videos.slice(0, 40)
+
+  // Fetch durations (videos.list, 50 ids per call) and drop Shorts.
+  const durationById: Record<string, number> = {}
+  const ids = [...new Set(candidates.map((c) => c.videoId))]
+  for (let i = 0; i < ids.length; i += 50) {
+    try {
+      const vids = await yt<{ items?: { id: string; contentDetails: { duration: string } }[] }>(
+        `videos?part=contentDetails&id=${ids.slice(i, i + 50).join(',')}&maxResults=50`,
+        token
+      )
+      for (const v of vids.items ?? []) durationById[v.id] = isoSeconds(v.contentDetails.duration)
+    } catch {}
+  }
+
+  const isShort = (v: FeedVideo) => {
+    const dur = durationById[v.videoId] ?? 0
+    return (dur > 0 && dur <= 60) || /#shorts?\b/i.test(v.title)
+  }
+
+  return candidates
+    .filter((v) => !isShort(v))
+    .sort((a, b) => +new Date(b.publishedAt) - +new Date(a.publishedAt))
 }
