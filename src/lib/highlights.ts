@@ -69,6 +69,25 @@ export function clearLocalTranscript(transcriptId: string) {
   } catch {}
 }
 
+// --- Reading progress -----------------------------------------------------
+// A single integer 0-100 per transcript: how far down the page the reader
+// last scrolled. Lets us both restore their spot and show a % in the library.
+const progressKey = (transcriptId: string) => `progress-${transcriptId}`
+
+export function loadProgress(transcriptId: string): number {
+  if (typeof window === 'undefined') return 0
+  const raw = localStorage.getItem(progressKey(transcriptId))
+  const n = raw ? parseInt(raw, 10) : 0
+  return Number.isFinite(n) ? Math.max(0, Math.min(100, n)) : 0
+}
+
+export function saveProgress(transcriptId: string, percent: number) {
+  if (typeof window === 'undefined') return
+  try {
+    localStorage.setItem(progressKey(transcriptId), String(Math.max(0, Math.min(100, Math.round(percent)))))
+  } catch {}
+}
+
 // Character offset of (node, offset) within `root`'s full text content,
 // walking every text node in order. Lets us translate a DOM Selection
 // back into a stable [start,end) range over the paragraph's raw string.

@@ -3,7 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { clearLocalTranscript } from '@/lib/highlights'
+import { clearLocalTranscript, loadProgress, saveProgress } from '@/lib/highlights'
 import ReadingSettingsMenu, {
   useReadingPrefs,
   THEMES,
@@ -97,7 +97,8 @@ export default function TranscriptPage() {
     return () => window.removeEventListener('resize', measure)
   }, [displayTitle, prefs])
 
-  // Hide the header on scroll-down, bring it back on scroll-up.
+  // Hide the header on scroll-down, bring it back on scroll-up, and remember
+  // how far the reader has scrolled (as a %) so we can restore it later.
   useEffect(() => {
     let lastY = window.scrollY
     const onScroll = () => {
@@ -109,10 +110,36 @@ export default function TranscriptPage() {
         setHeaderHidden(false)
       }
       lastY = y
+      const scrollable = document.documentElement.scrollHeight - window.innerHeight
+      const pct = scrollable > 0 ? (y / scrollable) * 100 : 0
+      saveProgress(id, pct)
     }
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
-  }, [])
+  }, [id])
+
+  // Restore the reader's last scroll position once, after the content has laid
+  // out -- unless they arrived via a #highlights / #notes deep link.
+  const restoredRef = useRef(false)
+  useEffect(() => {
+    if (loading || notFound || restoredRef.current) return
+    if (window.location.hash === '#highlights' || window.location.hash === '#notes') {
+      restoredRef.current = true
+      return
+    }
+    const pct = loadProgress(id)
+    if (pct <= 0) {
+      restoredRef.current = true
+      return
+    }
+    restoredRef.current = true
+    const restore = () => {
+      const scrollable = document.documentElement.scrollHeight - window.innerHeight
+      if (scrollable > 0) window.scrollTo({ top: (pct / 100) * scrollable })
+    }
+    requestAnimationFrame(restore)
+    document.fonts?.ready?.then(() => requestAnimationFrame(restore))
+  }, [loading, notFound, id])
 
   useEffect(() => {
     let cancelled = false
