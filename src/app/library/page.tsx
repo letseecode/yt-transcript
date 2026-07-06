@@ -165,7 +165,7 @@ export default function LibraryPage() {
 
       {/* Title sized in em off a 1.6rem base. */}
       <main
-        className="flex-1 w-full mx-auto pl-[calc(1.5rem+2%)] pr-6 pt-8 pb-16"
+        className="flex-1 w-full mx-auto pl-[calc(1.5rem-1%)] pr-6 pt-8 pb-16"
         style={{ maxWidth: '68rem', fontSize: '1.6rem' }}
       >
         <div className="relative inline-block mb-[0.9em]">
