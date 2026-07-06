@@ -2,7 +2,7 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { countHighlights, clearLocalTranscript } from '@/lib/highlights'
+import { countHighlights, clearLocalTranscript, loadProgress } from '@/lib/highlights'
 
 // Title with a purple hover-underline that hugs each wrapped line's text
 // (one segment per line), rather than a full-width bar. We measure the text's
@@ -113,6 +113,7 @@ export default function LibraryPage() {
   const [items, setItems] = useState<TranscriptSummary[]>([])
   const [loading, setLoading] = useState(true)
   const [counts, setCounts] = useState<Record<string, { highlights: number; notes: number }>>({})
+  const [progress, setProgress] = useState<Record<string, number>>({})
 
   useEffect(() => {
     const load = async () => {
@@ -132,8 +133,13 @@ export default function LibraryPage() {
   // list is in.
   useEffect(() => {
     const next: Record<string, { highlights: number; notes: number }> = {}
-    for (const item of items) next[item.videoId] = countHighlights(item.videoId)
+    const prog: Record<string, number> = {}
+    for (const item of items) {
+      next[item.videoId] = countHighlights(item.videoId)
+      prog[item.videoId] = loadProgress(item.videoId)
+    }
     setCounts(next)
+    setProgress(prog)
   }, [items])
 
   const handleDelete = async (videoId: string) => {
@@ -196,11 +202,12 @@ export default function LibraryPage() {
           <ul className="divide-y-2 divide-black border-2 border-black">
             {items.map((item) => {
               const c = counts[item.videoId] ?? { highlights: 0, notes: 0 }
+              const pct = progress[item.videoId] ?? 0
               return (
                 <li key={item.videoId} className="relative group">
                   <Link
                     href={`/transcript/${item.videoId}`}
-                    className="block py-[1.1em] pl-[1em] pr-[12em]"
+                    className="block py-[1.1em] pl-[1em] pr-[14em]"
                   >
                     <RowTitle title={item.title || item.videoId} />
                     <p className="font-serif text-[0.9418em] mt-[0.5em] text-black">
@@ -211,6 +218,9 @@ export default function LibraryPage() {
 
                   {/* Action circles, pinned to the right of the row. */}
                   <div className="absolute right-[1em] top-1/2 -translate-y-1/2 flex items-center gap-[0.6em]">
+                    {pct > 0 && (
+                      <span className="font-serif font-bold text-purple text-[1.05em] leading-none select-none">{pct}%</span>
+                    )}
                     {c.highlights > 0 && <CountBadge icon={<BrushIcon />} count={c.highlights} tone="mint" href={`/transcript/${item.videoId}#highlights`} />}
                     {c.notes > 0 && <CountBadge icon={<ScrollIcon />} count={c.notes} tone="purple" href={`/transcript/${item.videoId}#notes`} />}
                     <button
