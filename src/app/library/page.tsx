@@ -59,7 +59,7 @@ function CountBadge({ icon, count, tone }: { icon: React.ReactNode; count: numbe
       title={tone === 'mint' ? `${count} highlight${count === 1 ? '' : 's'}` : `${count} note${count === 1 ? '' : 's'}`}
     >
       <span className={tone === 'mint' ? 'text-black' : 'text-purple'}>{icon}</span>
-      <span className="font-serif font-bold text-black">{count}</span>
+      <span className="font-display text-black">{count}</span>
     </span>
   )
 }
@@ -121,15 +121,15 @@ export default function LibraryPage() {
 
       {/* Title sized in em off a 1.6rem base. */}
       <main
-        className="flex-1 w-full mx-auto px-6 py-16"
+        className="flex-1 w-full mx-auto px-6 pt-8 pb-16"
         style={{ maxWidth: '68rem', fontSize: '1.6rem' }}
       >
         <div className="relative inline-block mb-[0.9em]">
           <h1 className="font-display text-[clamp(3.124rem,9.361vw,10.406rem)] leading-[1.0] tracking-tight [text-shadow:0.066em_0.036em_0_rgba(0,0,0,0.15)]">
             Saved Transcripts
           </h1>
-          {/* Single mint highlighter line (80% thicker), with a soft mint shadow. */}
-          <span className="absolute left-0 right-0 -bottom-[0.02em] h-[0.2025em] bg-mint [box-shadow:0.05em_0.035em_0_rgba(84,255,201,0.5)] pointer-events-none" />
+          {/* Single mint highlighter line, with a soft mint shadow. */}
+          <span className="absolute left-0 right-0 -bottom-[0.026em] h-[0.3038em] bg-mint [box-shadow:0.05em_0.035em_0_rgba(84,255,201,0.5)] pointer-events-none" />
         </div>
 
         {/* Everything below the title, sized 25% up from the prior 0.64rem. */}
@@ -174,8 +174,8 @@ export default function LibraryPage() {
 
                   {/* Action circles, pinned to the right of the row. */}
                   <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-[0.6em]">
-                    <CountBadge icon={<BrushIcon />} count={c.highlights} tone="mint" />
-                    <CountBadge icon={<ScrollIcon />} count={c.notes} tone="purple" />
+                    {c.highlights > 0 && <CountBadge icon={<BrushIcon />} count={c.highlights} tone="mint" />}
+                    {c.notes > 0 && <CountBadge icon={<ScrollIcon />} count={c.notes} tone="purple" />}
                     <button
                       onClick={() => handleDelete(item.videoId, item.title)}
                       aria-label="Delete transcript"
