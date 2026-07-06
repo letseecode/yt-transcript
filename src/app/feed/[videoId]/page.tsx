@@ -1,47 +1,45 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useState } from 'react'
+import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
+
+const DISMISS_KEY = 'feed-dismissed'
 
 export default function FeedVideoPage() {
   const params = useParams()
+  const router = useRouter()
   const videoId = params.videoId as string
   const [summary, setSummary] = useState<string | null>(null)
-  const [state, setState] = useState<'loading' | 'ready' | 'none' | 'error'>('loading')
-  const [moving, setMoving] = useState<'idle' | 'busy' | 'done' | 'error'>('idle')
+  const [state, setState] = useState<'idle' | 'loading' | 'ready' | 'none' | 'error'>('idle')
 
-  useEffect(() => {
+  const askAI = async () => {
     setState('loading')
-    fetch('/api/summary', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ videoId }),
-    })
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.summary) {
-          setSummary(d.summary)
-          setState('ready')
-        } else {
-          setState('none')
-        }
-      })
-      .catch(() => setState('error'))
-  }, [videoId])
-
-  const moveToLibrary = async () => {
-    setMoving('busy')
     try {
-      const res = await fetch('/api/transcribe', {
+      const res = await fetch('/api/summary', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: `https://www.youtube.com/watch?v=${videoId}` }),
+        body: JSON.stringify({ videoId }),
       })
-      setMoving(res.ok ? 'done' : 'error')
+      const d = await res.json()
+      if (d.summary) {
+        setSummary(d.summary)
+        setState('ready')
+      } else {
+        setState('none')
+      }
     } catch {
-      setMoving('error')
+      setState('error')
     }
+  }
+
+  const handleDelete = () => {
+    try {
+      const set = new Set<string>(JSON.parse(localStorage.getItem(DISMISS_KEY) || '[]'))
+      set.add(videoId)
+      localStorage.setItem(DISMISS_KEY, JSON.stringify([...set]))
+    } catch {}
+    router.push('/feed')
   }
 
   // TL;DR is the first line; the rest are bullet lines starting with "- ".
@@ -73,8 +71,11 @@ export default function FeedVideoPage() {
       </header>
 
       <main className="flex-1 w-full mx-auto px-6 pt-8 pb-16" style={{ maxWidth: '52rem' }}>
-        {/* Embedded player */}
-        <div className="relative w-full border-2 border-black" style={{ paddingBottom: '56.25%' }}>
+        {/* Embedded player, in the thick purple box with a right shadow. */}
+        <div
+          className="relative w-full border-[10px] border-purple [box-shadow:12px_12px_0_rgba(78,0,255,0.3)]"
+          style={{ paddingBottom: '56.25%' }}
+        >
           <iframe
             className="absolute inset-0 h-full w-full"
             src={`https://www.youtube.com/embed/${videoId}`}
@@ -84,31 +85,26 @@ export default function FeedVideoPage() {
           />
         </div>
 
-        <div className="mt-6 flex items-center gap-3">
-          <button
-            onClick={moveToLibrary}
-            disabled={moving === 'busy' || moving === 'done'}
-            className={`font-headline font-bold uppercase text-sm border-2 border-ink px-4 py-2 transition-colors ${
-              moving === 'done' ? 'bg-mint text-black' : 'bg-white text-black hover:bg-mint'
-            }`}
-          >
-            {moving === 'busy' ? 'Transcribing…' : moving === 'done' ? 'In library ✓' : moving === 'error' ? 'Failed — retry' : 'Move to library'}
-          </button>
-          {moving === 'done' && (
-            <Link href={`/transcript/${videoId}`} className="font-headline text-sm underline hover:text-purple">
-              Open transcript →
-            </Link>
+        {/* Ask AI */}
+        <section className="mt-8">
+          {state === 'idle' && (
+            <button
+              onClick={askAI}
+              className="font-headline font-bold uppercase text-sm border-2 border-ink bg-white text-black px-5 py-2 hover:bg-mint transition-colors"
+            >
+              Ask AI
+            </button>
           )}
-        </div>
-
-        {/* AI summary */}
-        <section className="mt-10">
-          <h2 className="font-headline font-bold uppercase text-[1.05rem] tracking-wide mb-4">Summary</h2>
-          {state === 'loading' && <p className="font-body text-muted">Summarizing…</p>}
+          {state === 'loading' && <p className="font-body text-muted">Thinking…</p>}
           {state === 'none' && <p className="font-body text-muted">No captions available for this video, so there’s nothing to summarize.</p>}
-          {state === 'error' && <p className="font-body text-red">Couldn’t generate a summary. Try again later.</p>}
+          {state === 'error' && (
+            <button onClick={askAI} className="font-headline font-bold uppercase text-sm border-2 border-ink bg-white text-black px-5 py-2 hover:bg-mint transition-colors">
+              Couldn’t answer — try again
+            </button>
+          )}
           {state === 'ready' && (
             <div className="space-y-4">
+              <h2 className="font-headline font-bold uppercase text-[1.05rem] tracking-wide">Summary</h2>
               {tldr && <p className="font-serif text-lg leading-relaxed italic">{tldr}</p>}
               {bullets.length > 0 && (
                 <ul className="space-y-2 list-disc pl-6">
@@ -120,6 +116,20 @@ export default function FeedVideoPage() {
             </div>
           )}
         </section>
+
+        {/* Delete (dismiss from feed), styled like the transcript-page delete. */}
+        <div className="mt-16 pt-8 border-t border-black flex justify-center">
+          <button
+            onClick={handleDelete}
+            className="group inline-flex items-center gap-[0.575rem] border-2 border-ink bg-transparent px-[1.4375rem] py-[0.575rem] text-[1.006rem] font-headline uppercase tracking-wide text-black hover:bg-trash hover:text-white transition-colors"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+              <path d="M10 11v6M14 11v6" />
+            </svg>
+            Delete video
+          </button>
+        </div>
       </main>
     </div>
   )
