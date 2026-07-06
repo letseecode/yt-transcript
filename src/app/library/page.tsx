@@ -146,7 +146,7 @@ export default function LibraryPage() {
             </Link>
           </div>
         ) : (
-          {/* Full black border + dividers box each row into its own rectangle. */}
+          // Full black border + dividers box each row into its own rectangle.
           <ul className="divide-y divide-black border border-black">
             {items.map((item) => {
               const c = counts[item.videoId] ?? { highlights: 0, notes: 0 }
