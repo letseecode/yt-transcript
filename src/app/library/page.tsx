@@ -128,14 +128,11 @@ export default function LibraryPage() {
             Saved Transcripts
           </h1>
           {/* Single mint highlighter line, with a soft mint shadow. */}
-          <span className="absolute left-0 right-0 -bottom-[0.026em] h-[0.3038em] bg-mint [box-shadow:0.05em_0.035em_0_rgba(84,255,201,0.5)] pointer-events-none" />
+          <span className="absolute left-0 right-0 -bottom-[0.026em] h-[0.4557em] bg-mint [box-shadow:0.05em_0.035em_0_rgba(84,255,201,0.5)] pointer-events-none" />
         </div>
 
         {/* Everything below the title, sized 25% up from the prior 0.64rem. */}
         <div style={{ fontSize: '0.8rem' }}>
-        {/* Thin black separator, uniform with the row dividers below. */}
-        <div className="h-px bg-black" />
-
         {loading ? (
           <p className="font-headline text-[1.1em] font-bold mt-[1.2em]">Loading…</p>
         ) : items.length === 0 ? (
@@ -149,30 +146,31 @@ export default function LibraryPage() {
             </Link>
           </div>
         ) : (
-          <ul className="divide-y divide-black">
+          // Full black border + dividers box each row into its own rectangle.
+          <ul className="divide-y divide-black border border-black">
             {items.map((item) => {
               const c = counts[item.videoId] ?? { highlights: 0, notes: 0 }
               return (
                 <li key={item.videoId} className="relative group">
                   <Link
                     href={`/transcript/${item.videoId}`}
-                    className="block py-[1.1em] pr-[11em]"
+                    className="block py-[1.1em] pl-[1em] pr-[12em]"
                   >
                     <span className="relative inline-block">
-                      <span className="font-serif font-bold text-[1.15em] leading-snug text-black">
+                      <span className="font-serif font-bold text-[1.3225em] leading-snug text-black">
                         {item.title || item.videoId}
                       </span>
                       {/* Purple highlighter that appears on hover. */}
                       <span className="absolute left-0 right-0 -bottom-[0.06em] h-[0.06em] bg-purple opacity-0 group-hover:opacity-100 transition-opacity [box-shadow:0.05em_0.035em_0_rgba(78,0,255,0.3)] pointer-events-none" />
                     </span>
-                    <p className="font-serif text-[0.8em] mt-[0.5em] text-black">
+                    <p className="font-serif text-[0.872em] mt-[0.5em] text-black">
                       {item.author && <span>{item.author} · </span>}
                       <span>{displayDate(item)}</span>
                     </p>
                   </Link>
 
                   {/* Action circles, pinned to the right of the row. */}
-                  <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-[0.6em]">
+                  <div className="absolute right-[1em] top-1/2 -translate-y-1/2 flex items-center gap-[0.6em]">
                     {c.highlights > 0 && <CountBadge icon={<BrushIcon />} count={c.highlights} tone="mint" />}
                     {c.notes > 0 && <CountBadge icon={<ScrollIcon />} count={c.notes} tone="purple" />}
                     <button
