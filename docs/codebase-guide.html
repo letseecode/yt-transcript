@@ -1,0 +1,1053 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>YourTranscript — A Complete Code Walkthrough</title>
+<style>
+  @page { size: A4; margin: 20mm 18mm 20mm 18mm; }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 10.6pt;
+    line-height: 1.5;
+    color: #17171a;
+  }
+  h1, h2, h3, h4 { font-family: "Helvetica Neue", Arial, sans-serif; color: #0a0a0c; line-height: 1.22; }
+  h1 { font-size: 22pt; page-break-before: always; margin: 0 0 4pt; padding-bottom: 6pt; border-bottom: 3px solid #4E00FF; }
+  h1.no-break { page-break-before: avoid; }
+  h2 { font-size: 15pt; margin: 20pt 0 4pt; }
+  h3 { font-size: 12pt; margin: 15pt 0 3pt; color: #333; }
+  h4 { font-size: 10.6pt; margin: 11pt 0 2pt; color: #444; }
+  p { margin: 0 0 7pt; }
+  ul, ol { margin: 0 0 7pt; padding-left: 18pt; }
+  li { margin: 0 0 3pt; }
+  code { font-family: "SF Mono", "DejaVu Sans Mono", Consolas, monospace; font-size: 8.9pt; background: #f0f0f3; padding: 0.5pt 3pt; border-radius: 3px; }
+  pre { font-family: "SF Mono", "DejaVu Sans Mono", Consolas, monospace; font-size: 8.4pt; line-height: 1.42;
+        background: #f6f6f9; border: 1px solid #e0e0e6; border-left: 3px solid #4E00FF;
+        padding: 8pt 10pt; border-radius: 4px; overflow-x: auto; white-space: pre-wrap; word-break: break-word;
+        margin: 0 0 8pt; page-break-inside: avoid; }
+  pre code { background: none; padding: 0; font-size: inherit; }
+  .lead { font-size: 11pt; color: #333; }
+  .note { background: #f3efff; border: 1px solid #d9ccff; border-radius: 4px; padding: 7pt 10pt; margin: 0 0 9pt; }
+  .note b { color: #3d00b8; }
+  .warn { background: #fff3f0; border: 1px solid #ffd2c6; border-radius: 4px; padding: 7pt 10pt; margin: 0 0 9pt; }
+  .file { font-family: "SF Mono", monospace; font-size: 9.4pt; background: #16161a; color: #e6e6ea; padding: 4pt 9pt; border-radius: 4px; display: inline-block; margin: 4pt 0; }
+  table { border-collapse: collapse; width: 100%; margin: 0 0 9pt; font-size: 9.2pt; }
+  th, td { border: 1px solid #d5d5dd; padding: 4pt 6pt; text-align: left; vertical-align: top; }
+  th { background: #efeff3; font-family: "Helvetica Neue", Arial, sans-serif; }
+  .toc a { color: #17171a; text-decoration: none; }
+  .toc ol { list-style: none; padding-left: 0; }
+  .toc > ol > li { margin-top: 5pt; font-family: "Helvetica Neue", Arial, sans-serif; font-weight: bold; }
+  .toc ol ol { padding-left: 14pt; font-weight: normal; font-family: Georgia, serif; }
+  .cover { page-break-after: always; text-align: left; padding-top: 40mm; }
+  .cover .big { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 34pt; font-weight: 800; line-height: 1.05; letter-spacing: -0.5pt; }
+  .cover .accent { color: #4E00FF; }
+  .cover .sub { font-size: 13pt; color: #444; margin-top: 10pt; font-family: "Helvetica Neue", Arial, sans-serif; }
+  .cover .meta { margin-top: 26mm; font-size: 10pt; color: #666; }
+  .kbd { border: 1px solid #ccc; border-bottom-width: 2px; border-radius: 3px; padding: 0 4pt; font-family: monospace; font-size: 8.5pt; background: #fafafa; }
+  .small { font-size: 9pt; color: #555; }
+  hr { border: none; border-top: 1px solid #ddd; margin: 12pt 0; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="big">YourTranscript<br><span class="accent">A Complete Code Walkthrough</span></div>
+  <div class="sub">Every file, every decision, explained from first principles.</div>
+  <div class="meta">
+    A technical companion for reading the source of the <code>yt-transcript</code> project.<br>
+    Written for a first-year computer-science reader. Estimated reading time: 3–4 hours.<br><br>
+    Stack: TypeScript · React 19 · Next.js 16 (App Router) · Tailwind CSS 4 · PostgreSQL (Neon) · Google Gemini
+  </div>
+</div>
+
+<h1 class="no-break">How to read this document</h1>
+<p class="lead">This document explains the entire <code>yt-transcript</code> codebase: the folder structure, every source file, the syntax of the languages involved, the reasons behind the main design decisions, the current limits of the application, and what changing or scaling it would require. It assumes you can program a little but does not assume you already know React, Next.js, or web servers.</p>
+
+<p>The material is arranged so you can read it front to back. Earlier chapters introduce vocabulary that later chapters rely on. If a term is unfamiliar, it is either explained where it first appears or listed in the glossary at the end.</p>
+
+<p>Three conventions are used throughout:</p>
+<ul>
+  <li>A dark pill like <span class="file">src/lib/db.ts</span> names a file in the repository.</li>
+  <li>Fixed-width text like <code>useState</code> is a piece of code — a function, variable, type, or literal value.</li>
+  <li>Indented grey blocks are excerpts of the actual source, quoted verbatim, followed by a line-by-line explanation.</li>
+</ul>
+
+<div class="note"><b>On tone.</b> This is a reference, not a sales pitch. It describes what the code does and why, without adjectives about how good it is. Where a decision has a downside, the downside is stated.</div>
+
+<div class="toc">
+<h2>Table of contents</h2>
+<ol>
+  <li>The application in one page</li>
+  <li>The languages and tools, and why each is here
+    <ol>
+      <li>TypeScript and JavaScript</li>
+      <li>React</li>
+      <li>Next.js and the App Router</li>
+      <li>Tailwind CSS</li>
+      <li>PostgreSQL and Neon</li>
+      <li>External services: Supadata, Gemini, YouTube, Google OAuth</li>
+    </ol>
+  </li>
+  <li>The big picture: how a request flows through the system</li>
+  <li>The repository, folder by folder</li>
+  <li>Configuration files</li>
+  <li>The <code>lib/</code> layer — the plain logic
+    <ol>
+      <li><code>db.ts</code> — the database</li>
+      <li><code>cleanup.ts</code> — the AI transcript cleaner</li>
+      <li><code>highlights.ts</code> — highlights, notes, progress</li>
+      <li><code>google.ts</code> — OAuth and the YouTube feed</li>
+      <li><code>wavePath.ts</code> — the decorative wave geometry</li>
+    </ol>
+  </li>
+  <li>The API routes — the server endpoints</li>
+  <li>The React components
+    <ol>
+      <li><code>HomeWaves.tsx</code></li>
+      <li><code>ReadingSettingsMenu.tsx</code></li>
+      <li><code>TranscriptReader.tsx</code></li>
+    </ol>
+  </li>
+  <li>The pages
+    <ol>
+      <li><code>layout.tsx</code> and fonts</li>
+      <li><code>page.tsx</code> — the home page</li>
+      <li><code>transcribing/page.tsx</code> — the loading screen</li>
+      <li><code>transcript/[id]/page.tsx</code> — the reader</li>
+      <li><code>library/page.tsx</code></li>
+      <li><code>feed/</code> — the YouTube feed and watch page</li>
+    </ol>
+  </li>
+  <li>Styling: <code>globals.css</code> and how Tailwind is wired</li>
+  <li>Cross-cutting concepts you now understand</li>
+  <li>Architectural decisions, restated</li>
+  <li>The limits of the current application</li>
+  <li>What scaling would require</li>
+  <li>Glossary</li>
+  <li>Syntax appendix</li>
+</ol>
+</div>
+<!-- CONTENT-APPEND-POINT -->
+<h1>1 · The application in one page</h1>
+<p class="lead">YourTranscript turns a YouTube video into clean, readable text. You paste a link; the app fetches the video's captions, cleans them up with an AI model, and shows you a magazine-style transcript you can read, highlight, annotate, translate, and download.</p>
+
+<p>Around that core, several features have been added:</p>
+<ul>
+  <li><b>A library.</b> Every transcript is saved to a database, so it appears in a "Saved Transcripts" list and can be reopened later from any device.</li>
+  <li><b>A reader with reading settings.</b> The transcript page has a theme picker (light/dark/sepia), font and size controls, column width, and on-the-fly translation to French or Spanish.</li>
+  <li><b>Highlights and notes.</b> You can select text to highlight it (stored in the browser) and attach a note. A dictionary lookup is available for single words or short phrases.</li>
+  <li><b>Reading-progress memory.</b> The reader records how far you have scrolled and returns you there next time; the library shows a percentage.</li>
+  <li><b>A YouTube feed.</b> If you connect a Google account, the app lists recent videos from your subscriptions, lets you send any of them to the library (which transcribes it), and offers an on-demand AI summary with the video embedded.</li>
+</ul>
+
+<p>The whole thing is one <b>Next.js</b> web application. There is no separate backend server written in another language; the "server" parts are functions that live in the same project and run on demand. The database is hosted (Neon PostgreSQL). Three outside services do the heavy lifting the app cannot do itself: <b>Supadata</b> (fetches captions from YouTube), <b>Google Gemini</b> (the AI that cleans, translates, defines, and summarizes), and the <b>YouTube Data API</b> (lists your subscriptions). It is deployed on <b>Vercel</b>.</p>
+
+<p>Persistence is split deliberately. Transcripts themselves live in the shared database so they are available anywhere. Everything personal and lightweight — highlights, notes, reading preferences, scroll progress, which feed videos you dismissed — lives in the browser's <code>localStorage</code>, tied to the device you are using. There is no login system for end users and no per-user accounts; the app currently behaves as a single-user tool (the Google connection stores one set of tokens).</p>
+
+<div class="note"><b>Mental model.</b> Think of the project as a set of <i>pages</i> the user sees, a set of <i>API endpoints</i> the pages call, and a small <i>library of plain functions</i> the endpoints share. Data comes to rest in two places: a Postgres table (transcripts) and the browser (everything personal).</div>
+
+<h1>2 · The languages and tools, and why each is here</h1>
+<p>Before walking through files, it helps to know what you are looking at and why it was chosen. Five languages/notations appear in this project, plus a handful of frameworks and services.</p>
+
+<h2>2.1 · TypeScript and JavaScript</h2>
+<p><b>JavaScript</b> is the language web browsers run. Everything interactive on a web page ultimately becomes JavaScript. <b>TypeScript</b> is JavaScript with a type system bolted on top: you can annotate what kind of value each variable holds, and a compiler checks those annotations before the code runs. TypeScript does not run in the browser directly — it is <i>compiled</i> (translated) to plain JavaScript first. The <code>.ts</code> and <code>.tsx</code> file extensions mark TypeScript files (the <code>x</code> means the file also contains JSX, described under React).</p>
+
+<p>Why TypeScript is used here: the errors it catches are the boring, common ones — passing a number where a string was expected, reading a field that might be missing, typos in property names. In a project with many small pieces talking to each other, that checking removes a whole category of bugs before the code is ever deployed. The cost is that you write more (the type annotations) and occasionally fight the compiler.</p>
+
+<p>A minimal example of the difference:</p>
+<pre><code>// JavaScript: nothing stops you passing the wrong thing
+function greet(name) { return "Hi " + name }
+
+// TypeScript: `name` must be a string; the compiler enforces it
+function greet(name: string): string { return "Hi " + name }</code></pre>
+<p>The <code>: string</code> after <code>name</code> is a <i>parameter type</i>. The <code>: string</code> after the parentheses is the <i>return type</i>. If you call <code>greet(42)</code>, TypeScript refuses to compile. That is the entire idea, applied consistently.</p>
+
+<h2>2.2 · React</h2>
+<p><b>React</b> is a library for building user interfaces out of <i>components</i>. A component is a function that returns a description of what should appear on screen. React's core promise: you describe what the screen should look like <i>for a given set of data</i>, and when the data changes, React updates the screen to match. You do not manually poke at the page; you change data and let React re-render.</p>
+
+<p>The description components return is written in <b>JSX</b> — HTML-like syntax embedded in the code. This is why files are <code>.tsx</code>. A tiny component:</p>
+<pre><code>function Hello({ name }: { name: string }) {
+  return &lt;p&gt;Hello, {name}.&lt;/p&gt;
+}</code></pre>
+<p>Reading it: <code>Hello</code> is a function taking one argument, an object with a <code>name</code> field of type string (that <code>{ name }: { name: string }</code> shape is destructuring plus a type, explained in the appendix). It returns JSX: a paragraph containing the text "Hello, " followed by the value of <code>name</code>. Curly braces inside JSX switch from "markup" back to "JavaScript expression."</p>
+
+<p><b>State and hooks.</b> Components remember things using <i>hooks</i> — special functions whose names start with <code>use</code>. The two you will see constantly:</p>
+<ul>
+  <li><code>useState</code> holds a value that can change over time; changing it re-renders the component. <code>const [count, setCount] = useState(0)</code> creates a state variable <code>count</code> starting at <code>0</code> and a function <code>setCount</code> to change it.</li>
+  <li><code>useEffect</code> runs code <i>after</i> the component renders — used for things that reach outside React, like fetching data, reading <code>localStorage</code>, or subscribing to browser events. It takes a function and a "dependency array"; it re-runs when any dependency changes.</li>
+</ul>
+<p>You will also meet <code>useRef</code> (a mutable box that survives re-renders without causing one — often a handle to a DOM element), <code>useMemo</code> (compute a value once and reuse it unless inputs change), <code>useCallback</code> (the same idea for functions), and <code>useLayoutEffect</code> (like <code>useEffect</code> but runs before the browser paints, used when you must measure the page). React 19 is the version here.</p>
+
+<h2>2.3 · Next.js and the App Router</h2>
+<p><b>Next.js</b> is a framework built on top of React. React alone only builds the interface that runs in the browser; it does not, by itself, give you pages with URLs, a server, or a way to run backend code. Next.js supplies all of that. This project uses Next.js 16 with its <b>App Router</b>, the newer of its two routing systems.</p>
+
+<p>The App Router's central idea is <b>routing by folders</b>. Inside <code>src/app</code>, the folder structure <i>is</i> the URL structure:</p>
+<ul>
+  <li>A file named <code>page.tsx</code> in a folder becomes a visitable page at that folder's path. <code>src/app/library/page.tsx</code> is the page at <code>/library</code>.</li>
+  <li>A file named <code>route.ts</code> becomes an <i>API endpoint</i> — a URL that returns data instead of a page. <code>src/app/api/transcripts/route.ts</code> answers requests to <code>/api/transcripts</code>.</li>
+  <li>A folder named with square brackets, like <code>[id]</code>, is a <i>dynamic segment</i> — it matches any value and hands it to the code as a parameter. <code>transcript/[id]/page.tsx</code> serves <code>/transcript/abc</code>, <code>/transcript/xyz</code>, and so on, with <code>id</code> set accordingly.</li>
+  <li><code>layout.tsx</code> wraps every page beneath it with shared structure (here, the <code>&lt;html&gt;</code> shell and fonts).</li>
+</ul>
+
+<p><b>Server and client components.</b> This is the concept that trips up most newcomers. In the App Router, components run on the <i>server</i> by default — they render to HTML before being sent to the browser. A component only runs in the browser if its file starts with the line <code>'use client'</code>. Browser-only capabilities — <code>useState</code>, <code>useEffect</code>, click handlers, reading <code>localStorage</code>, the <code>window</code> object — require a client component. Almost every page in this project starts with <code>'use client'</code> because the pages are interactive. The API <code>route.ts</code> files are pure server code; they never run in the browser.</p>
+
+<div class="note"><b>Why a framework at all?</b> Without Next.js you would separately set up: a bundler, a router, a Node server for the backend endpoints, and the glue between them. Next.js packages those decisions. The API secrets (database URL, Gemini key) can live safely in server-only code because that code never ships to the browser.</div>
+
+<h2>2.4 · Tailwind CSS</h2>
+<p><b>CSS</b> is the language that styles web pages — colors, spacing, fonts, layout. Normally you write CSS in separate files with named rules. <b>Tailwind</b> is a different approach: instead of writing rules, you attach many tiny pre-made classes directly to elements. <code>className="flex items-center gap-2"</code> means "lay children out in a row, vertically centered, with a small gap." Each of those words is one CSS declaration.</p>
+
+<p>Tailwind version 4 is used here. Two Tailwind conventions appear everywhere:</p>
+<ul>
+  <li><b>Arbitrary values</b> in square brackets: <code>text-[1.837rem]</code>, <code>right-[9.3px]</code>, <code>bg-[#92908E]</code>. When no pre-made class fits, you write the exact value in brackets. This project uses many of these because its design is pixel-tuned.</li>
+  <li><b>Responsive prefixes</b>: <code>sm:text-[1.214rem]</code> means "apply this only on screens at least the <code>sm</code> breakpoint wide (640px)." A class with no prefix applies at all sizes; a prefixed one overrides it above the breakpoint. This is how the app adapts to phones.</li>
+</ul>
+<p>Custom colors (<code>bg-purple</code>, <code>bg-mint</code>, <code>text-trash</code>) are defined once in <code>globals.css</code> and then usable as classes. Chapter 10 covers that file.</p>
+
+<h2>2.5 · PostgreSQL and Neon</h2>
+<p><b>PostgreSQL</b> ("Postgres") is a relational database: data stored in tables of rows and columns, queried with <b>SQL</b>. This project has exactly one table, <code>transcripts</code>. <b>Neon</b> is a company that hosts Postgres databases in a "serverless" way — you do not run a database server yourself; you connect to Neon's over the network. The project talks to it through the <code>@neondatabase/serverless</code> package, which is designed to work from serverless functions (short-lived, on-demand server code) rather than a long-running server.</p>
+
+<p>SQL you will see is small and readable, for example <code>SELECT * FROM transcripts WHERE video_id = ...</code>. The library used lets you write SQL inside a special tagged string; it handles safely inserting values so a malicious title cannot become an attack (this is "SQL injection" prevention, discussed with the file).</p>
+
+<h2>2.6 · External services</h2>
+<p>Four outside services are called over the network. Each is reached with an API key or token kept in an environment variable (a named secret configured in the deployment, never written in the code):</p>
+<table>
+  <tr><th>Service</th><th>What it does here</th><th>Secret</th></tr>
+  <tr><td>Supadata</td><td>Given a video ID, returns the raw caption text (the thing YouTube auto-generates).</td><td><code>SUPADATA_API_KEY</code></td></tr>
+  <tr><td>Google Gemini</td><td>The AI model. Cleans raw captions into readable prose; translates; defines words; summarizes.</td><td><code>GEMINI_API_KEY</code></td></tr>
+  <tr><td>YouTube Data API</td><td>Lists the signed-in user's subscriptions and each channel's recent uploads.</td><td>OAuth token (per user)</td></tr>
+  <tr><td>Google OAuth</td><td>The sign-in flow that produces the YouTube token.</td><td><code>GOOGLE_CLIENT_ID</code>, <code>GOOGLE_CLIENT_SECRET</code></td></tr>
+  <tr><td>Free Dictionary API</td><td>Dictionary definitions for single words (no key). Gemini is the fallback.</td><td>none</td></tr>
+</table>
+<p>The database connection string (<code>DATABASE_URL</code>) is a sixth secret. Keeping all of these out of the code and in environment variables is why the backend logic must run on the server, not in the browser: the browser could not be trusted with them.</p>
+<h1>3 · The big picture: how a request flows through the system</h1>
+<p class="lead">Before the file-by-file tour, follow one complete action end to end: a user pastes a link and reads the result. Every subsystem appears in this one path.</p>
+
+<h2>3.1 · The transcription path, step by step</h2>
+<ol>
+  <li><b>Home page.</b> The user types a URL into the box on <code>/</code> (the file <code>src/app/page.tsx</code>) and clicks "Transcribe." The page does a light check that the text looks like a YouTube link, stores the URL in <code>sessionStorage</code> under the key <code>pending-url</code>, and navigates to <code>/transcribing</code>.</li>
+  <li><b>Loading screen.</b> <code>src/app/transcribing/page.tsx</code> reads <code>pending-url</code>, shows the animated waves, and makes a network request: <code>POST /api/transcribe</code> with the URL in the body.</li>
+  <li><b>The transcribe endpoint.</b> <code>src/app/api/transcribe/route.ts</code> runs on the server. It extracts the video ID from the URL, checks the database for a cached transcript, and if none exists, calls Supadata for the raw captions, groups them into paragraphs, sends them to Gemini for cleanup, fetches the title and publish date, saves everything to Postgres, and returns the segments as JSON.</li>
+  <li><b>Back on the loading screen.</b> The response arrives. The page stores the transcript in <code>localStorage</code> under <code>transcript-&lt;id&gt;</code> so the next page can show it instantly, waits until the animation has run a minimum time, then navigates to <code>/transcript/&lt;id&gt;</code>.</li>
+  <li><b>The reader.</b> <code>src/app/transcript/[id]/page.tsx</code> reads that <code>localStorage</code> copy synchronously so there is no second loading flash, and renders the transcript through the <code>TranscriptReader</code> component. From here the reading settings, highlights, translation, and download features take over — all described in their own sections.</li>
+</ol>
+
+<p>Notice the two-place persistence at work: the transcript went into <b>Postgres</b> (so it will be in the library forever and on any device) and into <b>localStorage</b> (so this device shows it without a round-trip). If you open the same transcript later on a different computer, step 5 will not find a local copy and will instead fetch it from <code>/api/transcript/&lt;id&gt;</code>, which reads Postgres.</p>
+
+<h2>3.2 · Why a separate loading page at all</h2>
+<p>Caption fetching plus AI cleanup can take many seconds; a long one can approach the limit. Rather than freeze the home page, the app hands off to a dedicated screen whose only job is to wait and entertain. That screen also enforces a <i>minimum</i> visible time so that even a cached, instant response still shows the animation for a consistent moment instead of flickering past. This is a deliberate user-experience decision encoded in constants, covered in the loading-page section.</p>
+
+<h2>3.3 · The shape of the data</h2>
+<p>One data structure recurs everywhere: a transcript is an array of <b>segments</b>, and each segment is an object with the text and a start time in milliseconds.</p>
+<pre><code>interface Segment {
+  text: string
+  startMs: number
+}</code></pre>
+<p>After cleanup, each segment is one paragraph. The <code>startMs</code> is carried through from the caption timings (it is currently set to <code>0</code> for cleaned paragraphs, because cleanup regroups the text and the original per-word timings no longer line up — a known simplification). A saved transcript record adds the surrounding metadata:</p>
+<pre><code>interface TranscriptRecord {
+  videoId: string      // the YouTube id, also our primary key
+  url: string          // the original link
+  title: string        // fetched from YouTube
+  author: string       // the channel name
+  segments: Segment[]  // the cleaned paragraphs
+  createdAt: string    // when we saved it
+  publishedAt: string | null  // when the video itself came out
+}</code></pre>
+<p>Hold these two shapes in mind; most files either produce, transform, store, or display them.</p>
+
+<h1>4 · The repository, folder by folder</h1>
+<p class="lead">The project is a standard Next.js layout. Everything meaningful lives under <code>src</code>. The rest of the top level is configuration.</p>
+
+<h3>Top level</h3>
+<table>
+  <tr><th>Path</th><th>Purpose</th></tr>
+  <tr><td><code>package.json</code></td><td>Lists dependencies and the <code>dev</code>/<code>build</code>/<code>start</code>/<code>lint</code> commands.</td></tr>
+  <tr><td><code>package-lock.json</code></td><td>An exact, machine-generated record of every installed package version. Not edited by hand.</td></tr>
+  <tr><td><code>tsconfig.json</code></td><td>TypeScript compiler settings.</td></tr>
+  <tr><td><code>next.config.ts</code></td><td>Next.js settings (essentially empty here).</td></tr>
+  <tr><td><code>postcss.config.mjs</code></td><td>Wires Tailwind into the CSS build.</td></tr>
+  <tr><td><code>eslint.config.mjs</code></td><td>Linting rules (style/error checks that run separately from compiling).</td></tr>
+  <tr><td><code>vercel.json</code></td><td>Deployment settings for Vercel; here, raising one function's time limit.</td></tr>
+  <tr><td><code>next-env.d.ts</code></td><td>Auto-generated TypeScript glue for Next.js. Never edited.</td></tr>
+</table>
+
+<h3>Inside <code>src</code></h3>
+<p>Three folders, with a clear division of labor:</p>
+<table>
+  <tr><th>Folder</th><th>Contains</th><th>Runs where</th></tr>
+  <tr><td><code>src/app</code></td><td>Pages (<code>page.tsx</code>), API endpoints (<code>route.ts</code>), the root layout, and global CSS. The router reads this folder to build URLs.</td><td>Pages: browser. Routes: server.</td></tr>
+  <tr><td><code>src/components</code></td><td>Reusable pieces of interface shared by pages: the two wave renderers, the reading-settings menu, the transcript reader.</td><td>Browser.</td></tr>
+  <tr><td><code>src/lib</code></td><td>Plain logic with no interface: database access, the AI cleanup call, highlight storage, the Google/YouTube helper, wave geometry math.</td><td>Mostly server; a couple are browser utilities.</td></tr>
+</table>
+
+<p>The full inventory, grouped:</p>
+<pre><code>src/
+  app/
+    layout.tsx                 root HTML shell + fonts
+    page.tsx                   home page  (/)
+    globals.css                all global styles + Tailwind
+    icon.svg, favicon.ico      the tab icon
+    transcribing/page.tsx      loading screen  (/transcribing)
+    transcript/[id]/page.tsx   the reader  (/transcript/:id)
+    library/page.tsx           saved transcripts  (/library)
+    feed/page.tsx              YouTube feed  (/feed)
+    feed/[videoId]/page.tsx    watch + summary  (/feed/:videoId)
+    api/
+      transcribe/route.ts          POST: make a transcript
+      transcript/[id]/route.ts     GET: one transcript from the db
+      transcripts/route.ts         GET: list all transcripts
+      transcripts/[id]/route.ts    DELETE: remove one
+      translate/route.ts           POST: translate a transcript
+      define/route.ts              POST: define a word (Gemini fallback)
+      summary/route.ts             POST: summarize a video
+      feed/route.ts                GET: the user's YouTube feed
+      auth/google/route.ts         GET: start Google sign-in
+      auth/google/callback/route.ts GET: finish sign-in
+      auth/google/status/route.ts  GET: are we connected?
+      auth/google/logout/route.ts  GET: disconnect
+  components/
+    HomeWaves.tsx              the homepage wave animation
+    ReadingSettingsMenu.tsx    theme/font/size/width/language menu
+    TranscriptReader.tsx       renders text; highlights, notes, dictionary
+  lib/
+    db.ts                      Postgres access
+    cleanup.ts                 raw captions -> clean paragraphs (Gemini)
+    highlights.ts              localStorage: highlights, notes, progress
+    google.ts                  OAuth + YouTube feed assembly
+    wavePath.ts                SVG wave path math</code></pre>
+
+<p>This is the whole application: about 3,500 lines. It is small enough to hold in your head once you have read this document.</p>
+
+<h1>5 · Configuration files</h1>
+<p class="lead">These files are not glamorous but they decide how everything compiles, styles, and deploys. Read them once and you rarely touch them again.</p>
+
+<h2>5.1 · <span class="file">package.json</span></h2>
+<pre><code>{
+  "name": "yt-transcript",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.1.0",
+    "next": "16.2.9",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "tailwindcss": "^4",
+    "typescript": "^5",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.9",
+    "@types/node": "^20", "@types/react": "^19", "@types/react-dom": "^19"
+  }
+}</code></pre>
+<p><b>Scripts</b> are named shortcuts run with <code>npm run &lt;name&gt;</code>. <code>dev</code> starts a local development server with live reloading; <code>build</code> compiles the production version; <code>start</code> serves that build; <code>lint</code> runs the style/error checker.</p>
+<p><b>dependencies</b> are packages shipped as part of the running app. There are only four: the Neon database driver, Next.js, and React (the library plus its DOM renderer). That short list is itself a design fact — the project leans on the framework and writes the rest itself rather than pulling in many libraries.</p>
+<p><b>devDependencies</b> are needed only while developing or building, not at runtime: Tailwind and its PostCSS plugin, the TypeScript compiler, ESLint, and the <code>@types/*</code> packages (type definitions that teach TypeScript about Node and React). The caret <code>^</code> before a version means "this version or any compatible newer one." Exact versions (no caret) pin Next.js and React precisely.</p>
+
+<h2>5.2 · <span class="file">tsconfig.json</span></h2>
+<p>The TypeScript compiler's settings. The lines that matter for reading the code:</p>
+<ul>
+  <li><code>"strict": true</code> — turns on all the strict type checks. This is why, for example, a value that might be <code>null</code> must be handled before use.</li>
+  <li><code>"jsx": "react-jsx"</code> — tells the compiler to understand JSX and how to turn it into React calls.</li>
+  <li><code>"moduleResolution": "bundler"</code> and <code>"module": "esnext"</code> — use modern <code>import</code>/<code>export</code> syntax and resolve packages the way a modern bundler does.</li>
+  <li><code>"noEmit": true</code> — the compiler only <i>checks</i> types; it does not itself produce output files. Next.js does the actual compiling to JavaScript. TypeScript here is purely a safety net.</li>
+  <li><code>"paths": { "@/*": ["./src/*"] }</code> — defines the <code>@/</code> import shortcut. <code>import { getTranscript } from '@/lib/db'</code> means <code>src/lib/db</code>, no matter how deep the importing file is. You will see <code>@/</code> in nearly every file.</li>
+</ul>
+
+<h2>5.3 · <span class="file">next.config.ts</span>, <span class="file">postcss.config.mjs</span>, <span class="file">eslint.config.mjs</span></h2>
+<p><code>next.config.ts</code> is effectively empty — the defaults are used. <code>postcss.config.mjs</code> registers <code>@tailwindcss/postcss</code>, which is the mechanism that turns Tailwind's classes into real CSS at build time. <code>eslint.config.mjs</code> pulls in Next.js's recommended lint rule sets (<code>core-web-vitals</code> and the TypeScript set) and tells the linter to ignore build output. None of these change how the app behaves; they configure the toolchain around it.</p>
+
+<h2>5.4 · <span class="file">vercel.json</span></h2>
+<pre><code>{
+  "functions": {
+    "src/app/api/transcribe/route.ts": { "maxDuration": 300 }
+  }
+}</code></pre>
+<p>Vercel runs each API route as a serverless function with a default time limit (short — often 10 seconds on the free tier). Transcription is the one slow operation: fetching captions plus an AI pass can take a while. This file raises <i>that one function's</i> ceiling to 300 seconds (five minutes). The same limit is also declared inside the route file with <code>export const maxDuration = 300</code>; the JSON here is the deployment-level counterpart. Every other endpoint keeps the default, which is appropriate because they are fast.</p>
+<h1>6 · The <code>lib/</code> layer — the plain logic</h1>
+<p class="lead">These five files hold logic with no user interface. They are the cleanest place to learn the syntax because there is no JSX in the way. Read this chapter slowly; the patterns here (async functions, <code>fetch</code>, error handling, TypeScript interfaces) repeat in every other file.</p>
+
+<h2>6.1 · <span class="file">src/lib/db.ts</span> — the database</h2>
+<p>This file is the only place that talks to Postgres. Everything else that needs a transcript goes through the functions it exports. Centralizing database access in one file is a common and deliberate choice: if the storage ever changes, only this file changes.</p>
+
+<h4>Setting up the connection</h4>
+<pre><code>import { neon } from '@neondatabase/serverless'
+
+const connectionString = process.env.DATABASE_URL || process.env.POSTGRES_URL
+const sql = connectionString ? neon(connectionString) : null
+
+export function dbAvailable(): boolean {
+  return sql !== null
+}</code></pre>
+<p><code>import { neon } from ...</code> pulls one function, <code>neon</code>, out of the Neon package. <code>process.env</code> is how server code reads environment variables; <code>DATABASE_URL</code> is the secret connection string. The <code>||</code> ("or") means "use <code>DATABASE_URL</code>, or if that is missing, <code>POSTGRES_URL</code>" — a fallback for different hosting setups.</p>
+<p><code>const sql = connectionString ? neon(connectionString) : null</code> uses the <b>ternary operator</b> <code>condition ? a : b</code>, which is a compact if/else that produces a value: if there is a connection string, build a query function <code>sql</code>; otherwise set <code>sql</code> to <code>null</code>. This is defensive — the app can be built and run in environments without a database, and it simply does nothing storage-related instead of crashing. <code>dbAvailable()</code> lets callers check.</p>
+
+<h4>Creating the table on first use</h4>
+<pre><code>let ensured = false
+async function ensureTable() {
+  if (!sql || ensured) return
+  await sql`
+    CREATE TABLE IF NOT EXISTS transcripts (
+      video_id   text PRIMARY KEY,
+      url        text NOT NULL,
+      title      text,
+      author     text,
+      segments   jsonb NOT NULL,
+      created_at timestamptz NOT NULL DEFAULT now()
+    )
+  `
+  await sql`ALTER TABLE transcripts ADD COLUMN IF NOT EXISTS published_at text`
+  ensured = true
+}</code></pre>
+<p>There is no separate database-setup step; the table is created lazily the first time it is needed. <code>ensured</code> is a module-level flag so the work happens at most once per running server instance — <code>if (!sql || ensured) return</code> bails out early if there is no database or the table was already ensured.</p>
+<p>The word <code>await</code> appears here for the first time. Database queries take time (they go over the network); an <code>async</code> function can <code>await</code> such an operation, which means "pause here until this finishes, without freezing everything else." Any function using <code>await</code> must be marked <code>async</code>. This asynchronous pattern is everywhere in the project because almost everything interesting is a network call.</p>
+<p>The SQL itself: <code>CREATE TABLE IF NOT EXISTS</code> makes the table only if it is absent. Columns are declared with types — <code>text</code>, <code>jsonb</code> (JSON stored in the database, used for the segments array), <code>timestamptz</code> (a timestamp with time zone). <code>video_id ... PRIMARY KEY</code> makes the YouTube ID the unique identifier for each row. The second statement, <code>ALTER TABLE ... ADD COLUMN IF NOT EXISTS published_at</code>, is a <i>migration</i>: the <code>published_at</code> column was added after the table already existed in production, so this line brings older databases up to date without losing data.</p>
+<p>The backtick string after <code>sql</code> is a <b>tagged template literal</b>. The Neon library reads the SQL you write and, crucially, safely substitutes any values you interpolate — you never build SQL by gluing strings together, which is what makes "SQL injection" attacks impossible here.</p>
+
+<h4>Reading one transcript</h4>
+<pre><code>export async function getTranscript(videoId: string): Promise&lt;TranscriptRecord | null&gt; {
+  if (!sql) return null
+  await ensureTable()
+  const rows = await sql`SELECT * FROM transcripts WHERE video_id = ${videoId}`
+  if (rows.length === 0) return null
+  const r = rows[0]
+  return {
+    videoId: r.video_id,
+    url: r.url,
+    title: r.title,
+    author: r.author,
+    segments: r.segments,
+    createdAt: String(r.created_at),
+    publishedAt: r.published_at ?? null,
+  }
+}</code></pre>
+<p>The return type is <code>Promise&lt;TranscriptRecord | null&gt;</code>. Two things there: because the function is <code>async</code>, it returns a <b>Promise</b> — a placeholder for a value that will exist later. And <code>TranscriptRecord | null</code> is a <b>union type</b>: the result is either a record or nothing. Callers must handle both, which the strict compiler enforces.</p>
+<p>The query interpolates <code>${videoId}</code> — the Neon tag makes this safe. If no rows come back, the function returns <code>null</code>. Otherwise it takes the first row and maps the database's <code>snake_case</code> column names (<code>video_id</code>) to the code's <code>camelCase</code> field names (<code>videoId</code>). This mapping is done by hand in one place so the rest of the code deals only in tidy JavaScript names. <code>r.published_at ?? null</code> uses the <b>nullish-coalescing operator</b> <code>??</code>: "use <code>r.published_at</code>, unless it is null or undefined, in which case use <code>null</code>."</p>
+
+<h4>Saving a transcript</h4>
+<pre><code>export async function saveTranscript(rec: {
+  videoId: string; url: string; title: string; author: string
+  segments: Segment[]; publishedAt?: string | null
+}): Promise&lt;void&gt; {
+  if (!sql) return
+  await ensureTable()
+  await sql`
+    INSERT INTO transcripts (video_id, url, title, author, segments, published_at)
+    VALUES (${rec.videoId}, ${rec.url}, ${rec.title}, ${rec.author},
+            ${JSON.stringify(rec.segments)}::jsonb, ${rec.publishedAt ?? null})
+    ON CONFLICT (video_id) DO UPDATE
+      SET url = EXCLUDED.url, title = EXCLUDED.title, author = EXCLUDED.author,
+          segments = EXCLUDED.segments,
+          published_at = COALESCE(EXCLUDED.published_at, transcripts.published_at)
+  `
+}</code></pre>
+<p>The parameter type is written inline: an object with these fields, where <code>publishedAt?</code> has a question mark meaning it is <i>optional</i>. Return type <code>Promise&lt;void&gt;</code> means the function does its work and resolves with no value.</p>
+<p><code>JSON.stringify(rec.segments)</code> converts the segments array into a JSON string, and <code>::jsonb</code> casts it into Postgres's JSON type. The <code>ON CONFLICT (video_id) DO UPDATE</code> clause is an "upsert": if a row with this video ID already exists, update it instead of failing. That is why re-transcribing a video overwrites cleanly. <code>COALESCE(EXCLUDED.published_at, transcripts.published_at)</code> keeps an existing publish date if the new save happens not to have one — it never overwrites good data with nothing.</p>
+
+<h4>Delete and list</h4>
+<pre><code>export async function deleteTranscript(videoId: string): Promise&lt;void&gt; {
+  if (!sql) return
+  await ensureTable()
+  await sql`DELETE FROM transcripts WHERE video_id = ${videoId}`
+}
+
+export async function listTranscripts(): Promise&lt;TranscriptSummary[]&gt; {
+  if (!sql) return []
+  await ensureTable()
+  const rows = await sql`
+    SELECT video_id, url, title, author, created_at, published_at
+    FROM transcripts ORDER BY created_at DESC
+  `
+  return rows.map((r) =&gt; ({ /* map columns to a summary object */ }))
+}</code></pre>
+<p><code>listTranscripts</code> selects a lighter set of columns (not the full segments — the library only needs titles and dates) and orders newest-first with <code>ORDER BY created_at DESC</code>. <code>rows.map(...)</code> transforms every database row into a clean summary object; <code>.map</code> is the standard way to turn one array into another by applying a function to each element. The parentheses around the returned object <code>({ ... })</code> are required so the arrow function is not mistaken for a function body.</p>
+<div class="note"><b>What to take from this file.</b> A single module owns all storage; every function guards against a missing database; column names are translated at the boundary; and query values are always interpolated through the safe Neon tag. These are the habits worth copying.</div>
+
+<h2>6.2 · <span class="file">src/lib/cleanup.ts</span> — the AI transcript cleaner</h2>
+<p>This file turns YouTube's messy auto-captions into readable paragraphs by asking Gemini to rewrite them under strict rules. It is the clearest example in the project of "prompt engineering" — most of the file is an instruction string.</p>
+
+<h4>The instruction (system prompt)</h4>
+<p>A long constant <code>SYSTEM_PROMPT</code> tells the model exactly what to do and, just as importantly, what <i>not</i> to do. Its rules, in plain terms:</p>
+<ul>
+  <li>If the whole transcript arrives in ALL CAPS (YouTube sometimes does this), rewrite it in normal sentence case, capitalizing only real proper nouns, sentence starts, "I", and acronyms.</li>
+  <li>Fix misheard proper nouns from context, and apply a fixed list of known mistranscriptions (for example "Palanteer" &rarr; "Palantir", "Handes" &rarr; "Andes"). This list grows as the user reports new ones.</li>
+  <li>Remove the duplicated preview snippet YouTube puts at the very start; remove the censor tokens; thin out filler words by roughly half but not entirely, preserving the speaker's natural rhythm.</li>
+  <li>Keep meaningful repetition (emphasis, idioms, laughter) but remove accidental stutters — a nuanced instruction with many examples so the model does not flatten the speech.</li>
+  <li>Break the text into paragraphs by speaker turn or by distinct argument. Do <b>not</b> prefix paragraphs with speaker names unless the text states the speaker unambiguously and the model is completely certain. Never invent names or use generic labels like "Host."</li>
+  <li>Never summarize or drop content; output only the cleaned transcript with blank lines between paragraphs and no markdown.</li>
+</ul>
+<p>Each of these rules exists because an earlier version misbehaved in that specific way. The prompt is, in effect, a written record of every correction the project's author has made — which is why it reads like a list of grievances against YouTube's captions.</p>
+
+<h4>The call to Gemini</h4>
+<pre><code>const MODEL = 'gemini-2.5-flash'
+const ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`
+
+export async function cleanupTranscript(rawText: string): Promise&lt;Segment[] | null&gt; {
+  const apiKey = process.env.GEMINI_API_KEY
+  if (!apiKey) return null
+
+  let full = ''
+  try {
+    const res = await fetch(`${ENDPOINT}?key=${apiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+        contents: [{ role: 'user', parts: [{ text: rawText }] }],
+        generationConfig: { maxOutputTokens: 65536, temperature: 0.2 },
+      }),
+    })
+    if (!res.ok) return null
+    const data = await res.json()
+    const parts = data?.candidates?.[0]?.content?.parts ?? []
+    for (const part of parts) {
+      if (typeof part?.text === 'string') full += part.text
+    }
+  } catch {
+    return null
+  }
+  // ...split into paragraphs...
+}</code></pre>
+<p><code>fetch</code> is the built-in way to make an HTTP request. Here it is a <code>POST</code> to Gemini's endpoint, with the API key in the query string, a header declaring the body is JSON, and a body built by <code>JSON.stringify</code> from a nested object describing the request. <code>temperature: 0.2</code> asks the model to be nearly deterministic — low creativity — because this is a faithful rewrite, not brainstorming. <code>maxOutputTokens: 65536</code> allows a long transcript to come back whole.</p>
+<p>The <code>try { ... } catch { ... }</code> block is error handling: if anything inside <code>try</code> throws (network failure, bad JSON), execution jumps to <code>catch</code>, which returns <code>null</code>. The <code>?.</code> in <code>data?.candidates?.[0]?.content?.parts</code> is <b>optional chaining</b>: read each step only if the previous one exists, otherwise produce <code>undefined</code> instead of crashing. This matters because the model's response shape is nested and any level could be missing. The <code>?? []</code> then substitutes an empty array so the following loop is safe.</p>
+
+<h4>Turning the text back into segments</h4>
+<pre><code>  const paragraphs = full
+    .split(/\n\s*\n/)
+    .map((p) =&gt; p.replace(/\s+/g, ' ').trim())
+    .filter(Boolean)
+
+  if (paragraphs.length === 0) return null
+  return paragraphs.map((text) =&gt; ({ text, startMs: 0 }))</code></pre>
+<p>The model returns one long string with blank lines between paragraphs. <code>.split(/\n\s*\n/)</code> cuts it wherever a blank line appears (that is a <b>regular expression</b> matching a newline, optional whitespace, and another newline). <code>.map(p =&gt; p.replace(/\s+/g, ' ').trim())</code> collapses any run of whitespace inside a paragraph into single spaces and trims the ends. <code>.filter(Boolean)</code> drops empty paragraphs (empty strings are "falsy," so <code>Boolean</code> filters them out). Finally each surviving paragraph becomes a <code>Segment</code> with <code>startMs: 0</code>.</p>
+<div class="note"><b>Why single-space normalization matters.</b> The highlight feature stores selections as character offsets into a paragraph's text. Guaranteeing exactly one space between words makes those offsets stable, so a highlight lands on the same characters every time. A small cleanup rule here quietly enables a feature two files away.</div>
+
+<h4>The fallback</h4>
+<p>If Gemini is unavailable or fails, <code>cleanupTranscript</code> returns <code>null</code>. The transcribe route treats <code>null</code> as "use the plain, heuristically grouped segments instead." The app still works without the AI; it just produces rougher text. Designing the AI step to be optional is a deliberate resilience choice.</p>
+<h2>6.3 · <span class="file">src/lib/highlights.ts</span> — highlights, notes, progress</h2>
+<p>This file is the browser-side counterpart to <code>db.ts</code>: it owns everything stored in <code>localStorage</code>. Unlike the database module, it runs in the browser, so it guards every access with a check that <code>window</code> exists (the same code is prepared on the server during rendering, where <code>localStorage</code> is absent).</p>
+
+<h4>The Highlight shape and the storage key</h4>
+<pre><code>export interface Highlight {
+  id: string
+  paragraph: number   // which segment
+  start: number       // character offset within the paragraph
+  end: number         // exclusive
+  text: string        // the highlighted substring
+  note: string
+  createdAt: number
+}
+
+const keyFor = (transcriptId: string, lang: string) =&gt; `highlights-${transcriptId}-${lang}`</code></pre>
+<p>A highlight records which paragraph it is in and the <code>start</code>/<code>end</code> character positions inside that paragraph's text, plus a copy of the highlighted text and an optional note. The storage key includes the <b>language</b>: because translating a transcript changes the characters, offsets from the English version would be meaningless in French, so each language keeps its own set of highlights under its own key.</p>
+
+<h4>Load and save</h4>
+<pre><code>export function loadHighlights(transcriptId: string, lang: string): Highlight[] {
+  if (typeof window === 'undefined') return []
+  try {
+    const raw = localStorage.getItem(keyFor(transcriptId, lang))
+    if (!raw) return []
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) ? parsed : []
+  } catch { return [] }
+}
+
+export function saveHighlights(transcriptId: string, lang: string, highlights: Highlight[]) {
+  if (typeof window === 'undefined') return
+  try { localStorage.setItem(keyFor(transcriptId, lang), JSON.stringify(highlights)) } catch {}
+}</code></pre>
+<p><code>localStorage</code> only stores strings, so objects are serialized with <code>JSON.stringify</code> on the way in and <code>JSON.parse</code> on the way out. Both functions wrap their work in <code>try/catch</code> and return a safe default, because <code>localStorage</code> can be disabled or full and parsing could fail on corrupted data. <code>typeof window === 'undefined'</code> is the standard test for "am I running on the server"; if so, there is nothing to read, so it returns an empty array.</p>
+
+<h4>Counting for the library, and clearing on delete</h4>
+<pre><code>export function countHighlights(transcriptId: string): { highlights: number; notes: number } {
+  // scan every localStorage key beginning with `highlights-&lt;id&gt;-`
+  // sum total highlights and how many carry a non-empty note
+}
+
+export function clearLocalTranscript(transcriptId: string) {
+  // remove `transcript-&lt;id&gt;` and every `highlights-&lt;id&gt;-*` key
+}</code></pre>
+<p><code>countHighlights</code> walks all storage keys (using <code>localStorage.key(i)</code> in a loop) and adds up highlights and notes across every language for that transcript — this is what produces the two counts shown on each library row. <code>clearLocalTranscript</code> is called when a transcript is deleted, so the local cache and its highlights do not linger after the database row is gone.</p>
+
+<h4>The offset helper</h4>
+<pre><code>export function charOffsetWithin(root: HTMLElement, node: Node, offset: number): number {
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT)
+  let count = 0
+  let n: Node | null = walker.nextNode()
+  while (n) {
+    if (n === node) return count + offset
+    count += n.textContent?.length ?? 0
+    n = walker.nextNode()
+  }
+  return count
+}</code></pre>
+<p>This translates a browser text selection into a character offset. When you select text, the browser reports the selection as a node and an offset within that node — but a paragraph may be split into several text pieces (because a previous highlight wrapped part of it in its own element). A <code>TreeWalker</code> visits every text node in order; the function adds up their lengths until it reaches the node the selection started in, then adds the offset. The result is a single number: the position within the paragraph's full text, independent of how the text is currently split into elements. The reader component uses this to store stable highlight ranges.</p>
+
+<h4>Reading progress</h4>
+<pre><code>export function loadProgress(transcriptId: string): number { /* read integer 0-100 */ }
+export function saveProgress(transcriptId: string, percent: number) { /* clamp and store */ }</code></pre>
+<p>Two small functions store a single integer per transcript: the percentage scrolled. <code>saveProgress</code> clamps the value into the 0–100 range and rounds it before storing. The reader writes this on every scroll; the library reads it to show the percentage and the reader reads it to restore your position.</p>
+
+<h2>6.4 · <span class="file">src/lib/google.ts</span> — OAuth and the YouTube feed</h2>
+<p>This is the most involved <code>lib</code> file. It does two jobs: the OAuth sign-in dance with Google, and assembling a "subscription feed" from the YouTube Data API. It deliberately uses only <code>fetch</code> — no Google client library — to avoid an extra dependency.</p>
+
+<h4>Is it configured?</h4>
+<pre><code>export function googleConfigured(): boolean {
+  return !!(process.env.GOOGLE_CLIENT_ID &amp;&amp; process.env.GOOGLE_CLIENT_SECRET)
+}</code></pre>
+<p><code>!!(...)</code> converts a value to a strict <code>true</code>/<code>false</code>. This returns <code>true</code> only if both Google secrets are present. The feed UI uses it to show a "not configured yet" message instead of a broken sign-in when the deployment has no Google credentials.</p>
+
+<h4>The three OAuth steps</h4>
+<p>OAuth is a standard three-step handshake, and this file implements each as a function:</p>
+<pre><code>export function authUrl(redirectUri: string, state: string): string {
+  const params = new URLSearchParams({
+    client_id: process.env.GOOGLE_CLIENT_ID ?? '',
+    redirect_uri: redirectUri, response_type: 'code',
+    scope: 'https://www.googleapis.com/auth/youtube.readonly',
+    access_type: 'offline', prompt: 'consent', state,
+  })
+  return `https://accounts.google.com/o/oauth2/v2/auth?${params}`
+}</code></pre>
+<p><b>Step one</b>, <code>authUrl</code>, builds the Google sign-in link. <code>URLSearchParams</code> encodes the query parameters safely. <code>scope</code> asks only for read-only access to YouTube. <code>access_type: 'offline'</code> is what makes Google return a long-lived <i>refresh token</i>; <code>prompt: 'consent'</code> forces the consent screen so the refresh token is reliably issued. <code>state</code> is a random value used to detect tampering when Google redirects back.</p>
+<pre><code>export async function exchangeCode(code, redirectUri) { /* POST to /token, grant_type=authorization_code */ }
+export async function refreshAccessToken(refreshToken): Promise&lt;string | null&gt; { /* POST, grant_type=refresh_token */ }</code></pre>
+<p><b>Step two</b>, <code>exchangeCode</code>, trades the one-time <code>code</code> Google sends back for tokens (an access token and a refresh token). <b>Step three</b>, <code>refreshAccessToken</code>, uses the long-lived refresh token to get a fresh short-lived access token whenever the feed is loaded. Only the refresh token is stored (in a cookie); access tokens are obtained on demand and never persisted.</p>
+
+<h4>Assembling the feed</h4>
+<p>YouTube offers no single "my subscription feed" endpoint, so the feed is built by hand. <code>getFeed(token)</code> performs a sequence of calls, each through a small helper <code>yt(path, token)</code> that attaches the access token and parses the JSON:</p>
+<ol>
+  <li>List the user's subscriptions (paginating up to about 100 channels).</li>
+  <li>For each channel, look up its "uploads" playlist ID (channels are queried 50 at a time, the API's batch limit).</li>
+  <li>For each uploads playlist, fetch the recent items, keeping only those published within the last 30 days.</li>
+  <li>Collect the candidate video IDs and fetch their durations in batches of 50.</li>
+  <li>Drop "Shorts" — videos 180 seconds or shorter, or with "#shorts" in the title — then sort everything newest-first.</li>
+</ol>
+<pre><code>const isShort = (v: FeedVideo) =&gt; {
+  const dur = durationById[v.videoId] ?? 0
+  return (dur &gt; 0 &amp;&amp; dur &lt;= 180) || /#shorts?\b/i.test(v.title)
+}
+return candidates.filter((v) =&gt; !isShort(v))
+  .sort((a, b) =&gt; +new Date(b.publishedAt) - +new Date(a.publishedAt))</code></pre>
+<p>The date parsing <code>+new Date(...)</code> turns a date string into a number of milliseconds so two dates can be subtracted; sorting by <code>b - a</code> yields descending (newest first) order. <code>isShort</code> combines a duration test with a title pattern. The 30-day window, the batching, and the caps all exist to keep within YouTube's daily API quota — a constraint discussed in the scaling chapter.</p>
+<p>Several calls run in parallel with <code>await Promise.all(uploads.map(async (u) =&gt; { ... }))</code>. <code>Promise.all</code> starts many asynchronous operations at once and waits for all of them, rather than doing them one at a time — important when there are dozens of channels to query.</p>
+
+<h2>6.5 · <span class="file">src/lib/wavePath.ts</span> — the decorative wave geometry</h2>
+<p>This file is pure math and produces no data or network calls: it generates the <b>SVG path</b> strings that draw the calligraphic "waves" on the home and loading pages. SVG is a vector-graphics format where a shape is described by a string of drawing commands.</p>
+<pre><code>export function makeWaveOutline(seed: number, maxHalfWidth: number) {
+  const cycles = 1
+  const amp = 4.8 + (seed % 3)   // amplitude varies slightly per wave
+  const mid = VIEW_H / 2
+  const N = 48
+  const pts = []
+  for (let i = 0; i &lt;= N; i++) {
+    const t = i / N
+    pts.push({ x: t * VIEW_W, y: mid + amp * Math.sin(2 * Math.PI * cycles * t) })
+  }
+  // ...offset a tapered ribbon above and below the centerline...
+}</code></pre>
+<p>The function samples a sine wave at 48 points along a fixed viewbox to get a gently curved centerline (<code>Math.sin</code> produces the up-and-down shape; <code>amp</code> is how tall, varied per <code>seed</code> so no two waves are identical). It then walks that centerline and pushes each point outward by a half-width that is zero at the ends and largest in the middle (<code>maxHalfWidth * Math.sin(Math.PI * t)</code>), producing a filled ribbon that tapers to points — the brush-stroke look. The result is a single <code>d="..."</code> string of <code>M</code> (move) and <code>L</code> (line) commands closed with <code>Z</code>.</p>
+<p>The file also exports <code>WAVE_SHADOWS</code> (a lookup from each wave color to a lighter version used as its drop shadow) and constants for the viewbox size and a pixels-per-centimeter factor. The two page components import these and animate many copies with CSS. This is the one corner of the project that is closer to graphics programming than to web plumbing, and it is fully self-contained — nothing outside the two wave components depends on it.</p>
+<h1>7 · The API routes — the server endpoints</h1>
+<p class="lead">Every file named <code>route.ts</code> under <code>src/app/api</code> is a server endpoint. Pages in the browser call these with <code>fetch</code>; the endpoints do the work that needs secrets or the database, then return JSON. A route file exports functions named after HTTP methods — <code>GET</code>, <code>POST</code>, <code>DELETE</code> — and Next.js calls the matching one.</p>
+
+<h2>7.1 · <span class="file">api/transcribe/route.ts</span> — the centerpiece</h2>
+<p>This is the busiest endpoint and the heart of the app. It accepts a URL and returns a finished transcript. Read it as five stages.</p>
+
+<h4>Stage 1 — validate and extract the ID</h4>
+<pre><code>export const maxDuration = 300
+
+function extractVideoId(url: string): string | null {
+  try {
+    const u = new URL(url)
+    if (u.hostname === 'youtu.be') return u.pathname.slice(1).split('?')[0]
+    return u.searchParams.get('v')
+  } catch { return null }
+}
+
+export async function POST(req: Request) {
+  const { url } = await req.json()
+  if (!url) return NextResponse.json({ error: 'No URL provided' }, { status: 400 })
+  const videoId = extractVideoId(url)
+  if (!videoId) return NextResponse.json({ error: 'Invalid YouTube URL.' }, { status: 400 })</code></pre>
+<p><code>export const maxDuration = 300</code> is the in-code twin of the <code>vercel.json</code> setting: this function may run up to five minutes. <code>extractVideoId</code> handles both YouTube URL shapes — the <code>youtu.be/ID</code> short form and the <code>youtube.com/watch?v=ID</code> long form — using the built-in <code>URL</code> parser rather than fragile string cutting. <code>const { url } = await req.json()</code> reads and destructures the request body. Failures return a JSON error with an HTTP <b>status code</b>: <code>400</code> means "bad request." Status codes are how the caller knows success (200-range) from failure (400- and 500-range).</p>
+
+<h4>Stage 2 — the cache</h4>
+<pre><code>const cached = await getTranscript(videoId)
+if (cached) {
+  return NextResponse.json({ id: videoId, segments: cached.segments, title: cached.title, cached: true })
+}</code></pre>
+<p>Before spending money on Supadata and Gemini, the route checks the database. If this video was transcribed before, it returns the stored version immediately. This is the single most important cost- and speed-saving decision in the app: transcription happens once per video, ever, across all users.</p>
+
+<h4>Stage 3 — fetch the captions</h4>
+<pre><code>const res = await fetch(
+  `https://api.supadata.ai/v1/youtube/transcript?videoId=${videoId}&amp;lang=en`,
+  { headers: { 'x-api-key': apiKey } }
+)
+if (!res.ok) { /* return a 422 "no transcript available" with the reason */ }
+const data = await res.json()
+raw = data.content ?? []</code></pre>
+<p>Supadata is asked for the English captions. If it fails, the route returns status <code>422</code> ("unprocessable") with a human-readable reason — this is what surfaces as "No transcript available for this video" when captions are disabled. The raw result is an array of caption fragments, each with text, an offset, and a duration.</p>
+
+<h4>Stage 4 — group into rough paragraphs</h4>
+<p>Before the AI sees the text, the route does a first, mechanical grouping. Two strategies:</p>
+<ul>
+  <li>If the captions contain <code>&gt;&gt;</code> markers (YouTube's convention for a new speaker), a new block starts at each marker.</li>
+  <li>Otherwise, blocks are split on time gaps: when more than two seconds pass between fragments, a new paragraph begins.</li>
+</ul>
+<p>A second pass then merges fragments that begin with a lowercase letter into the previous block, since a lowercase start usually means a continued sentence rather than a new speaker. This heuristic grouping is a safety net: if the AI step is skipped or fails, the transcript is still broken into reasonable paragraphs.</p>
+
+<h4>Stage 5 — clean, look up metadata, save, return</h4>
+<pre><code>const rawText = raw.map((item) =&gt; item.text).join(' ')
+const cleaned = await cleanupTranscript(rawText)
+const finalSegments = cleaned ?? merged
+
+const [{ title, author }, publishedAt] = await Promise.all([
+  fetchTitle(videoId), fetchPublishDate(videoId),
+])
+await saveTranscript({ videoId, url, title, author, segments: finalSegments, publishedAt })
+return NextResponse.json({ id: videoId, segments: finalSegments, title })</code></pre>
+<p>The full caption text is joined into one string and passed to <code>cleanupTranscript</code> (the file from 6.2). <code>const finalSegments = cleaned ?? merged</code> is the fallback in action: use the AI-cleaned paragraphs, or the mechanically grouped ones if cleanup returned <code>null</code>. Title and channel come from YouTube's keyless <b>oEmbed</b> endpoint; the publish date is scraped from the public watch page (there is no keyless API for it, so <code>fetchPublishDate</code> pulls it out of the page's HTML with a regular expression). Both metadata calls run together via <code>Promise.all</code>. Finally the record is saved and the segments are returned to the loading page.</p>
+<div class="note"><b>Reading this route teaches the whole backend style.</b> Validate input; check the cache; call an external service with a key; transform; store; return JSON with a status code. Every other endpoint is a smaller version of this pattern.</div>
+
+<h2>7.2 · The transcript CRUD routes</h2>
+<p>Three tiny endpoints wrap the database functions. "CRUD" is create/read/update/delete; these cover read, list, and delete (create happens inside <code>transcribe</code>).</p>
+<ul>
+  <li><span class="file">api/transcript/[id]/route.ts</span> — <code>GET</code>. Returns one transcript by ID from the database (used when opening a transcript on a device that has no local copy). Note the dynamic segment: <code>{ params }: { params: Promise&lt;{ id: string }&gt; }</code> and <code>const { id } = await params</code> — in this Next.js version the route parameters arrive as a Promise and must be awaited.</li>
+  <li><span class="file">api/transcripts/route.ts</span> — <code>GET</code>. Returns the whole list for the library. Four lines.</li>
+  <li><span class="file">api/transcripts/[id]/route.ts</span> — <code>DELETE</code>. Removes one transcript. The first parameter is named <code>_req</code> with a leading underscore, a convention meaning "required by the signature but unused."</li>
+</ul>
+
+<h2>7.3 · <span class="file">api/translate/route.ts</span></h2>
+<p>Given a title and paragraphs and a target language (French or Spanish), this asks Gemini to translate them. The interesting part is how it keeps paragraphs aligned. It joins all chunks with a rare delimiter, <code>\n@@@\n</code>, and instructs the model to keep exactly the same number of chunks separated by that same delimiter. On the way back it splits on the delimiter and checks the count:</p>
+<pre><code>if (out.length !== chunks.length) {
+  return NextResponse.json({ error: 'Translation misaligned.' }, { status: 502 })
+}</code></pre>
+<p>If the counts do not match, it fails rather than returning misaligned text — because a paragraph mismatch would put highlights on the wrong words. This is a small example of a recurring principle: when correctness cannot be guaranteed, fail loudly instead of returning something subtly wrong.</p>
+
+<h2>7.4 · <span class="file">api/define/route.ts</span> and <span class="file">api/summary/route.ts</span></h2>
+<p><b>define</b> is the dictionary fallback. The reader first tries the free, keyless dictionary API directly from the browser; only when that returns nothing (common for non-English words and for phrases) does it call this route, which asks Gemini for a one-line definition in the target language, formatted as <code>part-of-speech ||| definition</code> and split apart on the client.</p>
+<p><b>summary</b> powers the "Ask AI" button on the feed watch page. It gathers the video's caption text — reusing a saved transcript if one exists, otherwise fetching fresh from Supadata — and asks Gemini for a one-line TL;DR followed by five to eight bullet points. If the video has no captions, it returns an empty summary and the page says so. Both routes follow the same call-Gemini-and-parse structure as <code>cleanup</code>.</p>
+
+<h2>7.5 · <span class="file">api/feed/route.ts</span> and the auth routes</h2>
+<p><b>feed</b> reads the refresh token from the request cookie, exchanges it for a fresh access token via <code>refreshAccessToken</code>, calls <code>getFeed</code>, and returns the list. No cookie means status <code>401</code> ("unauthorized"), which the feed page reads as "not connected."</p>
+<p>The four <b>auth/google</b> routes implement the sign-in flow described in 6.4:</p>
+<ul>
+  <li><code>route.ts</code> (<code>GET</code>) — generates a random <code>state</code>, stores it in a short-lived cookie, and redirects the browser to Google's consent screen.</li>
+  <li><code>callback/route.ts</code> (<code>GET</code>) — Google returns here with a code; the route checks the <code>state</code> matches (anti-tampering), exchanges the code for tokens, stores the refresh token in an <code>httpOnly</code> cookie (unreadable by JavaScript, so it cannot be stolen by a script), and redirects to <code>/feed</code>.</li>
+  <li><code>status/route.ts</code> (<code>GET</code>) — reports whether Google is configured and whether a token cookie is present, so the page can pick which state to show.</li>
+  <li><code>logout/route.ts</code> (<code>GET</code>) — deletes the token cookie.</li>
+</ul>
+<p>Storing the token server-side in an <code>httpOnly</code> cookie rather than in <code>localStorage</code> is a security decision: page scripts never see it, which limits the damage a malicious script could do. It is also why the feed is currently single-user — there is one cookie per browser, not a per-account token store.</p>
+<h1>8 · The React components</h1>
+<p class="lead">Three components in <code>src/components</code> are shared by pages. The first two are self-contained; the third, the transcript reader, is the most intricate client code in the project and rewards careful reading.</p>
+
+<h2>8.1 · <span class="file">HomeWaves.tsx</span></h2>
+<p>A client component (<code>'use client'</code>) that renders the animated background on the home page. It builds a list of wave descriptions once with <code>useMemo</code> — six rows, fourteen per row, each with a pseudo-random size, vertical position, animation delay and duration derived from a running <code>seed</code> number — then filters out every fourth one to thin the field evenly. It maps that list to <code>&lt;svg&gt;</code> elements, each drawing one wave via <code>makeWaveOutline</code> and animating it horizontally with a CSS animation named <code>wave-drift</code>. The negative <code>delay</code> values start each wave partway through its cycle so the screen is already full of motion on load rather than starting empty.</p>
+<pre><code>const waves = useMemo(() =&gt; {
+  const items = []
+  let seed = 0
+  for (let row = 0; row &lt; ROWS; row++)
+    for (let i = 0; i &lt; WAVES_PER_ROW; i++) {
+      seed++
+      const duration = (14 + ((seed * 1.1) % 10)) * 1.3 * SPEED_FACTOR
+      items.push({ seed, topPercent: /* row position + jitter */, sizeCm: /* varied */,
+                   delay: -(((seed - 1) / total) * duration), duration,
+                   color: WAVE_COLORS[(seed * 7) % WAVE_COLORS.length] })
+    }
+  return items.filter((_, idx) =&gt; (idx + 1) % 4 !== 0)
+}, [])</code></pre>
+<p><code>useMemo(() =&gt; {...}, [])</code> computes the array a single time (the empty dependency array <code>[]</code> means "never recompute"). The arithmetic with <code>seed</code> and the modulo operator <code>%</code> is a cheap way to get varied-but-fixed values without a real random-number generator, so the layout is stable between renders. Every tuning constant — <code>SPEED_FACTOR</code>, <code>HALF_STROKE_WIDTH</code>, the size range — is named at the top of the file, a sign the visuals were adjusted many times.</p>
+
+<h2>8.2 · <span class="file">ReadingSettingsMenu.tsx</span></h2>
+<p>This file has two responsibilities: it defines the vocabulary of reading options (themes, fonts, size/spacing/width steps, languages) as exported constants, and it renders the pop-over menu that changes them. It also exports a custom hook, <code>useReadingPrefs</code>, that other files use to read and persist the settings.</p>
+
+<h4>The option catalogs</h4>
+<pre><code>export const THEMES = {
+  white: { label: 'White', bg: '#FFFFFF', text: '#1A1A1A', shadow: 'rgba(0,0,0,0.15)' },
+  sepia: { label: 'Sepia', bg: '#F4ECD8', text: '#4A3728', shadow: 'rgba(0,0,0,0.15)' },
+  /* paper, cream, dark, carbon, shaded, forest ... */
+} as const
+
+export const SIZE_STEPS = [0.875, 1, 1.125, 1.25, 1.375, 1.5]
+export const WIDTH_STEPS = ['44rem', '50rem', '56rem', '62rem', '68rem']</code></pre>
+<p>Each theme is an object with a background, text color, and shadow tint. <code>as const</code> tells TypeScript to treat these as fixed literal values, which makes the keys (<code>'white' | 'sepia' | ...</code>) into a precise type used elsewhere. The steps are plain arrays; the menu stores an <i>index</i> into them, not the value, so the controls are simple increment/decrement steppers.</p>
+
+<h4>The preferences hook</h4>
+<pre><code>export function useReadingPrefs() {
+  const [prefs, setPrefs] = useState&lt;ReadingPrefs&gt;(DEFAULT_PREFS)
+  const [loaded, setLoaded] = useState(false)
+
+  useEffect(() =&gt; {   // on mount: read saved prefs, sanitize, apply
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (raw) setPrefs((p) =&gt; {
+      const merged = { ...p, ...JSON.parse(raw) }
+      if (!(merged.font in FONTS)) merged.font = DEFAULT_PREFS.font
+      /* ...same guard for theme, lang, and each index... */
+      return merged
+    })
+    setLoaded(true)
+  }, [])
+
+  useEffect(() =&gt; { if (loaded) localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs)) }, [prefs, loaded])
+  return [prefs, setPrefs] as const
+}</code></pre>
+<p>This is a <b>custom hook</b> — a function that uses other hooks and packages a reusable behavior. It holds the preferences in state, loads any saved version once on mount, and saves them again whenever they change. The <code>merged</code> block is defensive: an old saved setting might name a font or theme that has since been removed, so each field is validated against the current catalogs and reset to the default if unrecognized. This is a real bug fix encoded permanently — an unrecognized font once caused the reader to crash. The <code>loaded</code> flag prevents the save effect from firing before the initial load, which would overwrite saved prefs with defaults.</p>
+
+<h4>The menu, steppers, and dropdown</h4>
+<p>The default export is the menu component. It closes itself when you click outside or press Escape (a <code>useEffect</code> that adds and later removes document-level event listeners — the cleanup function returned from the effect is what removes them). Inside are a theme swatch grid, a custom <code>FontDropdown</code>, three <code>Stepper</code> controls (font size, spacing, width), and a language selector. The <code>Stepper</code> and <code>FontDropdown</code> are small local components defined in the same file because they are used nowhere else. The whole menu is scaled to 1.1&times; from its top-right corner so it grows leftward while staying pinned to the button — a CSS <code>transform</code> detail that keeps the layout from shifting.</p>
+
+<h2>8.3 · <span class="file">TranscriptReader.tsx</span> — the reading surface</h2>
+<p>At around 500 lines this is the largest component. It renders the paragraphs and layers three interactive features on top: highlighting, notes, and dictionary lookup. It is worth understanding because it demonstrates how far a single well-structured client component can go.</p>
+
+<h4>State</h4>
+<pre><code>const [highlights, setHighlights] = useState&lt;Highlight[]&gt;([])
+const [popup, setPopup] = useState&lt;Popup&gt;(null)
+const containerRef = useRef&lt;HTMLDivElement&gt;(null)</code></pre>
+<p><code>highlights</code> is the list of stored highlights for the current transcript and language, loaded from <code>localStorage</code> on mount and saved on every change through a <code>persist</code> helper. <code>popup</code> is a single piece of state describing which floating UI is currently open — a <b>discriminated union</b> type: it is either <code>null</code>, or an object whose <code>kind</code> field is <code>'actions'</code> (the Highlight/Dictionary buttons after selecting text), <code>'note'</code> (the note editor), or <code>'define'</code> (the dictionary result). Storing all pop-ups in one variable with a <code>kind</code> tag means only one can be open at a time and the render logic can switch on <code>kind</code>.</p>
+
+<h4>Turning a selection into a stored range</h4>
+<pre><code>const handleMouseUp = useCallback(() =&gt; {
+  setTimeout(() =&gt; {
+    const sel = window.getSelection()
+    if (!sel || sel.isCollapsed) return
+    const range = sel.getRangeAt(0)
+    // find the paragraph elements the selection starts and ends in;
+    // for each paragraph it touches, record start/end character offsets
+    // using charOffsetWithin(); build a list of per-paragraph "spans"
+  }, 0)
+}, [])</code></pre>
+<p>When the mouse is released, the component reads the browser's current text selection. Because a selection can cross paragraph boundaries, it walks every paragraph the selection touches and, using <code>charOffsetWithin</code> from <code>highlights.ts</code>, converts the visual selection into one or more <code>{paragraph, start, end}</code> spans. Those spans are what get stored, so a highlight survives re-rendering and re-opening. The <code>setTimeout(..., 0)</code> defers the work by one tick so that any click on an existing highlight is handled first.</p>
+
+<h4>Merging overlapping highlights</h4>
+<p>When you highlight text that overlaps an existing highlight, the two are merged into one rather than stacked. A helper <code>mergeSpan</code> finds highlights in the same paragraph whose ranges overlap the new one, computes the union of their start/end, keeps any notes, and replaces them all with a single merged highlight. This keeps the stored data clean and the rendering unambiguous.</p>
+
+<h4>Rendering highlighted text</h4>
+<p>To display a paragraph with highlights, the component cannot just print the text — it must wrap the highlighted character ranges in their own elements. It collects all the highlight boundaries in a paragraph, sorts them into a set of break points, and walks left to right emitting either a plain text run or a <code>&lt;mark&gt;</code> element for each slice between break points. Speaker-name prefixes (text before the first colon) are rendered bold-italic. This slice-and-wrap approach is the standard way to render styled ranges over plain text.</p>
+
+<h4>The two chronological sections</h4>
+<p>Below the transcript, the component renders an "All Highlights" section and a "Notes" section, each listing entries in creation order. The notes section shows only highlights that carry a note. Both sections are given HTML anchors (<code>id="highlights"</code>, <code>id="notes"</code>) so the library's count badges can link directly to them; an effect scrolls to the requested section when the page opens with that anchor in the URL.</p>
+<div class="note"><b>Why this lives in one component.</b> Highlighting, notes, and dictionary all operate on the same selection and the same text, and all render pop-ups positioned over that text. Keeping them together avoids passing selection state between components. The cost is a large file; the benefit is that the interactions never fight each other.</div>
+<h1>9 · The pages</h1>
+<p class="lead">Each <code>page.tsx</code> is one screen the user visits. All are client components because all are interactive. They share a visual language — the same header with the underlined wordmark and mint buttons — but each owns its own logic.</p>
+
+<h2>9.1 · <span class="file">layout.tsx</span> and fonts</h2>
+<p>The root layout wraps every page. It is one of the few <i>server</i> components (no <code>'use client'</code>). It loads four fonts through <code>next/font/google</code> — Space Grotesk (headline), Anton (display), Source Serif 4 (serif body), Inter (sans body) — and exposes each as a CSS variable on the <code>&lt;html&gt;</code> element. Those variables (<code>--font-headline-family</code>, etc.) are what the Tailwind font classes point at. It also exports <code>metadata</code> (the page title and description used by browsers and link previews) and a <code>viewport</code> setting (<code>width=device-width, initial-scale=1</code>) that makes the layout render at true size on phones.</p>
+<pre><code>export const viewport: Viewport = { width: 'device-width', initialScale: 1 }
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    &lt;html lang="en" className={`${spaceGrotesk.variable} ${sourceSerif.variable} ...`}&gt;
+      &lt;body&gt;{children}&lt;/body&gt;
+    &lt;/html&gt;
+  )
+}</code></pre>
+<p><code>children</code> is whatever page is being shown; the layout simply places it inside the shared HTML shell. Loading fonts here means they are declared once and available to all pages through the CSS variables.</p>
+
+<h2>9.2 · <span class="file">page.tsx</span> — the home page</h2>
+<p>The landing screen: header, a headline, the URL input, and the wave section. Its only real logic is submitting the URL. On submit it does a light validity check (does the text contain <code>youtube.com</code> or <code>youtu.be</code>), stashes the URL in <code>sessionStorage</code>, and navigates to <code>/transcribing</code> using the router from <code>next/navigation</code>. It also contains a small piece of measurement code: a <code>useEffect</code> that, on desktop only, stretches the input row so its right edge lines up with the end of the headline — a purely cosmetic alignment that is disabled below the phone breakpoint to avoid overflow.</p>
+<pre><code>const handleSubmit = () =&gt; {
+  if (!url.trim()) { setError('Put a YouTube URL'); return }
+  if (!isValidYoutubeUrl(url)) { setError("It doesn't look like a youtube URL"); return }
+  setLoading(true)
+  sessionStorage.setItem('pending-url', url)
+  router.push('/transcribing')
+}</code></pre>
+<p><code>sessionStorage</code> (like <code>localStorage</code> but cleared when the tab closes) is used to hand the URL to the next page without putting it in the visible address bar. This is a small, deliberate choice: the loading page has no other way to know which URL to transcribe.</p>
+
+<h2>9.3 · <span class="file">transcribing/page.tsx</span> — the loading screen</h2>
+<p>Covered in outline in Chapter 3. The mechanics: it builds a field of waves as mirrored left/right pairs that reveal bottom-up, driven by named constants at the top of the file. It reads <code>pending-url</code>, calls <code>/api/transcribe</code>, and on success stores the result in <code>localStorage</code> and navigates to the reader. The notable engineering detail is the <b>minimum visible time</b>:</p>
+<pre><code>const FILL_COMPLETE_S = (WAVE_ROWS - 1) * ROW_APPEAR_STEP + 0.4
+const MIN_VISIBLE_MS = Math.ceil((FILL_COMPLETE_S + 0.6) * 1000)
+// ...
+const waitForMinimum = async () =&gt; {
+  const elapsed = Date.now() - startedAt
+  if (elapsed &lt; MIN_VISIBLE_MS) await new Promise((r) =&gt; setTimeout(r, MIN_VISIBLE_MS - elapsed))
+}</code></pre>
+<p>The minimum is computed from the animation constants, not guessed. Even when the transcript comes back instantly from cache, the page waits so the animation completes at least once — every visit sees the same unhurried fill instead of a flash. A guard ref (<code>startedRef</code>) ensures the fetch runs only once even though effects can re-run. On error it shows a message and returns to the home page after a short delay.</p>
+
+<h2>9.4 · <span class="file">transcript/[id]/page.tsx</span> — the reader</h2>
+<p>The richest page. It coordinates the reading settings, translation, download, scroll-progress memory, the title's per-line underline, and delegates the actual text to <code>TranscriptReader</code>. Key pieces:</p>
+<ul>
+  <li><b>Instant load.</b> It reads the local copy synchronously in the initial state (<code>useState(() =&gt; readLocalTranscript(id))</code>) so the common path — arriving from the loading page — never flashes a spinner. In parallel a <code>useEffect</code> tries the database, so a direct link on a fresh device also works.</li>
+  <li><b>Reading preferences.</b> It uses <code>useReadingPrefs</code> and applies the chosen theme, font, size, spacing, and width to the reading container through inline styles. Dark themes get special treatment — the title underline and word shadows are tuned per surface so they read well on black.</li>
+  <li><b>Translation.</b> When the language is not English, it calls <code>/api/translate</code>, caches the result in memory and <code>localStorage</code>, and shows the translated title and paragraphs. Switching back is instant because both versions are cached.</li>
+  <li><b>Scroll progress.</b> A scroll listener writes the percentage to <code>localStorage</code>; a one-time effect restores the position on open unless the URL points at a specific section.</li>
+  <li><b>Download.</b> A "Download" menu offers plain text (built by joining the paragraphs) and PDF (which triggers the browser's own print-to-PDF against a hidden two-column layout that uses the chosen reading font).</li>
+  <li><b>Delete.</b> A button at the end removes the transcript from the database and clears the local copy, then returns to the library.</li>
+</ul>
+<p>The per-line title underline is a good example of doing something the platform cannot do directly: CSS underlines cannot have a separate shadow color, so the page measures each wrapped line of the title with <code>Range.getClientRects()</code> and draws its own purple bar under each line. This measure-and-draw pattern (used again in the library's hover underline) is how the app achieves effects beyond plain CSS.</p>
+
+<h2>9.5 · <span class="file">library/page.tsx</span></h2>
+<p>Fetches the transcript list from <code>/api/transcripts</code> and renders it as boxed rows. For each row it computes, from <code>localStorage</code>, the highlight and note counts and the reading percentage, and shows them on the right. Each row's title uses the measure-and-draw underline on hover; a shelf-less trash button deletes the transcript (database plus local cache); the count badges link into the reader's highlight/notes sections. A small local component, <code>RowTitle</code>, measures the title's wrapped lines so the hover underline hugs the last line rather than spanning the full width.</p>
+
+<h2>9.6 · <span class="file">feed/page.tsx</span> and <span class="file">feed/[videoId]/page.tsx</span></h2>
+<p><b>feed/page.tsx</b> first calls <code>/api/auth/google/status</code> and branches: not configured, not connected (show a Connect button linking to the OAuth start route), or connected (fetch <code>/api/feed</code> and list the videos). Each video row has a shelf button that sends the video to the library by calling <code>/api/transcribe</code> and then removes it from the feed, and a trash button that dismisses it (remembered in <code>localStorage</code>). Dismissed videos are filtered out of the list.</p>
+<p><b>feed/[videoId]/page.tsx</b> is the watch page: it embeds the YouTube player in an <code>&lt;iframe&gt;</code> inside a thick purple bordered box, offers an "Ask AI" button that calls <code>/api/summary</code> on demand and renders the TL;DR and bullets, and has a delete button that dismisses the video. The summary is not fetched automatically — only when asked — which keeps the page cheap to open.</p>
+
+<h1>10 · Styling: <code>globals.css</code> and how Tailwind is wired</h1>
+<p class="lead">One CSS file, <span class="file">src/app/globals.css</span>, defines the design tokens, a few global rules, the custom scrollbar, and the wave-animation keyframes. Everything else is Tailwind classes on elements.</p>
+<pre><code>@import "tailwindcss";
+
+@theme {
+  --color-purple: #4E00FF;
+  --color-mint:   #54FFC9;
+  --color-paper:  #ECEAE8;
+  --color-trash:  #F5402E;   /* the one deliberate step outside the palette */
+  --font-headline: var(--font-headline-family);
+  /* ...more colors and font links... */
+}
+
+body { @apply bg-cream text-ink font-body antialiased; }</code></pre>
+<p><code>@import "tailwindcss"</code> pulls in the whole framework. The <code>@theme</code> block is Tailwind 4's way of declaring design tokens: each <code>--color-*</code> variable automatically becomes usable as a class — <code>--color-purple</code> makes <code>bg-purple</code>, <code>text-purple</code>, <code>border-purple</code> all work. The font variables point at the ones the layout defined from the loaded fonts, connecting <code>font-headline</code> to Space Grotesk. <code>@apply</code> lets a normal CSS rule reuse Tailwind classes, used here to style the <code>body</code>.</p>
+<p>The rest of the file is a handful of things Tailwind classes cannot express: the global focus outline color, an override so the reading menu shows no focus ring, a custom thin black scrollbar for the font dropdown (with every arrow-button variant hidden, a fix that took several tries across browsers), the print settings, and the <code>@keyframes</code> definitions that animate the waves horizontally. Keeping these few rules in one place — and everything else as inline classes — is the Tailwind philosophy: styling lives next to the markup, and the global file holds only what must be global.</p>
+<h1>11 · Cross-cutting concepts you now understand</h1>
+<p class="lead">Reading the files, the same ideas recurred. Collected here, they are the mental toolkit for the whole project.</p>
+<ul>
+  <li><b>Async/await and Promises.</b> Anything touching the network or the database is asynchronous. An <code>async</code> function can <code>await</code> such work; the result is a <code>Promise</code> until it resolves. This is the single most important pattern to be comfortable with.</li>
+  <li><b>Server versus client.</b> Route files and the layout run on the server (they may read secrets and the database). Pages and components marked <code>'use client'</code> run in the browser (they may use state, effects, and <code>localStorage</code>). The boundary is enforced by Next.js.</li>
+  <li><b>Two-place persistence.</b> Shared, durable data (transcripts) goes to Postgres. Personal, lightweight data (highlights, notes, prefs, progress, dismissals) goes to <code>localStorage</code>. This split is why the app needs no user accounts yet still remembers things.</li>
+  <li><b>Cache before you spend.</b> The transcribe route checks the database first; the summary route reuses a saved transcript; translations are cached per language. External calls cost money and time, so results are stored and reused.</li>
+  <li><b>Fail safe, fail loud.</b> The AI cleanup falls back to heuristic paragraphs; translation refuses to return misaligned text; every <code>localStorage</code> read has a default. Where a wrong answer would be worse than none, the code returns none.</li>
+  <li><b>Measure, don't hardcode.</b> Underlines, input widths, and the loading-time minimum are computed from the live page or from named constants rather than guessed, so they stay correct when content changes.</li>
+  <li><b>Defensive parsing.</b> Optional chaining (<code>?.</code>), nullish coalescing (<code>??</code>), and <code>try/catch</code> appear wherever data comes from outside — because outside data cannot be trusted to have the expected shape.</li>
+</ul>
+
+<h1>12 · Architectural decisions, restated</h1>
+<p class="lead">Pulled together, the choices that shaped the codebase, each with its trade-off.</p>
+<table>
+  <tr><th>Decision</th><th>Why</th><th>Cost</th></tr>
+  <tr><td>One Next.js app, no separate backend</td><td>Fewer moving parts; secrets stay in server code; one deploy.</td><td>Backend logic is bound to Next.js conventions.</td></tr>
+  <tr><td>Transcripts in Postgres, personal data in localStorage</td><td>No login needed; instant local reads; sharable transcripts.</td><td>Highlights/notes/progress do not follow you across devices.</td></tr>
+  <tr><td>Transcribe once, cache forever</td><td>Transcription is the only slow, paid step.</td><td>Stale metadata if a video's title changes; no re-clean without deleting.</td></tr>
+  <tr><td>AI cleanup as an optional stage</td><td>The app still produces output if Gemini fails.</td><td>Fallback text is rougher.</td></tr>
+  <tr><td>Prompt-based correction list</td><td>Fixes are easy to add; no code change.</td><td>The prompt grows; the model may still miss cases.</td></tr>
+  <tr><td>Single-user Google connection (one cookie)</td><td>Avoids building accounts and OAuth verification.</td><td>Not usable by multiple people as-is.</td></tr>
+  <tr><td>Only four runtime dependencies</td><td>Small, auditable, fast to build.</td><td>More code written by hand (OAuth, wave math, dropdowns).</td></tr>
+  <tr><td>Tailwind with many arbitrary values</td><td>Pixel-precise design controlled inline.</td><td>Verbose class strings; design lives in markup.</td></tr>
+</table>
+
+<h1>13 · The limits of the current application</h1>
+<p class="lead">An honest inventory of what the app does not do, or does narrowly. None of these are bugs; they are boundaries of the current design.</p>
+<ul>
+  <li><b>Single user.</b> There are no end-user accounts. The Google/feed connection stores one refresh token per browser. Two people cannot each have their own feed on the same deployment.</li>
+  <li><b>Personal data is device-bound.</b> Highlights, notes, reading preferences, scroll progress, and feed dismissals live in <code>localStorage</code>. Clearing browser data erases them; a second device starts blank.</li>
+  <li><b>Captions required.</b> Everything depends on a video having captions. No captions means no transcript and no summary.</li>
+  <li><b>English-first.</b> Captions are requested in English; translation is to French or Spanish only; the dictionary is reliable mainly for English.</li>
+  <li><b>Transcription time limit.</b> Very long videos can approach the five-minute function ceiling. There is no background job system — the request must finish within that window.</li>
+  <li><b>Word-level timing is lost.</b> After cleanup, each paragraph's <code>startMs</code> is <code>0</code>; the reader cannot jump to a moment in the video from a paragraph.</li>
+  <li><b>Feed is quota-bound and capped.</b> The 30-day window, ~100-channel and Shorts limits exist to stay within YouTube's daily API quota; a very large subscription list is truncated.</li>
+  <li><b>No automated tests.</b> Correctness is verified by building and by manual/visual checks, not by a test suite.</li>
+  <li><b>Metadata can go stale.</b> Because transcripts are cached forever, a later title change on YouTube is not reflected unless the transcript is deleted and remade.</li>
+  <li><b>Cost scales with new videos.</b> Every first-time transcription spends Supadata and Gemini credits; there is no rate limiting or per-user budget.</li>
+</ul>
+
+<h1>14 · What scaling would require</h1>
+<p class="lead">If this went from a personal tool to something many people use, here is roughly what each step would demand, in increasing order of effort.</p>
+<h3>Make personal data follow the user</h3>
+<p>Introduce real user accounts (sign in with Google for everyone, not just the feed), and move highlights, notes, preferences, and progress from <code>localStorage</code> into database tables keyed by user ID. This is the single change that unlocks multi-device use and multi-user use at once. It requires a per-user token store (replacing the single cookie) and Google's OAuth verification review so strangers can connect.</p>
+<h3>Move transcription off the request path</h3>
+<p>Replace the synchronous "wait five minutes" model with a queue: the request enqueues a job and returns immediately; a background worker (a scheduled function or a dedicated service) does the caption fetch and cleanup and writes the result; the client polls or is notified. This removes the time-limit ceiling, lets long videos finish, and enables the auto-queue feed idea (new uploads transcribed automatically under rules).</p>
+<h3>Control cost and abuse</h3>
+<p>Add per-user rate limits and a spending cap, since each new transcription costs money. Cache negative results (videos known to have no captions) to avoid repeat work. Consider a cheaper model or a two-tier approach (cheap pass, expensive pass only when asked).</p>
+<h3>Harden data and operations</h3>
+<p>Add a real migration system instead of the lazy <code>ALTER TABLE</code> in <code>db.ts</code>; add indexes as the transcripts table grows; add an automated test suite around the parsing and prompt-adjacent code so prompt changes do not silently regress; add monitoring for the external services so failures are visible.</p>
+<h3>Broaden reach</h3>
+<p>Support non-English captions end to end, more translation targets, and per-video language detection. Store word-level timings so the reader can link paragraphs to moments in the embedded player. Each of these is additive and does not require rearchitecting.</p>
+<div class="note"><b>The order matters.</b> Accounts and a job queue are foundational; cost controls and hardening follow; reach features are the easy, incremental layer on top. The current code is structured so these can be added without rewriting the core: storage is already isolated in <code>db.ts</code>, external calls in <code>lib/</code>, and the UI reads through small, replaceable functions.</div>
+
+<h1>15 · Glossary</h1>
+<table>
+  <tr><th>Term</th><th>Meaning</th></tr>
+  <tr><td>API endpoint / route</td><td>A URL on the server that returns data (JSON), not a page. Here, the <code>route.ts</code> files.</td></tr>
+  <tr><td>async / await / Promise</td><td>Machinery for code that waits on slow work (network, database) without freezing.</td></tr>
+  <tr><td>bundler</td><td>A tool that combines and transforms source files into what the browser downloads. Next.js includes one.</td></tr>
+  <tr><td>client component</td><td>A React component that runs in the browser; marked <code>'use client'</code>.</td></tr>
+  <tr><td>cookie</td><td>A small value the browser stores and sends back to the server with each request. Used here for the Google token.</td></tr>
+  <tr><td>CRUD</td><td>Create, Read, Update, Delete — the basic database operations.</td></tr>
+  <tr><td>destructuring</td><td>Pulling fields out of an object or array by name/position: <code>const { url } = body</code>.</td></tr>
+  <tr><td>environment variable</td><td>A named secret configured in the deployment, read with <code>process.env</code>, never in the code.</td></tr>
+  <tr><td>fetch</td><td>The built-in function for making an HTTP request.</td></tr>
+  <tr><td>hook</td><td>A React function starting with <code>use</code> that adds memory or behavior to a component.</td></tr>
+  <tr><td>HTTP status code</td><td>A number signaling the outcome: 200 ok, 400 bad request, 401 unauthorized, 404 not found, 500 server error.</td></tr>
+  <tr><td>JSON</td><td>A text format for data (objects, arrays, strings, numbers). The lingua franca between the pieces here.</td></tr>
+  <tr><td>JSX</td><td>HTML-like syntax inside JavaScript that describes what a component renders.</td></tr>
+  <tr><td>localStorage / sessionStorage</td><td>Browser key–value stores for strings. <code>local</code> persists; <code>session</code> clears with the tab.</td></tr>
+  <tr><td>OAuth</td><td>The standard flow for letting an app access your account on another service without your password.</td></tr>
+  <tr><td>optional chaining <code>?.</code></td><td>Read a nested field only if the parent exists, else <code>undefined</code>.</td></tr>
+  <tr><td>nullish coalescing <code>??</code></td><td>Use the left value unless it is null/undefined, then the right.</td></tr>
+  <tr><td>regular expression</td><td>A pattern for matching text, written between slashes: <code>/#shorts/i</code>.</td></tr>
+  <tr><td>server component</td><td>A React component that renders on the server to HTML; the default in the App Router.</td></tr>
+  <tr><td>SQL</td><td>The language for querying a relational database.</td></tr>
+  <tr><td>SVG</td><td>A vector-graphics format; shapes described by path strings. Used for the waves and icons.</td></tr>
+  <tr><td>tagged template literal</td><td>A backtick string handled by a function, e.g. <code>sql`SELECT ...`</code>, which safely inserts values.</td></tr>
+  <tr><td>ternary <code>? :</code></td><td>An inline if/else that produces a value.</td></tr>
+  <tr><td>type / interface</td><td>A TypeScript description of a value's shape, checked before the code runs.</td></tr>
+  <tr><td>union type</td><td>A value that may be one of several types: <code>string | null</code>.</td></tr>
+  <tr><td>upsert</td><td>Insert a row, or update it if it already exists (<code>ON CONFLICT DO UPDATE</code>).</td></tr>
+</table>
+
+<h1>16 · Syntax appendix</h1>
+<p class="lead">A compact reference for the syntax that appears most, gathered so you can look it up while reading the code.</p>
+
+<h3>Variables and functions</h3>
+<pre><code>const x = 5           // a value that will not be reassigned
+let y = 10            // a value that may change
+function f(a: number): number { return a + 1 }   // named function, typed
+const g = (a: number) =&gt; a + 1                    // arrow function (same thing)
+const h = async () =&gt; { await something() }       // async arrow function</code></pre>
+
+<h3>Objects, arrays, destructuring</h3>
+<pre><code>const o = { name: 'A', age: 3 }        // object
+const { name } = o                     // pull out `name`
+const a = [1, 2, 3]                     // array
+const [first, second] = a              // pull out by position
+const copy = { ...o, age: 4 }          // spread: copy o, override age
+const bigger = [...a, 4]               // spread into a new array</code></pre>
+
+<h3>Array transforms (used constantly)</h3>
+<pre><code>a.map(x =&gt; x * 2)          // [2,4,6]  — one array to another
+a.filter(x =&gt; x &gt; 1)       // [2,3]    — keep some
+a.sort((p, q) =&gt; p - q)    // ascending; q - p for descending
+a.join(' ')                // '1 2 3'  — array to string
+'x y'.split(' ')           // ['x','y'] — string to array</code></pre>
+
+<h3>Conditionals and safety operators</h3>
+<pre><code>cond ? whenTrue : whenFalse   // ternary
+value ?? fallback             // use value unless null/undefined
+obj?.field?.sub               // read only if each step exists
+!!value                       // coerce to strict true/false</code></pre>
+
+<h3>TypeScript types</h3>
+<pre><code>interface Segment { text: string; startMs: number }   // a named object shape
+type Id = string | null                                // a union
+function get(): Promise&lt;Segment[] | null&gt; { ... }       // returns a promise of array-or-null
+const t = value as const                               // treat literals as fixed types</code></pre>
+
+<h3>React essentials</h3>
+<pre><code>const [n, setN] = useState(0)                 // state
+useEffect(() =&gt; { /* run after render */ }, [dep])   // effect + dependencies
+useEffect(() =&gt; { const off = subscribe(); return () =&gt; off() }, [])  // cleanup on unmount
+const ref = useRef&lt;HTMLDivElement&gt;(null)       // a handle to an element
+const v = useMemo(() =&gt; compute(x), [x])       // memoized value
+&lt;div className="flex gap-2" onClick={handle}&gt;{child}&lt;/div&gt;   // JSX with a class and handler
+{items.map(it =&gt; &lt;li key={it.id}&gt;{it.text}&lt;/li&gt;)}           // rendering a list (each needs a key)</code></pre>
+
+<h3>Server route shape</h3>
+<pre><code>export async function POST(req: Request) {
+  const body = await req.json()
+  // ...do work...
+  return NextResponse.json({ ok: true }, { status: 200 })
+}</code></pre>
+
+<hr>
+<p class="small">End of document. You have now seen every source file in the project at least in outline, the reasoning behind the main decisions, the current limits, and the path to scaling. Re-reading any single chapter against the open file it describes is the fastest way to make the syntax feel routine. The codebase is small enough that, with this guide beside it, nothing in it needs to remain mysterious.</p>
+
+</body>
+</html>
