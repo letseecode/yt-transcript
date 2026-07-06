@@ -300,19 +300,19 @@ export default function TranscriptPage() {
           <div className="w-full pl-[0.8cm] pr-0 py-[22px] flex items-center gap-0">
             <Link
               href="/"
-              className="relative font-serif text-[1.597rem] text-black hover:text-purple hover:[text-shadow:0.0245em_0.021em_0_rgba(78,0,255,0.4)] transition-[color,text-shadow] duration-150 -translate-y-[3px]"
+              className="relative font-serif text-[1.15rem] sm:text-[1.597rem] text-black hover:text-purple hover:[text-shadow:0.0245em_0.021em_0_rgba(78,0,255,0.4)] transition-[color,text-shadow] duration-150 -translate-y-[3px]"
             >
               YourTranscript
               <span className="absolute left-0 right-0 bottom-[2px] h-[3.3px] bg-purple [box-shadow:2px_1.5px_0_rgba(78,0,255,0.3)] pointer-events-none" />
             </Link>
-            <span className="w-0 border-l-2 border-ink self-stretch -my-[22px] ml-[0.8cm]" />
-            <span className="flex-1 h-0 border-t-2 border-ink self-center" />
+            <span className="w-0 border-l-2 border-ink self-stretch -my-[22px] ml-[0.4cm] sm:ml-[0.8cm]" />
+            <span className="hidden sm:block flex-1 h-0 border-t-2 border-ink self-center" />
           </div>
-          <div className="absolute top-1/2 -translate-y-1/2 right-[9.3px] flex items-center gap-[9.5px]">
+          <div className="absolute top-1/2 -translate-y-1/2 right-[8px] sm:right-[9.3px] flex items-center gap-[5px] sm:gap-[9.5px]">
             <div className="relative">
               <button
                 onClick={() => setDownloadOpen((o) => !o)}
-                className="font-headline font-bold uppercase text-[1.214rem] bg-mint text-black border-2 border-ink px-[26px] py-[6px] hover:bg-purple hover:text-white transition-colors"
+                className="font-headline font-bold uppercase text-[0.78rem] sm:text-[1.214rem] bg-mint text-black border-2 border-ink px-[10px] sm:px-[26px] py-[4px] sm:py-[6px] hover:bg-purple hover:text-white transition-colors"
               >
                 Download
               </button>
@@ -340,7 +340,7 @@ export default function TranscriptPage() {
               <button
                 onClick={() => setSettingsOpen((o) => !o)}
                 aria-label="Reading settings"
-                className="font-serif text-[1.214rem] bg-mint text-black border-2 border-ink px-[18px] py-[6px] hover:bg-purple hover:text-white transition-colors"
+                className="font-serif text-[0.78rem] sm:text-[1.214rem] bg-mint text-black border-2 border-ink px-[9px] sm:px-[18px] py-[4px] sm:py-[6px] hover:bg-purple hover:text-white transition-colors"
               >
                 Aa
               </button>
@@ -350,7 +350,7 @@ export default function TranscriptPage() {
             </div>
             <Link
               href="/library"
-              className="font-headline font-bold uppercase text-[1.214rem] bg-mint text-black border-2 border-ink px-[26px] py-[6px] hover:bg-purple hover:text-white transition-colors"
+              className="font-headline font-bold uppercase text-[0.78rem] sm:text-[1.214rem] bg-mint text-black border-2 border-ink px-[10px] sm:px-[26px] py-[4px] sm:py-[6px] hover:bg-purple hover:text-white transition-colors"
             >
               Library
             </Link>
@@ -367,7 +367,7 @@ export default function TranscriptPage() {
             <div className="relative">
               <h1
                 ref={titleRef}
-                className="font-serif font-bold text-[4.186rem] leading-tight"
+                className="font-serif font-bold text-[2.3rem] sm:text-[4.186rem] leading-tight"
                 style={{ textShadow: `${0.0858 * wordShadowScale}em ${0.0517 * wordShadowScale}em 0 ${wordShadowColor}` }}
               >
                 {displayTitle}
