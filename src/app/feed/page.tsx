@@ -80,7 +80,13 @@ export default function FeedPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url: `https://www.youtube.com/watch?v=${videoId}` }),
       })
-      setMoving((m) => ({ ...m, [videoId]: res.ok ? 'done' : 'error' }))
+      if (res.ok) {
+        // Once it's in the library, wipe it off the feed.
+        setMoving((m) => ({ ...m, [videoId]: 'done' }))
+        dismiss(videoId)
+      } else {
+        setMoving((m) => ({ ...m, [videoId]: 'error' }))
+      }
     } catch {
       setMoving((m) => ({ ...m, [videoId]: 'error' }))
     }
@@ -95,7 +101,7 @@ export default function FeedPage() {
           <div className="w-full pl-[0.8cm] pr-0 py-[22px] flex items-center gap-0">
             <Link
               href="/"
-              className="relative font-serif font-bold text-[1.837rem] text-black hover:text-purple hover:[text-shadow:0.0245em_0.021em_0_rgba(78,0,255,0.4)] transition-[color,text-shadow] duration-150 -translate-y-[3px]"
+              className="relative font-headline font-bold text-[1.837rem] text-black hover:text-purple hover:[text-shadow:0.0245em_0.021em_0_rgba(78,0,255,0.4)] transition-[color,text-shadow] duration-150 -translate-y-[3px]"
             >
               YourTranscript
               <span className="absolute left-0 right-0 bottom-[2px] h-[3.3px] bg-purple [box-shadow:2px_1.5px_0_rgba(78,0,255,0.3)] pointer-events-none" />

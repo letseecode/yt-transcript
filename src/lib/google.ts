@@ -151,7 +151,7 @@ export async function getFeed(token: string): Promise<FeedVideo[]> {
 
   const isShort = (v: FeedVideo) => {
     const dur = durationById[v.videoId] ?? 0
-    return (dur > 0 && dur <= 60) || /#shorts?\b/i.test(v.title)
+    return (dur > 0 && dur <= 180) || /#shorts?\b/i.test(v.title)
   }
 
   return candidates
