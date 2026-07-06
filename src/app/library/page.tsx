@@ -101,7 +101,7 @@ function CountBadge({ icon, count, tone, href }: { icon: React.ReactNode; count:
   return (
     <Link
       href={href}
-      className="inline-flex items-center gap-[0.3em] border-2 border-ink bg-white px-[0.7em] h-[2.2em] text-[1.05em] leading-none select-none hover:bg-muted hover:text-white active:bg-[#4A4642] active:text-white transition-colors"
+      className="inline-flex items-center gap-[0.3em] border-2 border-ink bg-white px-[0.7em] h-[2.2em] text-[1.05em] leading-none select-none hover:bg-muted hover:text-white active:bg-[#92908E] active:text-white transition-colors"
     >
       <span className={tone === 'mint' ? '' : 'text-purple'}>{icon}</span>
       <span className="font-serif font-bold">{count}</span>
@@ -158,7 +158,7 @@ export default function LibraryPage() {
           <div className="w-full pl-[0.8cm] pr-0 py-[22px] flex items-center gap-0">
             <Link
               href="/"
-              className="relative font-serif text-[1.597rem] text-black hover:text-purple hover:[text-shadow:0.0245em_0.021em_0_rgba(78,0,255,0.4)] transition-[color,text-shadow] duration-150 -translate-y-[3px]"
+              className="relative font-serif text-[1.837rem] text-black hover:text-purple hover:[text-shadow:0.0245em_0.021em_0_rgba(78,0,255,0.4)] transition-[color,text-shadow] duration-150 -translate-y-[3px]"
             >
               YourTranscript
               <span className="absolute left-0 right-0 bottom-[2px] h-[3.3px] bg-purple [box-shadow:2px_1.5px_0_rgba(78,0,255,0.3)] pointer-events-none" />
@@ -171,7 +171,7 @@ export default function LibraryPage() {
 
       {/* Title sized in em off a 1.6rem base. */}
       <main
-        className="flex-1 w-full mx-auto pl-[calc(1.5rem-1%)] pr-6 pt-8 pb-16"
+        className="flex-1 w-full mx-auto pl-[calc(1.5rem-1%+0.5cm)] pr-6 pt-8 pb-16"
         style={{ maxWidth: '68rem', fontSize: '1.6rem' }}
       >
         <div className="relative inline-block mb-[0.9em]">
