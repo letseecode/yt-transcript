@@ -25,13 +25,6 @@
   --font-display: var(--font-display-family);
 }
 
-/* Reserve the scrollbar's width on both sides so centered content stays
-   truly centered whether or not a scrollbar is present (no left/right
-   asymmetry from the scrollbar eating space on one side only). */
-html {
-  scrollbar-gutter: stable both-edges;
-}
-
 body {
   @apply bg-cream text-ink font-body antialiased;
 }

@@ -68,9 +68,9 @@ const iconProps = {
   strokeLinecap: 'round' as const,
   strokeLinejoin: 'round' as const,
 }
-// A highlighter / brush.
+// A highlighter / brush -- mint fill with a black outline.
 const BrushIcon = () => (
-  <svg width="1em" height="1em" {...iconProps}>
+  <svg width="1em" height="1em" viewBox="0 0 24 24" fill="#54FFC9" stroke="#000000" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
     <path d="M15 3l6 6-8.5 8.5H6.5V11.5z" />
     <path d="M6.5 17.5 4 22l4.5-2.5" />
   </svg>
@@ -96,10 +96,10 @@ function CountBadge({ icon, count, tone, href }: { icon: React.ReactNode; count:
   return (
     <Link
       href={href}
-      className="inline-flex items-center gap-[0.3em] border-2 border-ink bg-white px-[0.7em] h-[2.2em] text-[1.05em] leading-none select-none active:bg-muted active:text-white transition-colors"
+      className="inline-flex items-center gap-[0.3em] border-2 border-ink bg-white px-[0.7em] h-[2.2em] text-[1.05em] leading-none select-none hover:bg-muted hover:text-white active:bg-muted active:text-white transition-colors"
       title={tone === 'mint' ? `${count} highlight${count === 1 ? '' : 's'}` : `${count} note${count === 1 ? '' : 's'}`}
     >
-      <span className={tone === 'mint' ? 'text-mint' : 'text-purple'}>{icon}</span>
+      <span className={tone === 'mint' ? '' : 'text-purple'}>{icon}</span>
       <span className="font-serif font-bold">{count}</span>
     </Link>
   )
@@ -148,7 +148,7 @@ export default function LibraryPage() {
           <div className="w-full pl-[0.8cm] pr-0 py-[22px] flex items-center gap-0">
             <Link
               href="/"
-              className="relative font-serif text-[1.837rem] text-black hover:text-purple hover:[text-shadow:0.0245em_0.021em_0_rgba(78,0,255,0.4)] transition-[color,text-shadow] duration-150 -translate-y-[3px]"
+              className="relative font-serif text-[1.597rem] text-black hover:text-purple hover:[text-shadow:0.0245em_0.021em_0_rgba(78,0,255,0.4)] transition-[color,text-shadow] duration-150 -translate-y-[3px]"
             >
               YourTranscript
               <span className="absolute left-0 right-0 bottom-[2px] h-[3.3px] bg-purple [box-shadow:2px_1.5px_0_rgba(78,0,255,0.3)] pointer-events-none" />
