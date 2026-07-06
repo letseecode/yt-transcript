@@ -303,10 +303,26 @@ export default function TranscriptReader({
     return out
   }
 
-  const orderedHighlights = useMemo(
-    () => [...highlights].sort((a, b) => a.paragraph - b.paragraph || a.start - b.start),
+  // Chronological order (oldest first) for both the highlights list and the
+  // notes list, so entries read in the order they were created.
+  const highlightsChrono = useMemo(
+    () => [...highlights].sort((a, b) => a.createdAt - b.createdAt),
     [highlights]
   )
+  const notesChrono = useMemo(
+    () => highlightsChrono.filter((h) => h.note.trim()),
+    [highlightsChrono]
+  )
+
+  // When we arrive with #highlights / #notes (e.g. from the library count
+  // buttons), scroll to that section once the lists have rendered.
+  useEffect(() => {
+    const hash = window.location.hash.replace('#', '')
+    if (hash !== 'highlights' && hash !== 'notes') return
+    requestAnimationFrame(() => {
+      document.getElementById(hash)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+  }, [highlightsChrono.length, notesChrono.length])
 
   return (
     <>
@@ -318,14 +334,14 @@ export default function TranscriptReader({
         ))}
       </div>
 
-      {/* Notes / highlights subsection (Kindle-style) */}
-      {orderedHighlights.length > 0 && (
-        <section className="mt-16 pt-8 border-t-2" style={{ borderColor: isDark ? 'rgba(255,255,255,0.25)' : '#1A1A1A' }}>
+      {/* Highlights subsection (chronological, Kindle-style) */}
+      {highlightsChrono.length > 0 && (
+        <section id="highlights" className="mt-16 pt-8 border-t-2 scroll-mt-24" style={{ borderColor: isDark ? 'rgba(255,255,255,0.25)' : '#1A1A1A' }}>
           <h2 className="font-headline font-bold uppercase text-sm tracking-wide mb-6" style={{ fontFamily }}>
-            Notes &amp; Highlights
+            Highlights
           </h2>
           <div className="space-y-6">
-            {orderedHighlights.map((h) => (
+            {highlightsChrono.map((h) => (
               <div key={h.id} className="flex flex-col gap-2">
                 <blockquote
                   className="pl-3 border-l-4 border-purple italic"
@@ -339,6 +355,41 @@ export default function TranscriptReader({
                   placeholder="Add a note…"
                   rows={h.note ? Math.max(2, h.note.split('\n').length) : 1}
                   className="w-full resize-none bg-transparent outline-none text-[0.95rem] leading-relaxed placeholder:opacity-40 border border-transparent focus:border-purple/40 rounded p-2"
+                  style={{ fontFamily: SF_FONT, color: 'inherit' }}
+                />
+                <button
+                  onClick={() => removeHighlight(h.id)}
+                  className="self-start text-[0.7rem] uppercase tracking-wide opacity-40 hover:opacity-100 hover:text-purple transition"
+                  style={{ fontFamily: SF_FONT }}
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Notes subsection (only highlights that carry a note, chronological) */}
+      {notesChrono.length > 0 && (
+        <section id="notes" className="mt-16 pt-8 border-t-2 scroll-mt-24" style={{ borderColor: isDark ? 'rgba(255,255,255,0.25)' : '#1A1A1A' }}>
+          <h2 className="font-headline font-bold uppercase text-sm tracking-wide mb-6" style={{ fontFamily }}>
+            Notes
+          </h2>
+          <div className="space-y-6">
+            {notesChrono.map((h) => (
+              <div key={h.id} className="flex flex-col gap-2">
+                <blockquote
+                  className="pl-3 border-l-4 border-purple/40 italic opacity-70"
+                  style={{ fontSize: `${fontSizeRem * 0.9}rem`, lineHeight }}
+                >
+                  “{h.text}”
+                </blockquote>
+                <textarea
+                  value={h.note}
+                  onChange={(e) => setNote(h.id, e.target.value)}
+                  rows={Math.max(2, h.note.split('\n').length)}
+                  className="w-full resize-none bg-transparent outline-none text-[0.95rem] leading-relaxed border border-transparent focus:border-purple/40 rounded p-2"
                   style={{ fontFamily: SF_FONT, color: 'inherit' }}
                 />
                 <button
