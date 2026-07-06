@@ -147,11 +147,11 @@ export default function FeedPage() {
               ) : visible.length === 0 ? (
                 <p className="font-body text-[0.9em] text-muted mt-[1.2em]">Nothing new in your feed right now.</p>
               ) : (
-                <ul className="divide-y-2 divide-black border-2 border-black">
+                <ul className="space-y-[1.2em]">
                   {visible.map((v) => {
                     const state = moving[v.videoId]
                     return (
-                      <li key={v.videoId} className="relative group">
+                      <li key={v.videoId} className="relative group border-[10px] border-purple [box-shadow:12px_12px_0_rgba(78,0,255,0.3)]">
                         <Link href={`/feed/${v.videoId}`} className="block py-[1.1em] pl-[1em] pr-[9em]">
                           <span className="font-serif font-bold text-[1.3225em] leading-snug text-black">{v.title}</span>
                           <p className="font-serif text-[0.872em] mt-[0.5em] text-black">
