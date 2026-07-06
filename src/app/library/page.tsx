@@ -1,8 +1,47 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { countHighlights, clearLocalTranscript } from '@/lib/highlights'
+
+// Title with a purple hover-underline that hugs only the LAST wrapped line
+// (matching just its text width), instead of a full-width bar. We measure the
+// text's per-line client rects and place the underline under the last one.
+function RowTitle({ title }: { title: string }) {
+  const textRef = useRef<HTMLSpanElement>(null)
+  const [rect, setRect] = useState<{ left: number; width: number; top: number } | null>(null)
+
+  useLayoutEffect(() => {
+    const measure = () => {
+      const el = textRef.current
+      const wrap = el?.parentElement
+      if (!el || !wrap) return
+      const rects = el.getClientRects()
+      const last = rects[rects.length - 1]
+      if (!last) return
+      const w = wrap.getBoundingClientRect()
+      setRect({ left: last.left - w.left, width: last.width, top: last.bottom - w.top })
+    }
+    measure()
+    document.fonts?.ready?.then(measure)
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
+  }, [title])
+
+  return (
+    <span className="relative inline-block">
+      <span ref={textRef} className="font-serif font-bold text-[1.5209em] leading-snug text-black">
+        {title}
+      </span>
+      {rect && (
+        <span
+          className="absolute h-[0.09em] bg-purple opacity-0 group-hover:opacity-100 transition-opacity [box-shadow:0.05em_0.035em_0_rgba(78,0,255,0.3)] pointer-events-none"
+          style={{ left: rect.left, width: rect.width, top: `calc(${rect.top}px + 0.04em)` }}
+        />
+      )}
+    </span>
+  )
+}
 
 interface TranscriptSummary {
   videoId: string
@@ -159,13 +198,7 @@ export default function LibraryPage() {
                     href={`/transcript/${item.videoId}`}
                     className="block py-[1.1em] pl-[1em] pr-[12em]"
                   >
-                    <span className="relative inline-block">
-                      <span className="font-serif font-bold text-[1.5209em] leading-snug text-black">
-                        {item.title || item.videoId}
-                      </span>
-                      {/* Purple highlighter that appears on hover. */}
-                      <span className="absolute left-0 right-0 -bottom-[0.06em] h-[0.06em] bg-purple opacity-0 group-hover:opacity-100 transition-opacity [box-shadow:0.05em_0.035em_0_rgba(78,0,255,0.3)] pointer-events-none" />
-                    </span>
+                    <RowTitle title={item.title || item.videoId} />
                     <p className="font-serif text-[0.9418em] mt-[0.5em] text-black">
                       {item.author && <span>{item.author} · </span>}
                       <span>{displayDate(item)}</span>
