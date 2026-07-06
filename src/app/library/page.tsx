@@ -180,7 +180,7 @@ export default function LibraryPage() {
                       onClick={() => handleDelete(item.videoId)}
                       aria-label="Delete transcript"
                       title="Delete transcript"
-                      className="inline-flex items-center justify-center w-[2.2em] h-[2.2em] rounded-full border-2 border-ink bg-white text-black text-[1.05em] opacity-0 group-hover:opacity-100 hover:bg-trash hover:text-white transition-all"
+                      className="inline-flex items-center justify-center w-[2.2em] h-[2.2em] rounded-full border-2 border-ink bg-white text-black text-[1.05em] opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100 hover:bg-trash hover:text-white transition-all"
                     >
                       <TrashIcon />
                     </button>
