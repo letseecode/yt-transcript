@@ -23,10 +23,10 @@ export async function POST(req: NextRequest) {
   const language = LANGS[body.lang ?? ''] ?? 'English'
   if (!word) return NextResponse.json({ error: 'bad request' }, { status: 400 })
 
-  const prompt = `You are a dictionary. Define the ${language} word "${word}".
+  const prompt = `You are a dictionary. Define the ${language} word or expression "${word}".
 Respond with ONE line in exactly this format:
 <part of speech> ||| <a concise definition written in ${language}>
-Use ${language} for the part of speech too. No extra text. If it is not a real word, respond: — ||| No definition found.`
+Use ${language} for the part of speech too. For a multi-word expression or idiom, use the ${language} word for "expression" as the part of speech. No extra text. If it is not a real word or expression, respond: — ||| No definition found.`
 
   try {
     const res = await fetch(`${ENDPOINT}?key=${apiKey}`, {
