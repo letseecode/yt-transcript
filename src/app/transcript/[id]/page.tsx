@@ -337,6 +337,12 @@ export default function TranscriptPage() {
           </div>
           <div className="absolute top-1/2 -translate-y-1/2 right-[8px] sm:right-[9.3px] flex items-center gap-[5px] sm:gap-[9.5px]">
             <Link
+              href="/feed"
+              className="font-headline font-bold uppercase text-[0.78rem] sm:text-[1.214rem] bg-mint text-black border-2 border-ink px-[10px] sm:px-[26px] py-[4px] sm:py-[6px] hover:bg-purple hover:text-white transition-colors"
+            >
+              Feed
+            </Link>
+            <Link
               href="/library"
               className="font-headline font-bold uppercase text-[0.78rem] sm:text-[1.214rem] bg-mint text-black border-2 border-ink px-[10px] sm:px-[26px] py-[4px] sm:py-[6px] hover:bg-purple hover:text-white transition-colors"
             >
