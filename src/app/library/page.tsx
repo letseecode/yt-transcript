@@ -4,23 +4,27 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { countHighlights, clearLocalTranscript } from '@/lib/highlights'
 
-// Title with a purple hover-underline that hugs only the LAST wrapped line
-// (matching just its text width), instead of a full-width bar. We measure the
-// text's per-line client rects and place the underline under the last one.
+// Title with a purple hover-underline that hugs each wrapped line's text
+// (one segment per line), rather than a full-width bar. We measure the text's
+// per-line client rects; a fixed 2px height keeps every line's underline the
+// exact same thickness (an em-based height rounds to different pixel counts).
 function RowTitle({ title }: { title: string }) {
   const textRef = useRef<HTMLSpanElement>(null)
-  const [rect, setRect] = useState<{ left: number; width: number; top: number } | null>(null)
+  const [rects, setRects] = useState<{ left: number; width: number; top: number }[]>([])
 
   useLayoutEffect(() => {
     const measure = () => {
       const el = textRef.current
       const wrap = el?.parentElement
       if (!el || !wrap) return
-      const rects = el.getClientRects()
-      const last = rects[rects.length - 1]
-      if (!last) return
       const w = wrap.getBoundingClientRect()
-      setRect({ left: last.left - w.left, width: last.width, top: last.bottom - w.top })
+      setRects(
+        Array.from(el.getClientRects()).map((r) => ({
+          left: r.left - w.left,
+          width: r.width,
+          top: r.bottom - w.top,
+        }))
+      )
     }
     measure()
     document.fonts?.ready?.then(measure)
@@ -33,12 +37,13 @@ function RowTitle({ title }: { title: string }) {
       <span ref={textRef} className="font-serif font-bold text-[1.5209em] leading-snug text-black">
         {title}
       </span>
-      {rect && (
+      {rects.map((r, i) => (
         <span
-          className="absolute h-[0.09em] bg-purple opacity-0 group-hover:opacity-100 transition-opacity [box-shadow:0.05em_0.035em_0_rgba(78,0,255,0.3)] pointer-events-none"
-          style={{ left: rect.left, width: rect.width, top: `calc(${rect.top}px + 0.04em)` }}
+          key={i}
+          className="absolute h-[2px] bg-purple opacity-0 group-hover:opacity-100 transition-opacity [box-shadow:0.05em_0.035em_0_rgba(78,0,255,0.3)] pointer-events-none"
+          style={{ left: r.left, width: r.width, top: r.top + 1 }}
         />
-      )}
+      ))}
     </span>
   )
 }
@@ -96,8 +101,7 @@ function CountBadge({ icon, count, tone, href }: { icon: React.ReactNode; count:
   return (
     <Link
       href={href}
-      className="inline-flex items-center gap-[0.3em] border-2 border-ink bg-white px-[0.7em] h-[2.2em] text-[1.05em] leading-none select-none hover:bg-muted hover:text-white active:bg-muted active:text-white transition-colors"
-      title={tone === 'mint' ? `${count} highlight${count === 1 ? '' : 's'}` : `${count} note${count === 1 ? '' : 's'}`}
+      className="inline-flex items-center gap-[0.3em] border-2 border-ink bg-white px-[0.7em] h-[2.2em] text-[1.05em] leading-none select-none hover:bg-muted hover:text-white active:bg-[#B5B2AF] active:text-white transition-colors"
     >
       <span className={tone === 'mint' ? '' : 'text-purple'}>{icon}</span>
       <span className="font-serif font-bold">{count}</span>
@@ -161,7 +165,7 @@ export default function LibraryPage() {
 
       {/* Title sized in em off a 1.6rem base. */}
       <main
-        className="flex-1 w-full mx-auto px-6 pt-8 pb-16"
+        className="flex-1 w-full mx-auto pl-[calc(1.5rem+2%)] pr-6 pt-8 pb-16"
         style={{ maxWidth: '68rem', fontSize: '1.6rem' }}
       >
         <div className="relative inline-block mb-[0.9em]">
@@ -212,7 +216,6 @@ export default function LibraryPage() {
                     <button
                       onClick={() => handleDelete(item.videoId)}
                       aria-label="Delete transcript"
-                      title="Delete transcript"
                       className="inline-flex items-center justify-center w-[2.2em] h-[2.2em] border-2 border-ink bg-white text-black text-[1.05em] opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100 hover:bg-trash hover:text-white transition-all"
                     >
                       <TrashIcon />
