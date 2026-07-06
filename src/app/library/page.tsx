@@ -158,7 +158,7 @@ export default function LibraryPage() {
           <div className="w-full pl-[0.8cm] pr-0 py-[22px] flex items-center gap-0">
             <Link
               href="/"
-              className="relative font-serif text-[1.837rem] text-black hover:text-purple hover:[text-shadow:0.0245em_0.021em_0_rgba(78,0,255,0.4)] transition-[color,text-shadow] duration-150 -translate-y-[3px]"
+              className="relative font-serif font-bold text-[1.837rem] text-black hover:text-purple hover:[text-shadow:0.0245em_0.021em_0_rgba(78,0,255,0.4)] transition-[color,text-shadow] duration-150 -translate-y-[3px]"
             >
               YourTranscript
               <span className="absolute left-0 right-0 bottom-[2px] h-[3.3px] bg-purple [box-shadow:2px_1.5px_0_rgba(78,0,255,0.3)] pointer-events-none" />
@@ -218,9 +218,7 @@ export default function LibraryPage() {
 
                   {/* Action circles, pinned to the right of the row. */}
                   <div className="absolute right-[1em] top-1/2 -translate-y-1/2 flex items-center gap-[0.6em]">
-                    {pct > 0 && (
-                      <span className="font-serif font-bold text-purple text-[1.05em] leading-none select-none">{pct}%</span>
-                    )}
+                    <span className="font-serif font-bold text-purple text-[1.05em] leading-none select-none">{pct}%</span>
                     {c.highlights > 0 && <CountBadge icon={<BrushIcon />} count={c.highlights} tone="mint" href={`/transcript/${item.videoId}#highlights`} />}
                     {c.notes > 0 && <CountBadge icon={<ScrollIcon />} count={c.notes} tone="purple" href={`/transcript/${item.videoId}#notes`} />}
                     <button
