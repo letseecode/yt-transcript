@@ -166,6 +166,11 @@ export default function LibraryPage() {
             <span className="w-0 border-l-2 border-ink self-stretch -my-[22px] ml-[0.8cm]" />
             <span className="flex-1 h-0 border-t-2 border-ink self-center" />
           </div>
+          <div className="absolute top-1/2 -translate-y-1/2 right-[9.3px] flex items-center gap-[9.5px]">
+            <Link href="/feed" className="font-headline font-bold uppercase text-[1.214rem] bg-mint text-black border-2 border-ink px-[26px] py-[6px] hover:bg-purple hover:text-white transition-colors">
+              Feed
+            </Link>
+          </div>
         </div>
       </header>
 
