@@ -51,16 +51,18 @@ const TrashIcon = () => (
   </svg>
 )
 
-// A round pill showing a count + icon (highlights / notes).
-function CountBadge({ icon, count, tone }: { icon: React.ReactNode; count: number; tone: 'mint' | 'purple' }) {
+// A round pill showing a count + icon (highlights / notes). Clicking it jumps
+// straight to that section of the transcript.
+function CountBadge({ icon, count, tone, href }: { icon: React.ReactNode; count: number; tone: 'mint' | 'purple'; href: string }) {
   return (
-    <span
-      className="inline-flex items-center gap-[0.3em] rounded-full border-2 border-ink bg-white px-[0.7em] h-[2.2em] text-[1.05em] leading-none select-none"
+    <Link
+      href={href}
+      className="inline-flex items-center gap-[0.3em] rounded-full border-2 border-ink bg-white px-[0.7em] h-[2.2em] text-[1.05em] leading-none select-none hover:bg-mint transition-colors"
       title={tone === 'mint' ? `${count} highlight${count === 1 ? '' : 's'}` : `${count} note${count === 1 ? '' : 's'}`}
     >
       <span className={tone === 'mint' ? 'text-black' : 'text-purple'}>{icon}</span>
       <span className="font-serif font-bold text-black">{count}</span>
-    </span>
+    </Link>
   )
 }
 
@@ -128,7 +130,7 @@ export default function LibraryPage() {
             Saved Transcripts
           </h1>
           {/* Single mint highlighter line, with a soft mint shadow. */}
-          <span className="absolute left-0 right-0 -bottom-[0.026em] h-[0.4557em] bg-mint [box-shadow:0.05em_0.035em_0_rgba(84,255,201,0.5)] pointer-events-none" />
+          <span className="absolute left-0 right-0 -bottom-[0.026em] h-[0.4557em] bg-mint [box-shadow:0.05em_0.035em_0_rgba(84,255,201,0.625)] pointer-events-none" />
         </div>
 
         {/* Everything below the title, sized 25% up from the prior 0.64rem. */}
@@ -171,8 +173,8 @@ export default function LibraryPage() {
 
                   {/* Action circles, pinned to the right of the row. */}
                   <div className="absolute right-[1em] top-1/2 -translate-y-1/2 flex items-center gap-[0.6em]">
-                    {c.highlights > 0 && <CountBadge icon={<BrushIcon />} count={c.highlights} tone="mint" />}
-                    {c.notes > 0 && <CountBadge icon={<ScrollIcon />} count={c.notes} tone="purple" />}
+                    {c.highlights > 0 && <CountBadge icon={<BrushIcon />} count={c.highlights} tone="mint" href={`/transcript/${item.videoId}#highlights`} />}
+                    {c.notes > 0 && <CountBadge icon={<ScrollIcon />} count={c.notes} tone="purple" href={`/transcript/${item.videoId}#notes`} />}
                     <button
                       onClick={() => handleDelete(item.videoId)}
                       aria-label="Delete transcript"
