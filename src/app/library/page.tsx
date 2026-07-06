@@ -59,7 +59,7 @@ function CountBadge({ icon, count, tone }: { icon: React.ReactNode; count: numbe
       title={tone === 'mint' ? `${count} highlight${count === 1 ? '' : 's'}` : `${count} note${count === 1 ? '' : 's'}`}
     >
       <span className={tone === 'mint' ? 'text-black' : 'text-purple'}>{icon}</span>
-      <span className="font-display text-black">{count}</span>
+      <span className="font-serif font-bold text-black">{count}</span>
     </span>
   )
 }
@@ -91,8 +91,7 @@ export default function LibraryPage() {
     setCounts(next)
   }, [items])
 
-  const handleDelete = async (videoId: string, title: string) => {
-    if (!window.confirm(`Delete “${title || videoId}” from your library? This can't be undone.`)) return
+  const handleDelete = async (videoId: string) => {
     setItems((prev) => prev.filter((i) => i.videoId !== videoId))
     clearLocalTranscript(videoId)
     try {
@@ -125,7 +124,7 @@ export default function LibraryPage() {
         style={{ maxWidth: '68rem', fontSize: '1.6rem' }}
       >
         <div className="relative inline-block mb-[0.9em]">
-          <h1 className="font-display text-[clamp(3.124rem,9.361vw,10.406rem)] leading-[1.0] tracking-tight [text-shadow:0.066em_0.036em_0_rgba(0,0,0,0.15)]">
+          <h1 className="font-display text-[clamp(2.655rem,7.957vw,8.845rem)] leading-[1.0] tracking-tight [text-shadow:0.066em_0.036em_0_rgba(0,0,0,0.15)]">
             Saved Transcripts
           </h1>
           {/* Single mint highlighter line, with a soft mint shadow. */}
@@ -134,8 +133,8 @@ export default function LibraryPage() {
 
         {/* Everything below the title, sized 25% up from the prior 0.64rem. */}
         <div style={{ fontSize: '0.8rem' }}>
-        {/* The separator below the title, in black. */}
-        <div className="h-[3px] bg-black [box-shadow:0.13em_0.09em_0_rgba(0,0,0,0.25)]" />
+        {/* Thin black separator, uniform with the row dividers below. */}
+        <div className="h-px bg-black" />
 
         {loading ? (
           <p className="font-headline text-[1.1em] font-bold mt-[1.2em]">Loading…</p>
@@ -177,10 +176,10 @@ export default function LibraryPage() {
                     {c.highlights > 0 && <CountBadge icon={<BrushIcon />} count={c.highlights} tone="mint" />}
                     {c.notes > 0 && <CountBadge icon={<ScrollIcon />} count={c.notes} tone="purple" />}
                     <button
-                      onClick={() => handleDelete(item.videoId, item.title)}
+                      onClick={() => handleDelete(item.videoId)}
                       aria-label="Delete transcript"
                       title="Delete transcript"
-                      className="inline-flex items-center justify-center w-[2.2em] h-[2.2em] rounded-full border-2 border-ink bg-white text-black text-[1.05em] opacity-0 group-hover:opacity-100 hover:bg-trash hover:text-white hover:border-trash transition-all"
+                      className="inline-flex items-center justify-center w-[2.2em] h-[2.2em] rounded-full border-2 border-ink bg-white text-black text-[1.05em] opacity-0 group-hover:opacity-100 hover:bg-trash hover:text-white transition-all"
                     >
                       <TrashIcon />
                     </button>
