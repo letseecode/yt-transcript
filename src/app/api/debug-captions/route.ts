@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getCaptions } from '@/lib/captions'
 
 // Temporary diagnostic: runs each caption source directly and reports what
 // the Vercel runtime actually sees (HTTP status, track counts, first error).
@@ -152,11 +153,28 @@ async function checkSupadata(videoId: string): Promise<Check[]> {
 
 export async function GET(req: NextRequest) {
   const videoId = req.nextUrl.searchParams.get('v') ?? 'dQw4w9WgXcQ'
+
+  // The real question: does the app's own shared library work in this
+  // runtime? This is exactly what /api/transcribe calls.
+  let lib: Check
+  try {
+    const result = await getCaptions(videoId)
+    lib = result
+      ? {
+          step: 'lib:getCaptions',
+          ok: true,
+          detail: `source=${result.source}, segments=${result.segments.length}, first="${result.segments[0]?.text.slice(0, 60)}"`,
+        }
+      : { step: 'lib:getCaptions', ok: false, detail: 'returned null (all providers failed)' }
+  } catch (e) {
+    lib = { step: 'lib:getCaptions', ok: false, detail: `threw: ${String(e).slice(0, 200)}` }
+  }
+
   const [youtube, invidious, piped, supadata] = await Promise.all([
     checkYouTube(videoId),
     checkInvidious(videoId),
     checkPiped(videoId),
     checkSupadata(videoId),
   ])
-  return NextResponse.json({ videoId, checks: [...youtube, ...invidious, ...piped, ...supadata] })
+  return NextResponse.json({ videoId, checks: [lib, ...youtube, ...invidious, ...piped, ...supadata] })
 }
