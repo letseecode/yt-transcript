@@ -336,6 +336,21 @@ export default function TranscriptReader({
         ))}
       </div>
 
+      {/* Source video, embedded at the end of the transcript body and just
+          before the highlight sections. No purple frame -- kept clean so it
+          sits quietly under the reading themes. */}
+      <div className="mt-16">
+        <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+          <iframe
+            className="absolute inset-0 h-full w-full"
+            src={`https://www.youtube.com/embed/${transcriptId}`}
+            title="YouTube video"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        </div>
+      </div>
+
       {/* Highlights subsection (chronological, Kindle-style) */}
       {highlightsChrono.length > 0 && (
         <section id="highlights" className="mt-16 pt-8 border-t-2 scroll-mt-24" style={{ borderColor: isDark ? 'rgba(255,255,255,0.25)' : '#1A1A1A' }}>
