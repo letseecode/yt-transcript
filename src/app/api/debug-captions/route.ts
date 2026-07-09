@@ -179,21 +179,6 @@ async function checkPiped(videoId: string): Promise<Check[]> {
   return out
 }
 
-async function checkSupadata(videoId: string): Promise<Check[]> {
-  const key = process.env.SUPADATA_API_KEY
-  if (!key) return [{ step: 'supadata', ok: false, detail: 'no key configured' }]
-  try {
-    const res = await fetch(`https://api.supadata.ai/v1/youtube/transcript?videoId=${videoId}&lang=en`, {
-      headers: { 'x-api-key': key },
-      signal: sig(),
-    })
-    const body = await res.text()
-    return [{ step: 'supadata', ok: res.ok, detail: `HTTP ${res.status}, ${body.slice(0, 120)}` }]
-  } catch (e) {
-    return [{ step: 'supadata', ok: false, detail: String(e) }]
-  }
-}
-
 export async function GET(req: NextRequest) {
   const videoId = req.nextUrl.searchParams.get('v') ?? 'dQw4w9WgXcQ'
 
@@ -213,11 +198,10 @@ export async function GET(req: NextRequest) {
     lib = { step: 'lib:getCaptions', ok: false, detail: `threw: ${String(e).slice(0, 200)}` }
   }
 
-  const [youtube, invidious, piped, supadata] = await Promise.all([
+  const [youtube, invidious, piped] = await Promise.all([
     checkYouTube(videoId),
     checkInvidious(videoId),
     checkPiped(videoId),
-    checkSupadata(videoId),
   ])
-  return NextResponse.json({ videoId, checks: [lib, ...youtube, ...invidious, ...piped, ...supadata] })
+  return NextResponse.json({ videoId, checks: [lib, ...youtube, ...invidious, ...piped] })
 }

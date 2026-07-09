@@ -9,7 +9,7 @@
 //      instances rotate out on their own.
 //   3. The Piped network -- an independent second mirror network.
 //   4. TranscriptAPI (TRANSCRIPTAPI_API_KEY) -- paid, residential proxies.
-//   5. Supadata (SUPADATA_API_KEY) -- one-time credits, so it goes last.
+//      Optional: only tried when the key is configured.
 //
 // Callers cache results in the DB, so each video costs at most one fetch ever.
 
@@ -22,7 +22,7 @@ export interface CaptionSegment {
 
 export interface CaptionResult {
   segments: CaptionSegment[]
-  source: 'youtube' | 'invidious' | 'piped' | 'transcriptapi' | 'supadata'
+  source: 'youtube' | 'invidious' | 'piped' | 'transcriptapi'
 }
 
 const REQUEST_TIMEOUT_MS = 8000
@@ -368,43 +368,12 @@ async function fetchFromTranscriptApi(videoId: string): Promise<CaptionSegment[]
 }
 
 // ---------------------------------------------------------------------------
-// Provider 5: Supadata (paid one-time credits, SUPADATA_API_KEY; last)
-// ---------------------------------------------------------------------------
-
-async function fetchFromSupadata(videoId: string): Promise<CaptionSegment[] | null> {
-  const key = process.env.SUPADATA_API_KEY
-  if (!key) return null
-  try {
-    const res = await fetch(
-      `https://api.supadata.ai/v1/youtube/transcript?videoId=${videoId}&lang=en`,
-      { headers: { 'x-api-key': key }, signal: timeout() }
-    )
-    if (!res.ok) return null
-    const data = await res.json()
-    const items: { text: string; offset: number; duration: number; lang?: string }[] =
-      data?.content ?? []
-    const segments = items
-      .map((i) => ({
-        text: (i.text ?? '').replace(/\n/g, ' ').trim(),
-        offset: Math.round(i.offset ?? 0),
-        duration: Math.round(i.duration ?? 0),
-        lang: i.lang ?? 'en',
-      }))
-      .filter((s) => s.text)
-    return segments.length > 0 ? segments : null
-  } catch {
-    return null
-  }
-}
-
-// ---------------------------------------------------------------------------
 
 const PROVIDERS: { source: CaptionResult['source']; fn: (id: string) => Promise<CaptionSegment[] | null> }[] = [
   { source: 'youtube', fn: fetchFromYouTube },
   { source: 'invidious', fn: fetchFromInvidious },
   { source: 'piped', fn: fetchFromPiped },
   { source: 'transcriptapi', fn: fetchFromTranscriptApi },
-  { source: 'supadata', fn: fetchFromSupadata },
 ]
 
 export async function getCaptions(videoId: string): Promise<CaptionResult | null> {
