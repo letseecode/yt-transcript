@@ -87,7 +87,7 @@
       <li>Next.js and the App Router</li>
       <li>Tailwind CSS</li>
       <li>PostgreSQL and Neon</li>
-      <li>External services: Supadata, Gemini, YouTube, Google OAuth</li>
+      <li>External services: the caption chain, Gemini, YouTube, Google OAuth</li>
     </ol>
   </li>
   <li>The big picture: how a request flows through the system</li>
@@ -96,6 +96,7 @@
   <li>The <code>lib/</code> layer — the plain logic
     <ol>
       <li><code>db.ts</code> — the database</li>
+      <li><code>captions.ts</code> — the transcript engine (multi-source caption chain)</li>
       <li><code>cleanup.ts</code> — the AI transcript cleaner</li>
       <li><code>highlights.ts</code> — highlights, notes, progress</li>
       <li><code>google.ts</code> — OAuth and the YouTube feed</li>
@@ -150,7 +151,7 @@
   <li><b>A YouTube feed.</b> If you connect a Google account, the app lists recent videos from your subscriptions, lets you send any of them to the library (which transcribes it), and offers an on-demand AI summary with the video embedded.</li>
 </ul>
 
-<p>The whole thing is one <b>Next.js</b> web application. There is no separate backend server written in another language; the "server" parts are functions that live in the same project and run on demand. The database is hosted (Neon PostgreSQL). Three outside services do the heavy lifting the app cannot do itself: <b>Supadata</b> (fetches captions from YouTube), <b>Google Gemini</b> (the AI that cleans, translates, defines, and summarizes), and the <b>YouTube Data API</b> (lists your subscriptions). It is deployed on <b>Vercel</b>.</p>
+<p>The whole thing is one <b>Next.js</b> web application. There is no separate backend server written in another language; the "server" parts are functions that live in the same project and run on demand. The database is hosted (Neon PostgreSQL). Outside services do the heavy lifting the app cannot do itself: a <b>caption chain</b> (several independent sources — YouTube's own player plus free community mirrors — tried in order to fetch the words from a video), <b>Google Gemini</b> (the AI that cleans, translates, defines, and summarizes), and the <b>YouTube Data API</b> (lists your subscriptions). It is deployed on <b>Vercel</b>. The caption chain is described in detail in Chapter 6.2; it replaced an earlier design that leaned on a single paid caption vendor.</p>
 
 <p>Persistence is split deliberately. Transcripts themselves live in the shared database so they are available anywhere. Everything personal and lightweight — highlights, notes, reading preferences, scroll progress, which feed videos you dismissed — lives in the browser's <code>localStorage</code>, tied to the device you are using. There is no login system for end users and no per-user accounts; the app currently behaves as a single-user tool (the Google connection stores one set of tokens).</p>
 
@@ -219,16 +220,17 @@ function greet(name: string): string { return "Hi " + name }</code></pre>
 <p>SQL you will see is small and readable, for example <code>SELECT * FROM transcripts WHERE video_id = ...</code>. The library used lets you write SQL inside a special tagged string; it handles safely inserting values so a malicious title cannot become an attack (this is "SQL injection" prevention, discussed with the file).</p>
 
 <h2>2.6 · External services</h2>
-<p>Four outside services are called over the network. Each is reached with an API key or token kept in an environment variable (a named secret configured in the deployment, never written in the code):</p>
+<p>Several outside services are called over the network. Some need an API key or token kept in an environment variable (a named secret configured in the deployment, never written in the code); notably, the caption sources that carry the app day to day need <i>no</i> secret at all:</p>
 <table>
   <tr><th>Service</th><th>What it does here</th><th>Secret</th></tr>
-  <tr><td>Supadata</td><td>Given a video ID, returns the raw caption text (the thing YouTube auto-generates).</td><td><code>SUPADATA_API_KEY</code></td></tr>
+  <tr><td>Caption chain (YouTube&nbsp;Innertube, Invidious, Piped)</td><td>Given a video ID, returns the raw caption text. Several independent sources are tried in order; the free ones carry almost all traffic. See Chapter 6.2.</td><td>none</td></tr>
+  <tr><td>TranscriptAPI <span style="opacity:.7">(optional)</span></td><td>A paid, proxy-backed caption source used only as a last resort, and only if its key is present. The app runs fine without it.</td><td><code>TRANSCRIPTAPI_API_KEY</code></td></tr>
   <tr><td>Google Gemini</td><td>The AI model. Cleans raw captions into readable prose; translates; defines words; summarizes.</td><td><code>GEMINI_API_KEY</code></td></tr>
   <tr><td>YouTube Data API</td><td>Lists the signed-in user's subscriptions and each channel's recent uploads.</td><td>OAuth token (per user)</td></tr>
   <tr><td>Google OAuth</td><td>The sign-in flow that produces the YouTube token.</td><td><code>GOOGLE_CLIENT_ID</code>, <code>GOOGLE_CLIENT_SECRET</code></td></tr>
   <tr><td>Free Dictionary API</td><td>Dictionary definitions for single words (no key). Gemini is the fallback.</td><td>none</td></tr>
 </table>
-<p>The database connection string (<code>DATABASE_URL</code>) is a sixth secret. Keeping all of these out of the code and in environment variables is why the backend logic must run on the server, not in the browser: the browser could not be trusted with them.</p>
+<p>The database connection string (<code>DATABASE_URL</code>) is another such secret. Keeping all of these out of the code and in environment variables is why the backend logic must run on the server, not in the browser: the browser could not be trusted with them.</p>
 <h1>3 · The big picture: how a request flows through the system</h1>
 <p class="lead">Before the file-by-file tour, follow one complete action end to end: a user pastes a link and reads the result. Every subsystem appears in this one path.</p>
 
@@ -236,7 +238,7 @@ function greet(name: string): string { return "Hi " + name }</code></pre>
 <ol>
   <li><b>Home page.</b> The user types a URL into the box on <code>/</code> (the file <code>src/app/page.tsx</code>) and clicks "Transcribe." The page does a light check that the text looks like a YouTube link, stores the URL in <code>sessionStorage</code> under the key <code>pending-url</code>, and navigates to <code>/transcribing</code>.</li>
   <li><b>Loading screen.</b> <code>src/app/transcribing/page.tsx</code> reads <code>pending-url</code>, shows the animated waves, and makes a network request: <code>POST /api/transcribe</code> with the URL in the body.</li>
-  <li><b>The transcribe endpoint.</b> <code>src/app/api/transcribe/route.ts</code> runs on the server. It extracts the video ID from the URL, checks the database for a cached transcript, and if none exists, calls Supadata for the raw captions, groups them into paragraphs, sends them to Gemini for cleanup, fetches the title and publish date, saves everything to Postgres, and returns the segments as JSON.</li>
+  <li><b>The transcribe endpoint.</b> <code>src/app/api/transcribe/route.ts</code> runs on the server. It extracts the video ID from the URL, checks the database for a cached transcript, and if none exists, fetches the raw captions through its multi-source caption chain (Chapter 6.2), groups them into paragraphs, sends them to Gemini for cleanup, fetches the title and publish date, saves everything to Postgres, and returns the segments as JSON.</li>
   <li><b>Back on the loading screen.</b> The response arrives. The page stores the transcript in <code>localStorage</code> under <code>transcript-&lt;id&gt;</code> so the next page can show it instantly, waits until the animation has run a minimum time, then navigates to <code>/transcript/&lt;id&gt;</code>.</li>
   <li><b>The reader.</b> <code>src/app/transcript/[id]/page.tsx</code> reads that <code>localStorage</code> copy synchronously so there is no second loading flash, and renders the transcript through the <code>TranscriptReader</code> component. From here the reading settings, highlights, translation, and download features take over — all described in their own sections.</li>
 </ol>
@@ -320,6 +322,7 @@ function greet(name: string): string { return "Hi " + name }</code></pre>
     TranscriptReader.tsx       renders text; highlights, notes, dictionary
   lib/
     db.ts                      Postgres access
+    captions.ts                multi-source caption fetch chain (the engine)
     cleanup.ts                 raw captions -> clean paragraphs (Gemini)
     highlights.ts              localStorage: highlights, notes, progress
     google.ts                  OAuth + YouTube feed assembly
@@ -478,7 +481,84 @@ export async function listTranscripts(): Promise&lt;TranscriptSummary[]&gt; {
 <p><code>listTranscripts</code> selects a lighter set of columns (not the full segments — the library only needs titles and dates) and orders newest-first with <code>ORDER BY created_at DESC</code>. <code>rows.map(...)</code> transforms every database row into a clean summary object; <code>.map</code> is the standard way to turn one array into another by applying a function to each element. The parentheses around the returned object <code>({ ... })</code> are required so the arrow function is not mistaken for a function body.</p>
 <div class="note"><b>What to take from this file.</b> A single module owns all storage; every function guards against a missing database; column names are translated at the boundary; and query values are always interpolated through the safe Neon tag. These are the habits worth copying.</div>
 
-<h2>6.2 · <span class="file">src/lib/cleanup.ts</span> — the AI transcript cleaner</h2>
+<h2>6.2 · <span class="file">src/lib/captions.ts</span> — the transcript engine</h2>
+<p>This file is the heart of the product. Everything else — the reader, the highlights, the library, the AI cleanup — is downstream of one question: <i>can we get the words out of a YouTube video?</i> This file answers it, and it earns its own section because getting that answer reliably, for free, turned out to be the hardest engineering problem in the whole app.</p>
+
+<div class="note"><b>Why this file exists at all.</b> An earlier version of the app had no <code>captions.ts</code>; the transcribe route simply called one paid service (Supadata) directly. That service sold a fixed, one-time allowance of requests. When the allowance ran out, the product stopped working — not slowly, not partially, but completely. The lesson baked into this file is a general one: <b>never let a single external dependency be a single point of failure.</b> The fix was not "buy more credits"; it was to turn caption-fetching into a <i>chain</i> of independent sources, tried in order, most of them free.</p></div>
+
+<h4>The shape of the data</h4>
+<pre><code>export interface CaptionSegment {
+  text: string
+  offset: number   // milliseconds from the start of the video
+  duration: number // milliseconds this line is on screen
+  lang: string
+}
+
+export interface CaptionResult {
+  segments: CaptionSegment[]
+  source: 'youtube' | 'invidious' | 'piped' | 'transcriptapi'
+}</code></pre>
+<p>Every source in the chain, no matter how differently it talks over the network, is normalized into the same <code>CaptionSegment</code> shape — a line of text with a start time. The <code>CaptionResult</code> also records <i>which</i> source answered, as a <b>string-literal union type</b> (<code>'youtube' | 'invidious' | ...</code>): the value can only ever be one of those four exact strings, and the compiler enforces it. That <code>source</code> field is not decorative — it is logged on every fetch, and it is what let us diagnose the pipeline when it misbehaved.</p>
+
+<h4>The chain, top to bottom</h4>
+<p>The public function is <code>getCaptions</code>, and its whole job is to try each provider until one succeeds:</p>
+<pre><code>const PROVIDERS = [
+  { source: 'youtube',      fn: fetchFromYouTube },
+  { source: 'invidious',    fn: fetchFromInvidious },
+  { source: 'piped',        fn: fetchFromPiped },
+  { source: 'transcriptapi', fn: fetchFromTranscriptApi },
+]
+
+export async function getCaptions(videoId: string): Promise&lt;CaptionResult | null&gt; {
+  for (const { source, fn } of PROVIDERS) {
+    const segments = await fn(videoId)
+    if (segments &amp;&amp; segments.length &gt; 0) {
+      console.log(`captions: ${videoId} served by ${source}`)
+      return { segments, source }
+    }
+  }
+  return null
+}</code></pre>
+<p>This is the entire strategy in nine lines. The providers are an ordered array; the loop walks it, calls each one, and returns the first result that actually contains segments. Every provider function shares the same contract — <code>(videoId) =&gt; Promise&lt;CaptionSegment[] | null&gt;</code> — so the loop does not need to know anything about how a given source works. Adding or removing a source is a one-line change to the array. This is the same "uniform interface, swappable implementations" idea as <code>db.ts</code> centralizing storage, applied to fetching. The order matters: <b>free sources come first, paid ones last</b>, so the app spends money only when everything free has failed.</p>
+
+<h4>Provider 1 — YouTube's own player, in disguise</h4>
+<p>The first and best source is YouTube itself. The website you visit does not fetch captions through the official, quota-limited "Data API"; it uses an internal endpoint (nicknamed <b>Innertube</b>) that its own apps call. We can call the same endpoint. The catch: YouTube inspects <i>who</i> is asking, and blocks requests that look like they come from a data-center (which is exactly where our app runs, on Vercel).</p>
+<pre><code>const INNERTUBE_CLIENTS = [
+  { body: { context: { client: { clientName: 'IOS', /* ... */ } } }, userAgent: 'com.google.ios.youtube/...' },
+  { body: { context: { client: { clientName: 'TVHTML5_SIMPLY_EMBEDDED_PLAYER', /* ... */ } } }, userAgent: '...' },
+  { body: { context: { client: { clientName: 'ANDROID', /* ... */ } } }, userAgent: '...' },
+  { body: { context: { client: { clientName: 'WEB', /* ... */ } } }, userAgent: '...' },
+]</code></pre>
+<p>So the code does not ask once; it asks up to four times, each time <i>pretending to be a different YouTube client</i> — an iPhone, a smart-TV embed, an Android phone, a web browser. Each disguise is scored by YouTube's anti-bot systems independently, so a request the Android app would be blocked for might sail through as the iOS app. <code>fetchFromYouTube</code> loops over these clients, POSTing to the player endpoint, and for each one reads <code>data.captions.playerCaptionsTracklistRenderer.captionTracks</code> — the list of available subtitle tracks. It prefers a human-written English track, then auto-generated English, then anything. When a client returns tracks, it downloads the track file and returns; when a client is blocked (the response says <code>LOGIN_REQUIRED</code>, "Sign in to confirm you're not a bot"), it silently moves to the next disguise.</p>
+<div class="note"><b>The honest caveat.</b> This free path works — but only <i>sometimes</i> from a data-center, because YouTube's IP-based blocking comes and goes as the server's address rotates. That unreliability is precisely why the chain has four more links below it. Any one source being flaky is fine; all of them being flaky at once is rare, and the database cache (below) means each video only needs one lucky fetch, ever.</p></div>
+
+<h4>Providers 2 and 3 — the mirror networks</h4>
+<p>When YouTube blocks us directly, we ask someone YouTube does <i>not</i> block. <b>Invidious</b> and <b>Piped</b> are free, open-source, community-run "mirrors" of YouTube — networks of volunteer-operated servers that fetch from YouTube on your behalf and expose a clean API. They fight the blocking arms race so we don't have to.</p>
+<pre><code>async function invidiousInstances(): Promise&lt;string[]&gt; {
+  // fetch the live directory of healthy instances at runtime,
+  // fall back to a hardcoded seed list if the directory is down
+}</code></pre>
+<p>Because any single volunteer server can go offline at any time, <code>fetchFromInvidious</code> does not trust a fixed address. It fetches a <b>live directory</b> of currently-healthy instances (<code>api.invidious.io/instances.json?sort_by=health</code>) at request time, and tries them in health order, falling back to a small hardcoded seed list only if the directory itself is unreachable. This means dead instances rotate out of use automatically, with no code change — the system heals itself. <code>fetchFromPiped</code> does the same against a second, independent network, so the two are unlikely to fail together.</p>
+
+<h4>The bug that taught us to sniff the format</h4>
+<p>Here is the most instructive part of the file, because it is where a subtle bug hid. The mirrors hand back the caption <i>file</i>, and there is no single standard format for such a file. YouTube's Innertube returns a JSON shape; some mirrors return <b>WebVTT</b> (a plain-text subtitle format); others return <b>TTML</b> (an XML-based one). An early version of this code assumed everything was WebVTT — so when Piped handed back perfectly good captions in TTML, the parser read 1,204 bytes of real data and produced <i>zero</i> segments. The app then reported "no transcript available," which was a lie: the transcript was right there, in a format we weren't reading.</p>
+<pre><code>export function parseCaptionBody(body: string, lang: string): CaptionSegment[] {
+  const head = body.trimStart().slice(0, 200)
+  if (head.startsWith('WEBVTT')) return parseVtt(body, lang)
+  if (head.includes('&lt;tt')) return parseTtml(body, lang)
+  if (head.includes('&lt;transcript') || head.includes('&lt;text')) return parseTimedTextXml(body, lang)
+  return parseVtt(body, lang)
+}</code></pre>
+<p>The fix is <code>parseCaptionBody</code>: instead of assuming, it <b>sniffs</b> the first 200 characters and dispatches to the right parser — <code>parseVtt</code> for WebVTT, <code>parseTtml</code> for TTML's <code>&lt;p begin="..."&gt;</code> tags, <code>parseTimedTextXml</code> for YouTube's XML. Each parser turns its format into the same <code>CaptionSegment[]</code>. The lesson worth carrying: when you integrate several sources that "return captions," they do not return the <i>same thing</i>, and code that assumes they do will fail silently on the one that differs.</p>
+
+<h4>Provider 4 — the paid safety net</h4>
+<p>Last in the chain is <b>TranscriptAPI</b>, a commercial service that runs its own proxies and so reliably survives the data-center block. It is tried only if a <code>TRANSCRIPTAPI_API_KEY</code> environment variable is set — and it is deliberately optional. The app ships with no such key and runs entirely on the free sources above; the paid link exists as an instant, no-code-change upgrade if the free layers ever prove too flaky for comfort. <code>fetchFromTranscriptApi</code> returns <code>null</code> the moment it sees no key, so the whole provider costs nothing and does nothing until you opt in.</p>
+
+<h4>Where the cache fits</h4>
+<p>None of this runs twice for the same video. As Chapter 7.1 shows, the transcribe route checks the Postgres cache <i>before</i> calling <code>getCaptions</code> at all, and saves the result <i>after</i>. So the entire chain — all four providers, all the retries and format-sniffing — executes at most once per video in the app's whole lifetime. A source only has to succeed a single time, on a single lucky attempt, and that video is transcribed forever. That is what makes a chain of individually-unreliable free sources add up to a dependable product.</p>
+<div class="note"><b>What to take from this file.</b> A single point of failure was turned into an ordered chain of independent fallbacks; free options are tried before paid ones; every source is normalized to one internal shape behind one uniform function signature; unreliable pieces are made dependable by caching the first success. This is the design pattern to reach for whenever you depend on something you do not control.</p></div>
+
+<h2>6.3 · <span class="file">src/lib/cleanup.ts</span> — the AI transcript cleaner</h2>
 <p>This file turns YouTube's messy auto-captions into readable paragraphs by asking Gemini to rewrite them under strict rules. It is the clearest example in the project of "prompt engineering" — most of the file is an instruction string.</p>
 
 <h4>The instruction (system prompt)</h4>
@@ -539,7 +619,7 @@ export async function cleanupTranscript(rawText: string): Promise&lt;Segment[] |
 
 <h4>The fallback</h4>
 <p>If Gemini is unavailable or fails, <code>cleanupTranscript</code> returns <code>null</code>. The transcribe route treats <code>null</code> as "use the plain, heuristically grouped segments instead." The app still works without the AI; it just produces rougher text. Designing the AI step to be optional is a deliberate resilience choice.</p>
-<h2>6.3 · <span class="file">src/lib/highlights.ts</span> — highlights, notes, progress</h2>
+<h2>6.4 · <span class="file">src/lib/highlights.ts</span> — highlights, notes, progress</h2>
 <p>This file is the browser-side counterpart to <code>db.ts</code>: it owns everything stored in <code>localStorage</code>. Unlike the database module, it runs in the browser, so it guards every access with a check that <code>window</code> exists (the same code is prepared on the server during rendering, where <code>localStorage</code> is absent).</p>
 
 <h4>The Highlight shape and the storage key</h4>
@@ -603,7 +683,7 @@ export function clearLocalTranscript(transcriptId: string) {
 export function saveProgress(transcriptId: string, percent: number) { /* clamp and store */ }</code></pre>
 <p>Two small functions store a single integer per transcript: the percentage scrolled. <code>saveProgress</code> clamps the value into the 0–100 range and rounds it before storing. The reader writes this on every scroll; the library reads it to show the percentage and the reader reads it to restore your position.</p>
 
-<h2>6.4 · <span class="file">src/lib/google.ts</span> — OAuth and the YouTube feed</h2>
+<h2>6.5 · <span class="file">src/lib/google.ts</span> — OAuth and the YouTube feed</h2>
 <p>This is the most involved <code>lib</code> file. It does two jobs: the OAuth sign-in dance with Google, and assembling a "subscription feed" from the YouTube Data API. It deliberately uses only <code>fetch</code> — no Google client library — to avoid an extra dependency.</p>
 
 <h4>Is it configured?</h4>
@@ -646,7 +726,7 @@ return candidates.filter((v) =&gt; !isShort(v))
 <p>The date parsing <code>+new Date(...)</code> turns a date string into a number of milliseconds so two dates can be subtracted; sorting by <code>b - a</code> yields descending (newest first) order. <code>isShort</code> combines a duration test with a title pattern. The 30-day window, the batching, and the caps all exist to keep within YouTube's daily API quota — a constraint discussed in the scaling chapter.</p>
 <p>Several calls run in parallel with <code>await Promise.all(uploads.map(async (u) =&gt; { ... }))</code>. <code>Promise.all</code> starts many asynchronous operations at once and waits for all of them, rather than doing them one at a time — important when there are dozens of channels to query.</p>
 
-<h2>6.5 · <span class="file">src/lib/wavePath.ts</span> — the decorative wave geometry</h2>
+<h2>6.6 · <span class="file">src/lib/wavePath.ts</span> — the decorative wave geometry</h2>
 <p>This file is pure math and produces no data or network calls: it generates the <b>SVG path</b> strings that draw the calligraphic "waves" on the home and loading pages. SVG is a vector-graphics format where a shape is described by a string of drawing commands.</p>
 <pre><code>export function makeWaveOutline(seed: number, maxHalfWidth: number) {
   const cycles = 1
@@ -691,17 +771,21 @@ export async function POST(req: Request) {
 if (cached) {
   return NextResponse.json({ id: videoId, segments: cached.segments, title: cached.title, cached: true })
 }</code></pre>
-<p>Before spending money on Supadata and Gemini, the route checks the database. If this video was transcribed before, it returns the stored version immediately. This is the single most important cost- and speed-saving decision in the app: transcription happens once per video, ever, across all users.</p>
+<p>Before spending a caption fetch and a Gemini call, the route checks the database. If this video was transcribed before, it returns the stored version immediately. This is the single most important cost- and speed-saving decision in the app: transcription happens once per video, ever, across all users — and, as Chapter 6.2 explains, it is also what lets a chain of individually-unreliable free caption sources add up to a dependable product, since each video only needs one source to succeed one time.</p>
 
 <h4>Stage 3 — fetch the captions</h4>
-<pre><code>const res = await fetch(
-  `https://api.supadata.ai/v1/youtube/transcript?videoId=${videoId}&amp;lang=en`,
-  { headers: { 'x-api-key': apiKey } }
-)
-if (!res.ok) { /* return a 422 "no transcript available" with the reason */ }
-const data = await res.json()
-raw = data.content ?? []</code></pre>
-<p>Supadata is asked for the English captions. If it fails, the route returns status <code>422</code> ("unprocessable") with a human-readable reason — this is what surfaces as "No transcript available for this video" when captions are disabled. The raw result is an array of caption fragments, each with text, an offset, and a duration.</p>
+<pre><code>import { getCaptions } from '@/lib/captions'
+
+const result = await getCaptions(videoId)
+if (!result) {
+  return NextResponse.json(
+    { error: 'No transcript available for this video. It may have captions disabled.' },
+    { status: 422 }
+  )
+}
+const raw = result.segments</code></pre>
+<p>This one line — <code>getCaptions(videoId)</code> — is where the entire caption chain of Chapter 6.2 runs: YouTube's own player in four disguises, then the Invidious and Piped mirror networks, then the optional paid source, tried in order until one returns words. The route itself stays simple; all the fetching, retrying, and format-sniffing complexity is hidden behind that single call. If <i>every</i> source fails (a video with captions genuinely disabled, or the rare case of all free sources being down at once), <code>getCaptions</code> returns <code>null</code> and the route answers status <code>422</code> ("unprocessable") — this is what surfaces as "No transcript available for this video." The result is an array of caption fragments already normalized to one shape, each with text, an offset, and a duration, regardless of which source produced them.</p>
+<div class="note"><b>Why this is a single function call.</b> Compare this to the earlier design, where the route itself contained the caption-fetching code and knew the details of one vendor's API. Moving all of that into <code>getCaptions</code> means the route reads as a clean five-stage story, and the messy reality of caption-fetching — which changes as YouTube and the mirrors evolve — lives in exactly one file that the route never has to think about. This is the payoff of the <code>lib/</code> layer: routes orchestrate; <code>lib</code> files know how.</p></div>
 
 <h4>Stage 4 — group into rough paragraphs</h4>
 <p>Before the AI sees the text, the route does a first, mechanical grouping. Two strategies:</p>
@@ -721,7 +805,7 @@ const [{ title, author }, publishedAt] = await Promise.all([
 ])
 await saveTranscript({ videoId, url, title, author, segments: finalSegments, publishedAt })
 return NextResponse.json({ id: videoId, segments: finalSegments, title })</code></pre>
-<p>The full caption text is joined into one string and passed to <code>cleanupTranscript</code> (the file from 6.2). <code>const finalSegments = cleaned ?? merged</code> is the fallback in action: use the AI-cleaned paragraphs, or the mechanically grouped ones if cleanup returned <code>null</code>. Title and channel come from YouTube's keyless <b>oEmbed</b> endpoint; the publish date is scraped from the public watch page (there is no keyless API for it, so <code>fetchPublishDate</code> pulls it out of the page's HTML with a regular expression). Both metadata calls run together via <code>Promise.all</code>. Finally the record is saved and the segments are returned to the loading page.</p>
+<p>The full caption text is joined into one string and passed to <code>cleanupTranscript</code> (the file from 6.3). <code>const finalSegments = cleaned ?? merged</code> is the fallback in action: use the AI-cleaned paragraphs, or the mechanically grouped ones if cleanup returned <code>null</code>. Title and channel come from YouTube's keyless <b>oEmbed</b> endpoint; the publish date is scraped from the public watch page (there is no keyless API for it, so <code>fetchPublishDate</code> pulls it out of the page's HTML with a regular expression). Both metadata calls run together via <code>Promise.all</code>. Finally the record is saved and the segments are returned to the loading page.</p>
 <div class="note"><b>Reading this route teaches the whole backend style.</b> Validate input; check the cache; call an external service with a key; transform; store; return JSON with a status code. Every other endpoint is a smaller version of this pattern.</div>
 
 <h2>7.2 · The transcript CRUD routes</h2>
@@ -741,11 +825,11 @@ return NextResponse.json({ id: videoId, segments: finalSegments, title })</code>
 
 <h2>7.4 · <span class="file">api/define/route.ts</span> and <span class="file">api/summary/route.ts</span></h2>
 <p><b>define</b> is the dictionary fallback. The reader first tries the free, keyless dictionary API directly from the browser; only when that returns nothing (common for non-English words and for phrases) does it call this route, which asks Gemini for a one-line definition in the target language, formatted as <code>part-of-speech ||| definition</code> and split apart on the client.</p>
-<p><b>summary</b> powers the "Ask AI" button on the feed watch page. It gathers the video's caption text — reusing a saved transcript if one exists, otherwise fetching fresh from Supadata — and asks Gemini for a one-line TL;DR followed by five to eight bullet points. If the video has no captions, it returns an empty summary and the page says so. Both routes follow the same call-Gemini-and-parse structure as <code>cleanup</code>.</p>
+<p><b>summary</b> powers the "Ask AI" button on the feed watch page. It gathers the video's caption text — reusing a saved transcript if one exists, otherwise fetching fresh through the same caption chain (<code>getCaptions</code>, Chapter 6.2) — and asks Gemini for a one-line TL;DR followed by five to eight bullet points. If the video has no captions, it returns an empty summary and the page says so. Both routes follow the same call-Gemini-and-parse structure as <code>cleanup</code>.</p>
 
 <h2>7.5 · <span class="file">api/feed/route.ts</span> and the auth routes</h2>
 <p><b>feed</b> reads the refresh token from the request cookie, exchanges it for a fresh access token via <code>refreshAccessToken</code>, calls <code>getFeed</code>, and returns the list. No cookie means status <code>401</code> ("unauthorized"), which the feed page reads as "not connected."</p>
-<p>The four <b>auth/google</b> routes implement the sign-in flow described in 6.4:</p>
+<p>The four <b>auth/google</b> routes implement the sign-in flow described in 6.5:</p>
 <ul>
   <li><code>route.ts</code> (<code>GET</code>) — generates a random <code>state</code>, stores it in a short-lived cookie, and redirects the browser to Google's consent screen.</li>
   <li><code>callback/route.ts</code> (<code>GET</code>) — Google returns here with a code; the route checks the <code>state</code> matches (anti-tampering), exchanges the code for tokens, stores the refresh token in an <code>httpOnly</code> cookie (unreadable by JavaScript, so it cannot be stolen by a script), and redirects to <code>/feed</code>.</li>
@@ -753,6 +837,20 @@ return NextResponse.json({ id: videoId, segments: finalSegments, title })</code>
   <li><code>logout/route.ts</code> (<code>GET</code>) — deletes the token cookie.</li>
 </ul>
 <p>Storing the token server-side in an <code>httpOnly</code> cookie rather than in <code>localStorage</code> is a security decision: page scripts never see it, which limits the damage a malicious script could do. It is also why the feed is currently single-user — there is one cookie per browser, not a per-account token store.</p>
+
+<h2>7.6 · <span class="file">api/debug-captions/route.ts</span> — the pipeline's stethoscope</h2>
+<p>This endpoint exists purely to diagnose the caption chain, and it earns its place because the chain has so many moving parts that could each fail independently. Visiting <code>/api/debug-captions?v=&lt;videoId&gt;</code> runs every source <i>from inside the deployed server</i> and returns a JSON report of exactly what each one saw — the crucial phrase being "from inside the server," because a source can behave completely differently when called from your laptop versus from Vercel's data-center.</p>
+<pre><code>{
+  "videoId": "jNQXAC9IVRw",
+  "checks": [
+    { "step": "lib:getCaptions", "ok": true,  "detail": "source=piped, segments=6, first=\"All right, so here we are...\"" },
+    { "step": "youtube:IOS",      "ok": false, "detail": "playability=LOGIN_REQUIRED (Sign in to confirm you're not a bot)" },
+    { "step": "invidious:...",    "ok": true,  "detail": "captions=2 [en|English|...]" },
+    { "step": "piped:...:track",  "ok": true,  "detail": "HTTP 200, bytes=1204, parsedSegments=6, head=\"&lt;?xml ...\"" }
+  ]
+}</code></pre>
+<p>The first entry, <code>lib:getCaptions</code>, is the verdict — it calls the app's real <code>getCaptions</code> and reports what the transcribe route would actually get. Everything after it is per-source forensics: whether YouTube's IP block is active on this deployment right now, which mirror instances are alive, and — decisively — whether a downloaded caption file <i>parses</i> into segments or silently yields zero. That last column is what exposed the TTML-versus-WebVTT bug described in Chapter 6.2: the mirror reported <code>bytes=1204</code> (real data arrived) but the old parser produced <code>parsedSegments=0</code>, pinpointing the fault as ours, in parsing, not YouTube's, in blocking.</p>
+<div class="note"><b>The habit worth copying.</b> When a system depends on several external sources that each fail in their own way, build a single endpoint that exercises all of them and confesses what it sees. The rule this endpoint taught in practice: <i>when the overall verdict and the per-source forensics disagree, the bug is in your own code between them.</i> Because it only reads and reports (it changes nothing), it is safe to leave in the deployed app as a permanent one-URL health check.</p></div>
 <h1>8 · The React components</h1>
 <p class="lead">Three components in <code>src/components</code> are shared by pages. The first two are self-contained; the third, the transcript reader, is the most intricate client code in the project and rewards careful reading.</p>
 
@@ -951,7 +1049,7 @@ const r = await fetch(url); const data = await r.json(); use(data)</code></pre>
 <h2>11.4 · Caching as a first-class decision</h2>
 <p>Every expensive result is stored and reused. The pattern appears at three scales:</p>
 <ul>
-  <li><b>Transcripts</b> — cached forever in Postgres. The transcribe route's very first act after validation is to check the cache; a hit skips Supadata and Gemini entirely. This makes transcription a once-per-video cost shared across all users.</li>
+  <li><b>Transcripts</b> — cached forever in Postgres. The transcribe route's very first act after validation is to check the cache; a hit skips the entire caption chain and Gemini entirely. This makes transcription a once-per-video cost shared across all users.</li>
   <li><b>Translations</b> — cached per language in memory and in <code>localStorage</code>, so switching languages back and forth is instant after the first time.</li>
   <li><b>Summaries</b> — reuse an already-saved transcript's text instead of re-fetching captions.</li>
 </ul>
@@ -999,7 +1097,7 @@ const r = await fetch(url); const data = await r.json(); use(data)</code></pre>
 <p><b>Mechanism:</b> highlights, notes, preferences, progress, and dismissals are written to <code>localStorage</code>, which is per-browser by definition. <b>Consequence to internalize:</b> the library's counts and percentages describe <i>this</i> browser's activity, not a global truth. <b>To lift:</b> move these into per-user database tables — the same migration as accounts.</p>
 
 <h3>Captions are mandatory</h3>
-<p><b>Mechanism:</b> Supadata returns nothing for a video without captions, and the route answers 422. Summary and translation build on the transcript, so they inherit the requirement. <b>To lift:</b> add speech-to-text (transcribe the audio directly), a substantially larger and costlier pipeline.</p>
+<p><b>Mechanism:</b> the caption chain returns nothing for a video without captions (every source agrees there is nothing to fetch), and the route answers 422. Summary and translation build on the transcript, so they inherit the requirement. <b>To lift:</b> add speech-to-text (transcribe the audio directly), a substantially larger and costlier pipeline.</p>
 
 <h3>English-first</h3>
 <p><b>Mechanism:</b> captions are requested with <code>lang=en</code>; translation targets are limited to French and Spanish in the route's <code>LANGS</code> map; the free dictionary is reliable mainly for English. <b>To lift:</b> detect the source language, request the matching captions, and expand the target and dictionary handling.</p>
@@ -1140,7 +1238,7 @@ if (popup?.kind === 'define') {
 
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Highlight, loadHighlights, saveHighlights, charOffsetWithin } from '@/lib/highlights'</code></pre>
-<p><code>'use client'</code> makes this a browser component — mandatory, because it uses state, effects, refs, and the DOM. The React import pulls in the hooks it needs plus <code>Fragment</code> (a wrapper that groups elements without adding a real DOM node — used when a function must return several pieces of text side by side). The second import is the project's own highlight utilities from Chapter 6.3: the <code>Highlight</code> type, load/save, and the offset helper. Importing exactly what is used keeps dependencies visible.</p>
+<p><code>'use client'</code> makes this a browser component — mandatory, because it uses state, effects, refs, and the DOM. The React import pulls in the hooks it needs plus <code>Fragment</code> (a wrapper that groups elements without adding a real DOM node — used when a function must return several pieces of text side by side). The second import is the project's own highlight utilities from Chapter 6.4: the <code>Highlight</code> type, load/save, and the offset helper. Importing exactly what is used keeps dependencies visible.</p>
 
 <h3>Block 2 — the data shapes (lines 11–47)</h3>
 <pre><code>interface Segment { text: string; startMs: number }
@@ -1227,7 +1325,7 @@ const persist = useCallback((next: Highlight[]) =&gt; {
 }, [])</code></pre>
 <p>This is the hardest function in the file; take it slowly. It runs when the mouse is released over the text. The <code>setTimeout(…, 0)</code> defers everything by one tick so that if the release was actually a click on an existing highlight, that click's own handler runs first (see Block 9). Inside: read the browser's <b>selection</b>; bail if it is empty or collapsed. Get the <b>range</b> (the selection's start and end position in the DOM) and its text.</p>
 <p><code>elFor</code> finds, for a given DOM node, the paragraph element it belongs to. A selection endpoint may land on a text node or an element; either way, <code>.closest('[data-p]')</code> climbs to the nearest ancestor carrying the <code>data-p</code> attribute — the paragraph marker set in the render. If either endpoint is not inside a paragraph, bail.</p>
-<p>Then the loop: over every paragraph element, skip those the range does not touch (<code>range.intersectsNode</code>). For each one it does touch, compute a start and end <i>character offset</i>. For the paragraph where the selection starts, the start offset is measured with <code>charOffsetWithin</code> (Chapter 6.3, which flattens the possibly-split text nodes into one offset); for paragraphs in the middle the selection covers the whole thing, so start is <code>0</code> and end is the full length; the paragraph where it ends contributes a real end offset. <code>Math.min/max</code> orders them (a selection can be made right-to-left), and a zero-width span is skipped. Each surviving slice becomes a <code>Span</code> with a copy of its text.</p>
+<p>Then the loop: over every paragraph element, skip those the range does not touch (<code>range.intersectsNode</code>). For each one it does touch, compute a start and end <i>character offset</i>. For the paragraph where the selection starts, the start offset is measured with <code>charOffsetWithin</code> (Chapter 6.4, which flattens the possibly-split text nodes into one offset); for paragraphs in the middle the selection covers the whole thing, so start is <code>0</code> and end is the full length; the paragraph where it ends contributes a real end offset. <code>Math.min/max</code> orders them (a selection can be made right-to-left), and a zero-width span is skipped. Each surviving slice becomes a <code>Span</code> with a copy of its text.</p>
 <p>Finally, if any spans exist, open the <code>actions</code> pop-up centered above the selection (from <code>range.getBoundingClientRect()</code>), marking it <code>isWord</code> only when the whole selection is a single span and passes <code>isLookupable</code> — that flag is what shows or hides the Dictionary button. The empty dependency array <code>[]</code> means this callback is created once; it reads <code>segments</code> from the surrounding scope, which is stable for a given render.</p>
 
 <h3>Block 6 — dismissing the pop-up (lines 129–146)</h3>
@@ -1370,7 +1468,7 @@ const [title, setTitle]       = useState(() =&gt; readLocalTranscript(id)?.title
 const [loading, setLoading]   = useState(() =&gt; readLocalTranscript(id) === null)
 const [prefs, setPrefs] = useReadingPrefs()
 /* plus: notFound, copied, settingsOpen, downloadOpen, headerHidden, translations, translating, translateError, titleRef, titleLineRects */</code></pre>
-<p>The important detail is the <b>lazy initializer</b>: <code>useState(() =&gt; …)</code> passes a function, so the local read runs once, during the first render, not on every render. Because <code>segments</code> and <code>title</code> start already populated from <code>localStorage</code>, the common arrival from the loading page shows the transcript immediately, and <code>loading</code> starts <code>false</code> whenever a local copy exists — no spinner flash. <code>handleDelete</code> confirms, clears the local cache (Chapter 6.3), deletes the database row, and navigates to the library. <code>useReadingPrefs</code> (Chapter 8.2) supplies the persisted reading settings.</p>
+<p>The important detail is the <b>lazy initializer</b>: <code>useState(() =&gt; …)</code> passes a function, so the local read runs once, during the first render, not on every render. Because <code>segments</code> and <code>title</code> start already populated from <code>localStorage</code>, the common arrival from the loading page shows the transcript immediately, and <code>loading</code> starts <code>false</code> whenever a local copy exists — no spinner flash. <code>handleDelete</code> confirms, clears the local cache (Chapter 6.4), deletes the database row, and navigates to the library. <code>useReadingPrefs</code> (Chapter 8.2) supplies the persisted reading settings.</p>
 
 <h3>Block 3 — the title's per-line underline (lines 79–98)</h3>
 <pre><code>useLayoutEffect(() =&gt; {
@@ -1400,7 +1498,7 @@ const [prefs, setPrefs] = useReadingPrefs()
   window.addEventListener('scroll', onScroll, { passive: true })
   return () =&gt; window.removeEventListener('scroll', onScroll)
 }, [id])</code></pre>
-<p>One scroll listener does two jobs. It hides the header when scrolling down past 80px and reveals it when scrolling up (comparing the new position to <code>lastY</code>). And it computes reading progress as a percentage — current scroll over the total scrollable height — and writes it with <code>saveProgress</code> (Chapter 6.3). <code>{ passive: true }</code> tells the browser the listener will not block scrolling, keeping it smooth. This is the write half of the progress feature; Block 5 is the read half.</p>
+<p>One scroll listener does two jobs. It hides the header when scrolling down past 80px and reveals it when scrolling up (comparing the new position to <code>lastY</code>). And it computes reading progress as a percentage — current scroll over the total scrollable height — and writes it with <code>saveProgress</code> (Chapter 6.4). <code>{ passive: true }</code> tells the browser the listener will not block scrolling, keeping it smooth. This is the write half of the progress feature; Block 5 is the read half.</p>
 
 <h3>Block 5 — restoring the scroll position once (lines 121–142)</h3>
 <pre><code>const restoredRef = useRef(false)
@@ -1507,8 +1605,8 @@ const handleDownloadPdf = () =&gt; { setDownloadOpen(false); setTimeout(() =&gt;
 <p class="lead">Check your traces against these. Where your answer differs, re-read the cited block — the goal is that the reasoning, not just the conclusion, matches.</p>
 
 <h3>Set A</h3>
-<p><b>1 — From paste to paragraph.</b> <code>page.tsx</code> validates the URL, stores it in <code>sessionStorage</code>, navigates to <code>/transcribing</code>. <code>transcribing/page.tsx</code> reads it and POSTs to <code>/api/transcribe</code>. <code>api/transcribe/route.ts</code> extracts the id, misses the cache, calls Supadata (captions), groups paragraphs, calls <code>cleanup.ts</code> &rarr; Gemini, fetches title/date, calls <code>db.ts</code> <code>saveTranscript</code>, returns segments. Back in <code>transcribing/page.tsx</code> the result is written to <code>localStorage</code> and it navigates to <code>/transcript/&lt;id&gt;</code>. <code>transcript/[id]/page.tsx</code> reads the local copy synchronously (Block 2) and renders <code>TranscriptReader.tsx</code>, whose <code>renderParagraph</code> (Block 9) produces the first paragraph's nodes.</p>
-<p><b>2 — The cache hit.</b> Supadata, the paragraph grouping, Gemini cleanup, and the metadata fetch are all skipped. The decision is in <code>api/transcribe/route.ts</code> immediately after id extraction: <code>const cached = await getTranscript(videoId); if (cached) return …</code>. The loading page still enforces its minimum visible time, so the animation still plays.</p>
+<p><b>1 — From paste to paragraph.</b> <code>page.tsx</code> validates the URL, stores it in <code>sessionStorage</code>, navigates to <code>/transcribing</code>. <code>transcribing/page.tsx</code> reads it and POSTs to <code>/api/transcribe</code>. <code>api/transcribe/route.ts</code> extracts the id, misses the cache, calls <code>getCaptions</code> (the caption chain), groups paragraphs, calls <code>cleanup.ts</code> &rarr; Gemini, fetches title/date, calls <code>db.ts</code> <code>saveTranscript</code>, returns segments. Back in <code>transcribing/page.tsx</code> the result is written to <code>localStorage</code> and it navigates to <code>/transcript/&lt;id&gt;</code>. <code>transcript/[id]/page.tsx</code> reads the local copy synchronously (Block 2) and renders <code>TranscriptReader.tsx</code>, whose <code>renderParagraph</code> (Block 9) produces the first paragraph's nodes.</p>
+<p><b>2 — The cache hit.</b> The caption chain, the paragraph grouping, Gemini cleanup, and the metadata fetch are all skipped. The decision is in <code>api/transcribe/route.ts</code> immediately after id extraction: <code>const cached = await getTranscript(videoId); if (cached) return …</code>. The loading page still enforces its minimum visible time, so the animation still plays.</p>
 <p><b>3 — A highlight's life.</b> <code>handleMouseUp</code> (Block 5) builds the <code>Span</code>; clicking Highlight calls <code>addHighlights</code> &rarr; <code>mergeSpan</code> &rarr; <code>persist</code> (Blocks 7, 4), which calls <code>saveHighlights</code>. The key is <code>highlights-&lt;videoId&gt;-en</code>. On reload, the effect in Block 4 calls <code>loadHighlights</code> for that key and <code>renderParagraph</code> re-wraps the range in a <code>&lt;mark&gt;</code>.</p>
 <p><b>4 — Two devices.</b> The transcript appears, because it lives in Postgres and is fetched by <code>api/transcript/[id]</code> (Block 6). The highlight does not, because it lives only in the first device's <code>localStorage</code> under a per-browser key. This is the two-place persistence trade of Chapter 11.3 made concrete.</p>
 <h3>Set B</h3>
