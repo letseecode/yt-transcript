@@ -12,6 +12,20 @@ interface FeedVideo {
 }
 
 const DISMISS_KEY = 'feed-dismissed'
+// Cache the assembled feed for the tab's lifetime, so navigating into a video
+// and back (or re-clicking "Feed") shows the same list instantly instead of
+// re-running the expensive YouTube assembly. Cleared only by an explicit
+// Refresh or a full page reload / new tab.
+const FEED_CACHE_KEY = 'feed-cache'
+function loadCachedFeed(): FeedVideo[] | null {
+  if (typeof window === 'undefined') return null
+  try {
+    const raw = sessionStorage.getItem(FEED_CACHE_KEY)
+    return raw ? (JSON.parse(raw) as FeedVideo[]) : null
+  } catch {
+    return null
+  }
+}
 function loadDismissed(): Set<string> {
   if (typeof window === 'undefined') return new Set()
   try {
@@ -53,15 +67,39 @@ export default function FeedPage() {
       .catch(() => setStatus('unconfigured'))
   }, [])
 
-  useEffect(() => {
-    if (status !== 'connected') return
+  const fetchFeed = () => {
     setLoadingFeed(true)
     fetch('/api/feed')
       .then((r) => (r.ok ? r.json() : { items: [] }))
-      .then((d) => setItems(d.items ?? []))
+      .then((d) => {
+        const list: FeedVideo[] = d.items ?? []
+        setItems(list)
+        try {
+          sessionStorage.setItem(FEED_CACHE_KEY, JSON.stringify(list))
+        } catch {}
+      })
       .catch(() => setItems([]))
       .finally(() => setLoadingFeed(false))
+  }
+
+  useEffect(() => {
+    if (status !== 'connected') return
+    // Same session? Reuse the remembered feed and skip the reload entirely.
+    const cached = loadCachedFeed()
+    if (cached) {
+      setItems(cached)
+      return
+    }
+    fetchFeed()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status])
+
+  const refreshFeed = () => {
+    try {
+      sessionStorage.removeItem(FEED_CACHE_KEY)
+    } catch {}
+    fetchFeed()
+  }
 
   const dismiss = (videoId: string) => {
     const next = new Set(dismissed)
@@ -191,6 +229,8 @@ export default function FeedPage() {
                 </ul>
               )}
               <p className="mt-[1.5em] text-[0.75em] text-muted">
+                <button onClick={refreshFeed} className="underline hover:text-purple">Refresh feed</button>
+                <span className="mx-[0.6em]">·</span>
                 <a href="/api/auth/google/logout" className="underline hover:text-purple">Disconnect YouTube</a>
               </p>
             </>

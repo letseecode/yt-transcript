@@ -12,6 +12,7 @@ export default function FeedVideoPage() {
   const videoId = params.videoId as string
   const [summary, setSummary] = useState<string | null>(null)
   const [state, setState] = useState<'idle' | 'loading' | 'ready' | 'none' | 'error'>('idle')
+  const [sending, setSending] = useState<'idle' | 'busy' | 'error'>('idle')
 
   const askAI = async () => {
     setState('loading')
@@ -30,6 +31,30 @@ export default function FeedVideoPage() {
       }
     } catch {
       setState('error')
+    }
+  }
+
+  const sendToLibrary = async () => {
+    setSending('busy')
+    try {
+      const res = await fetch('/api/transcribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: `https://www.youtube.com/watch?v=${videoId}` }),
+      })
+      if (!res.ok) {
+        setSending('error')
+        return
+      }
+      // In the library now -- drop it from the feed and go back there.
+      try {
+        const set = new Set<string>(JSON.parse(localStorage.getItem(DISMISS_KEY) || '[]'))
+        set.add(videoId)
+        localStorage.setItem(DISMISS_KEY, JSON.stringify([...set]))
+      } catch {}
+      router.push('/feed')
+    } catch {
+      setSending('error')
     }
   }
 
@@ -85,17 +110,26 @@ export default function FeedVideoPage() {
           />
         </div>
 
-        {/* Ask AI */}
+        {/* Ask AI + Send to library */}
         <section className="mt-8">
-          {state === 'idle' && (
+          <div className="flex flex-wrap items-center gap-3">
+            {state === 'idle' && (
+              <button
+                onClick={askAI}
+                className="font-headline font-bold uppercase text-sm border-2 border-ink bg-white text-black px-5 py-2 hover:bg-mint transition-colors"
+              >
+                Ask AI
+              </button>
+            )}
             <button
-              onClick={askAI}
-              className="font-headline font-bold uppercase text-sm border-2 border-ink bg-white text-black px-5 py-2 hover:bg-mint transition-colors"
+              onClick={sendToLibrary}
+              disabled={sending === 'busy'}
+              className="font-headline font-bold uppercase text-sm border-2 border-ink bg-white text-black px-5 py-2 hover:bg-purple hover:text-white transition-colors disabled:opacity-50 disabled:hover:bg-white disabled:hover:text-black"
             >
-              Ask AI
+              {sending === 'busy' ? 'Sending…' : sending === 'error' ? 'Failed — try again' : 'Send to library'}
             </button>
-          )}
-          {state === 'loading' && <p className="font-body text-muted">Thinking…</p>}
+          </div>
+          {state === 'loading' && <p className="font-body text-muted mt-4">Thinking…</p>}
           {state === 'none' && <p className="font-body text-muted">No captions available for this video, so there’s nothing to summarize.</p>}
           {state === 'error' && (
             <button onClick={askAI} className="font-headline font-bold uppercase text-sm border-2 border-ink bg-white text-black px-5 py-2 hover:bg-mint transition-colors">
@@ -103,7 +137,7 @@ export default function FeedVideoPage() {
             </button>
           )}
           {state === 'ready' && (
-            <div className="space-y-4">
+            <div className="space-y-4 mt-6">
               <h2 className="font-headline font-bold uppercase text-[1.05rem] tracking-wide">Summary</h2>
               {tldr && <p className="font-serif text-lg leading-relaxed italic">{tldr}</p>}
               {bullets.length > 0 && (
