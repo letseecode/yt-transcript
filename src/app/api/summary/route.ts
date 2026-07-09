@@ -1,23 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getCaptions } from '@/lib/captions'
 import { getTranscript } from '@/lib/db'
 
 const MODEL = 'gemini-2.5-flash'
 const ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`
 
 // Pull captions -- reuse an already-saved transcript if we have one, else
-// fetch fresh from Supadata.
+// fetch fresh via the provider chain (free YouTube API first).
 async function captionsText(videoId: string): Promise<string> {
   const saved = await getTranscript(videoId)
   if (saved?.segments?.length) return saved.segments.map((s) => s.text).join('\n')
-  const key = process.env.SUPADATA_API_KEY
-  if (!key) return ''
   try {
-    const res = await fetch(`https://api.supadata.ai/v1/youtube/transcript?videoId=${videoId}&lang=en`, {
-      headers: { 'x-api-key': key },
-    })
-    if (!res.ok) return ''
-    const data = await res.json()
-    return (data.content ?? []).map((c: { text: string }) => c.text).join(' ')
+    const result = await getCaptions(videoId)
+    return (result?.segments ?? []).map((s) => s.text).join(' ')
   } catch {
     return ''
   }
