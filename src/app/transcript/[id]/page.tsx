@@ -461,7 +461,7 @@ export default function TranscriptPage() {
         />
 
         {!loading && !notFound && (
-          <div className="mt-16 pt-8 border-t-2 border-black flex justify-center">
+          <div className="mt-16 pt-8 border-t border-black flex justify-center">
             <button
               onClick={handleDelete}
               className="group inline-flex items-center gap-[0.575rem] border-2 border-ink bg-transparent px-[1.4375rem] py-[0.575rem] text-[1.006rem] font-headline uppercase tracking-wide text-black hover:bg-trash hover:text-white transition-colors"
