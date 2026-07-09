@@ -205,6 +205,44 @@ export function parseVtt(vtt: string, lang: string): CaptionSegment[] {
   return segments
 }
 
+// TTML/DFXP (what Piped serves): <p begin="00:00:01.234" end="...">text</p>.
+// Times are either clock format or bare seconds like "12.34s".
+function ttmlTimeToMs(t: string): number {
+  if (t.endsWith('s') && !t.includes(':')) return Math.round(parseFloat(t) * 1000)
+  return vttTimeToMs(t)
+}
+
+function parseTtml(xml: string, lang: string): CaptionSegment[] {
+  const segments: CaptionSegment[] = []
+  const re = /<p([^>]*)>([\s\S]*?)<\/p>/g
+  let m: RegExpExecArray | null
+  while ((m = re.exec(xml))) {
+    const attrs = m[1]
+    const begin = attrs.match(/begin="([^"]+)"/)?.[1]
+    if (!begin) continue
+    const end = attrs.match(/end="([^"]+)"/)?.[1]
+    const text = decodeEntities(m[2].replace(/<br\s*\/?>/gi, ' '))
+      .replace(/<[^>]+>/g, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+    if (!text) continue
+    const start = ttmlTimeToMs(begin)
+    const endMs = end ? ttmlTimeToMs(end) : start
+    segments.push({ text, offset: start, duration: Math.max(0, endMs - start), lang })
+  }
+  return segments
+}
+
+// Mirrors serve captions in whichever format their backend produced --
+// sniff the body instead of trusting any single one.
+export function parseCaptionBody(body: string, lang: string): CaptionSegment[] {
+  const head = body.trimStart().slice(0, 200)
+  if (head.startsWith('WEBVTT')) return parseVtt(body, lang)
+  if (head.includes('<tt')) return parseTtml(body, lang)
+  if (head.includes('<transcript') || head.includes('<text')) return parseTimedTextXml(body, lang)
+  return parseVtt(body, lang)
+}
+
 // ---------------------------------------------------------------------------
 // Provider 2: Invidious network (free public mirrors)
 // ---------------------------------------------------------------------------
@@ -257,7 +295,7 @@ async function fetchFromInvidious(videoId: string): Promise<CaptionSegment[] | n
 
       const capRes = await fetch(`${base}${track.url}`, { signal: timeout() })
       if (!capRes.ok) continue
-      const segments = parseVtt(await capRes.text(), langOf(track) || 'en')
+      const segments = parseCaptionBody(await capRes.text(), langOf(track) || 'en')
       if (segments.length > 0) return segments
     } catch {}
   }
@@ -289,11 +327,7 @@ async function fetchFromPiped(videoId: string): Promise<CaptionSegment[] | null>
 
       const capRes = await fetch(track.url, { signal: timeout() })
       if (!capRes.ok) continue
-      const body = await capRes.text()
-      const lang = track.code ?? 'en'
-      const segments = body.trimStart().startsWith('WEBVTT')
-        ? parseVtt(body, lang)
-        : parseTimedTextXml(body, lang)
+      const segments = parseCaptionBody(await capRes.text(), track.code ?? 'en')
       if (segments.length > 0) return segments
     } catch {}
   }

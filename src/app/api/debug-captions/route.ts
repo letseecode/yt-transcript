@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getCaptions, parseVtt } from '@/lib/captions'
+import { getCaptions, parseCaptionBody } from '@/lib/captions'
 
 // Temporary diagnostic: runs each caption source directly and reports what
 // the Vercel runtime actually sees (HTTP status, track counts, first error).
@@ -123,7 +123,7 @@ async function checkInvidious(videoId: string): Promise<Check[]> {
         try {
           const capRes = await fetch(`${base}${track.url}`, { signal: sig() })
           const body = capRes.ok ? await capRes.text() : ''
-          const parsed = body ? parseVtt(body, 'en') : []
+          const parsed = body ? parseCaptionBody(body, 'en') : []
           out.push({
             step: `invidious:${base}:track`,
             ok: parsed.length > 0,
@@ -161,7 +161,7 @@ async function checkPiped(videoId: string): Promise<Check[]> {
         try {
           const capRes = await fetch(track.url, { signal: sig() })
           const body = capRes.ok ? await capRes.text() : ''
-          const parsed = body ? parseVtt(body, 'en') : []
+          const parsed = body ? parseCaptionBody(body, 'en') : []
           out.push({
             step: `piped:${base}:track`,
             ok: parsed.length > 0,
