@@ -339,7 +339,7 @@ export default function TranscriptReader({
       {/* Source video, embedded at the end of the transcript body and just
           before the highlight sections. No purple frame -- kept clean so it
           sits quietly under the reading themes. */}
-      <div className="mt-16">
+      <div className="mt-16 pt-8 border-t-2" style={{ borderColor: isDark ? 'rgba(255,255,255,0.25)' : '#1A1A1A' }}>
         <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
           <iframe
             className="absolute inset-0 h-full w-full"
