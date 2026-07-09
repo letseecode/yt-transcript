@@ -172,7 +172,7 @@ function vttTimeToMs(t: string): number {
   return Math.round(((hr * 60 + min) * 60 + sec) * 1000)
 }
 
-function parseVtt(vtt: string, lang: string): CaptionSegment[] {
+export function parseVtt(vtt: string, lang: string): CaptionSegment[] {
   const segments: CaptionSegment[] = []
   const lines = vtt.split(/\r?\n/)
   let i = 0
