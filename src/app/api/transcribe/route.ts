@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { cleanupTranscript } from '@/lib/cleanup'
+import { getCaptions, type CaptionSegment } from '@/lib/captions'
 import { getTranscript, saveTranscript } from '@/lib/db'
 
 export const maxDuration = 300
@@ -12,13 +13,6 @@ function extractVideoId(url: string): string | null {
   } catch {
     return null
   }
-}
-
-interface SupadataSegment {
-  text: string
-  offset: number
-  duration: number
-  lang: string
 }
 
 interface Segment {
@@ -74,7 +68,7 @@ export async function POST(req: Request) {
   }
 
   // Cache check: if we've already transcribed this video, reuse it and spend
-  // zero Supadata credits.
+  // zero provider credits.
   const cached = await getTranscript(videoId)
   if (cached) {
     return NextResponse.json({
@@ -85,37 +79,21 @@ export async function POST(req: Request) {
     })
   }
 
-  const apiKey = process.env.SUPADATA_API_KEY
-  if (!apiKey) {
-    return NextResponse.json({ error: 'Server configuration error.' }, { status: 500 })
-  }
-
-  let raw: SupadataSegment[]
+  // Provider chain: YouTube's own caption API first (free), then any
+  // configured paid fallbacks. See src/lib/captions.ts.
+  let raw: CaptionSegment[]
   try {
-    const res = await fetch(
-      `https://api.supadata.ai/v1/youtube/transcript?videoId=${videoId}&lang=en`,
-      { headers: { 'x-api-key': apiKey } }
-    )
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({}))
-      const msg = (body as { message?: string }).message ?? `status ${res.status}`
+    const result = await getCaptions(videoId)
+    if (!result) {
       return NextResponse.json(
-        { error: `No transcript available for this video. (${msg})` },
+        { error: 'No transcript available for this video. It may have captions disabled.' },
         { status: 422 }
       )
     }
-    const data = await res.json()
-    raw = data.content ?? []
+    raw = result.segments
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err)
     return NextResponse.json({ error: `Transcript fetch failed: ${msg}` }, { status: 502 })
-  }
-
-  if (raw.length === 0) {
-    return NextResponse.json(
-      { error: 'No transcript available for this video. It may have captions disabled.' },
-      { status: 422 }
-    )
   }
 
   // Some transcripts mark each new speaker with ">>". If present, start a
