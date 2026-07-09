@@ -53,6 +53,7 @@ export default function FeedPage() {
   const [loadingFeed, setLoadingFeed] = useState(false)
   const [dismissed, setDismissed] = useState<Set<string>>(new Set())
   const [moving, setMoving] = useState<Record<string, 'busy' | 'done' | 'error'>>({})
+  const [moveErr, setMoveErr] = useState<Record<string, string>>({})
 
   useEffect(() => setDismissed(loadDismissed()), [])
 
@@ -112,6 +113,7 @@ export default function FeedPage() {
 
   const moveToLibrary = async (videoId: string) => {
     setMoving((m) => ({ ...m, [videoId]: 'busy' }))
+    setMoveErr((e) => ({ ...e, [videoId]: '' }))
     try {
       const res = await fetch('/api/transcribe', {
         method: 'POST',
@@ -123,10 +125,17 @@ export default function FeedPage() {
         setMoving((m) => ({ ...m, [videoId]: 'done' }))
         dismiss(videoId)
       } else {
+        // Surface the real reason instead of silently reverting the icon.
+        const reason = await res
+          .json()
+          .then((d) => d?.error as string | undefined)
+          .catch(() => undefined)
         setMoving((m) => ({ ...m, [videoId]: 'error' }))
+        setMoveErr((e) => ({ ...e, [videoId]: reason || `Failed (HTTP ${res.status}).` }))
       }
     } catch {
       setMoving((m) => ({ ...m, [videoId]: 'error' }))
+      setMoveErr((e) => ({ ...e, [videoId]: 'Network error or timed out. Long videos can take a while — try again.' }))
     }
   }
 
@@ -202,18 +211,21 @@ export default function FeedPage() {
                             {v.channel && <span>{v.channel} · </span>}
                             <span>{new Date(v.publishedAt).toLocaleDateString()}</span>
                           </p>
+                          {state === 'error' && moveErr[v.videoId] && (
+                            <p className="font-headline text-[0.7em] text-trash mt-[0.4em]">{moveErr[v.videoId]}</p>
+                          )}
                         </Link>
                         <div className="absolute right-[1em] top-1/2 -translate-y-1/2 flex items-center gap-[0.6em]">
                           <button
                             onClick={() => moveToLibrary(v.videoId)}
                             disabled={state === 'busy' || state === 'done'}
                             aria-label="Move to library"
-                            title={state === 'done' ? 'In library' : state === 'busy' ? 'Transcribing…' : 'Move to library'}
+                            title={state === 'done' ? 'In library' : state === 'busy' ? 'Transcribing…' : state === 'error' ? (moveErr[v.videoId] || 'Failed — try again') : 'Move to library'}
                             className={`inline-flex items-center justify-center w-[2.2em] h-[2.2em] border-2 border-ink text-[1.05em] transition-all ${
-                              state === 'done' ? 'bg-mint text-black' : 'bg-white text-black hover:bg-mint'
+                              state === 'done' ? 'bg-mint text-black' : state === 'error' ? 'bg-trash text-white' : 'bg-white text-black hover:bg-mint'
                             }`}
                           >
-                            {state === 'busy' ? '…' : state === 'done' ? '✓' : <ShelfIcon />}
+                            {state === 'busy' ? '…' : state === 'done' ? '✓' : state === 'error' ? '!' : <ShelfIcon />}
                           </button>
                           <button
                             onClick={() => dismiss(v.videoId)}
