@@ -129,18 +129,22 @@ async function fetchFromTranscriptApi(videoId: string): Promise<CaptionSegment[]
   const key = process.env.TRANSCRIPTAPI_API_KEY
   if (!key) return null
   try {
+    // v2 shape: GET ?video_url=..., Bearer auth, response is
+    // { title, duration, segments: [{ start (seconds), text }] }.
+    // Segments carry no per-line duration, so we leave it 0 (the caller's
+    // grouping only needs the start offset).
     const res = await fetch(
-      `https://transcriptapi.com/api/v1/youtube/${videoId}/transcript?send_metadata=false`,
+      `https://transcriptapi.com/api/v2/youtube/transcript?video_url=${videoId}&format=json&include_timestamp=true&send_metadata=false`,
       { headers: { Authorization: `Bearer ${key}` } }
     )
     if (!res.ok) return null
     const data = await res.json()
-    const items: { text: string; start: number; duration?: number }[] = data?.transcript ?? []
+    const items: { text: string; start?: number }[] = data?.segments ?? []
     const segments = items
       .map((i) => ({
         text: (i.text ?? '').replace(/\n/g, ' ').trim(),
         offset: Math.round((i.start ?? 0) * 1000),
-        duration: Math.round((i.duration ?? 0) * 1000),
+        duration: 0,
         lang: 'en',
       }))
       .filter((s) => s.text)
