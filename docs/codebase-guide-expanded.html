@@ -10,7 +10,7 @@
   body {
     font-family: Georgia, "Times New Roman", serif;
     font-size: 10.6pt;
-    line-height: 1.5;
+    line-height: 1.7;
     color: #17171a;
   }
   h1, h2, h3, h4 { font-family: "Helvetica Neue", Arial, sans-serif; color: #0a0a0c; line-height: 1.22; }
@@ -33,8 +33,8 @@
   .note b { color: #000; }
   .warn { background: #f2f2f2; border: 1px solid #bbb; border-radius: 4px; padding: 7pt 10pt; margin: 0 0 9pt; }
   .file { font-family: "SF Mono", monospace; font-size: 9.4pt; background: #16161a; color: #e6e6ea; padding: 4pt 9pt; border-radius: 4px; display: inline-block; margin: 4pt 0; }
-  table { border-collapse: collapse; width: 100%; margin: 0 0 9pt; font-size: 9.2pt; }
-  th, td { border: 1px solid #d5d5dd; padding: 4pt 6pt; text-align: left; vertical-align: top; }
+  table { border-collapse: collapse; width: 100%; margin: 0 0 9pt; font-size: 9.2pt; line-height: 1.55; }
+  th, td { border: 1px solid #d5d5dd; padding: 5.5pt 6pt; text-align: left; vertical-align: top; }
   th { background: #efeff3; font-family: "Helvetica Neue", Arial, sans-serif; }
   .toc a { color: #17171a; text-decoration: none; }
   .toc ol { list-style: none; padding-left: 0; }
@@ -1134,39 +1134,53 @@ const r = await fetch(url); const data = await r.json(); use(data)</code></pre>
 <p class="lead">Every term from the first edition, plus the ones introduced in Part I's later chapters and the concepts this edition adds.</p>
 <table>
   <tr><th>Term</th><th>Meaning</th></tr>
-  <tr><td>anchor (URL <code>#name</code>)</td><td>A fragment on a URL that points at an element with that <code>id</code>; used to deep-link into the highlights/notes sections.</td></tr>
-  <tr><td>API endpoint / route</td><td>A server URL that returns data, not a page. The <code>route.ts</code> files.</td></tr>
-  <tr><td>async / await / Promise</td><td>Machinery for waiting on slow work without freezing the single thread. A Promise is a value-to-come; <code>await</code> pauses one function until it settles.</td></tr>
-  <tr><td>callback</td><td>A function passed to be called later — by an event, a timer, or when a promise settles.</td></tr>
-  <tr><td>client component</td><td>A React component that runs in the browser; marked <code>'use client'</code>.</td></tr>
-  <tr><td>cookie / <code>httpOnly</code></td><td>A value the browser stores and returns with each request. <code>httpOnly</code> means page scripts cannot read it — used for the Google token so a script cannot steal it.</td></tr>
-  <tr><td>CRUD</td><td>Create, Read, Update, Delete.</td></tr>
-  <tr><td>debounce / defer (<code>setTimeout(…, 0)</code>)</td><td>Postponing work to a later tick so other handlers (e.g. a click on a highlight) run first.</td></tr>
-  <tr><td>dependency array</td><td>The second argument to <code>useEffect</code>/<code>useMemo</code>: the values that, when changed, re-run the hook. <code>[]</code> means "once."</td></tr>
-  <tr><td>destructuring</td><td>Pulling fields out of an object/array by name or position.</td></tr>
-  <tr><td>discriminated union</td><td>A union of object types distinguished by a shared tag field (here, <code>popup.kind</code>).</td></tr>
-  <tr><td>DOM</td><td>The live, in-memory tree of the page's elements that scripts read and change.</td></tr>
-  <tr><td>environment variable</td><td>A named secret set in the deployment, read with <code>process.env</code>, never in the code.</td></tr>
-  <tr><td>event loop / single thread</td><td>The model where one thread runs JS and slow work is handed off and resumed via queued callbacks.</td></tr>
-  <tr><td>fetch</td><td>The built-in function for making an HTTP request.</td></tr>
-  <tr><td>hook</td><td>A React function starting with <code>use</code> that gives a component memory or behavior.</td></tr>
-  <tr><td>hydration</td><td>The browser attaching interactivity to server-rendered HTML when a client component loads.</td></tr>
-  <tr><td>idempotent</td><td>An operation that is safe to repeat with the same effect (relevant to job queues).</td></tr>
-  <tr><td>JSX</td><td>HTML-like syntax inside JavaScript describing what a component renders.</td></tr>
-  <tr><td>localStorage / sessionStorage</td><td>Browser string stores. <code>local</code> persists; <code>session</code> clears with the tab.</td></tr>
-  <tr><td>migration</td><td>A change to the database schema applied to an existing database (here, the lazy <code>ALTER TABLE</code>).</td></tr>
-  <tr><td>OAuth / refresh token / access token</td><td>The flow letting an app use your account elsewhere without your password. A long-lived refresh token is exchanged for short-lived access tokens.</td></tr>
-  <tr><td>optional chaining <code>?.</code> / nullish <code>??</code></td><td>Read only if the parent exists; use the left value unless null/undefined.</td></tr>
-  <tr><td>ref</td><td>A mutable box (<code>useRef</code>) that survives re-renders without causing one; often a handle to a DOM element.</td></tr>
-  <tr><td>regular expression</td><td>A text-matching pattern written between slashes.</td></tr>
-  <tr><td>render / re-render</td><td>A component producing its JSX; React re-runs it when its state or props change.</td></tr>
-  <tr><td>serverless function</td><td>Server code that runs on demand, briefly, with a time limit — how the routes are deployed.</td></tr>
-  <tr><td>SQL / upsert</td><td>The database query language; upsert = insert-or-update (<code>ON CONFLICT DO UPDATE</code>).</td></tr>
-  <tr><td>SVG / path <code>d</code></td><td>Vector graphics; a shape described by a string of move/line/curve commands.</td></tr>
-  <tr><td>tagged template literal</td><td>A backtick string processed by a function, e.g. <code>sql`…`</code>, which safely inserts values.</td></tr>
-  <tr><td>ternary <code>?:</code></td><td>An inline if/else that produces a value.</td></tr>
-  <tr><td>TreeWalker</td><td>A browser object that visits DOM nodes in order; used to compute character offsets.</td></tr>
-  <tr><td>type / interface / union</td><td>TypeScript shapes checked before runtime; a union is "one of several types."</td></tr>
+  <tr><td>anchor (URL <code>#name</code>)</td><td>A fragment tacked onto the end of a URL that points at an element carrying that exact <code>id</code>. When the browser sees <code>#notes</code>, it scrolls to the element with <code>id="notes"</code>. This app uses it to deep-link straight into the highlights or notes sections from the library counts, so a click lands you exactly where you want to be instead of at the top of the page.</td></tr>
+  <tr><td>API</td><td>Short for <b>Application Programming Interface</b>. It is a contract that lets one piece of software ask another for something in a defined, predictable way — you send a specific request, you get back a specific response, without needing to know how the other side works inside. When this app calls YouTube, Gemini, or its own <code>/api/…</code> routes, it is using an API: a doorway with agreed-upon rules for what you may ask and what comes back. "An API" can mean the whole service or a single one of its endpoints.</td></tr>
+  <tr><td>API endpoint / route</td><td>A single server URL that returns <i>data</i> (usually JSON) rather than a web page meant for human eyes. In this project every <code>route.ts</code> file under <code>src/app/api</code> is one endpoint; the browser calls it with <code>fetch</code>, the server does work that needs a secret or the database, and it answers with JSON. Think of the API as the building and each endpoint as one specific door into it.</td></tr>
+  <tr><td>async / await / Promise</td><td>The machinery for waiting on slow work (a network call, a database query) without freezing the single thread that runs everything. A <b>Promise</b> is a placeholder for a value that will exist later — "I promise to hand you the result once it arrives." Marking a function <code>async</code> lets you write <code>await</code> in front of a slow call, which pauses just that function until the Promise settles, while the rest of the program keeps running. It reads like ordinary top-to-bottom code but never blocks the page.</td></tr>
+  <tr><td>callback</td><td>A function you hand to some other code so it can call it back <i>later</i>, at the right moment — when an event fires, when a timer elapses, or when a promise settles. You do not call it yourself; you pass it in and trust the system to invoke it when the time comes. Event listeners, <code>.map(fn)</code>, and <code>setTimeout(fn, 0)</code> all take callbacks.</td></tr>
+  <tr><td>client component</td><td>A React component that runs in the browser and can therefore use state, effects, event handlers, and the DOM. It is marked with the string <code>'use client'</code> at the very top of the file. The opposite is a server component, which runs only on the server and cannot be interactive. In this project every <code>page.tsx</code> and every UI component is a client component.</td></tr>
+  <tr><td>cookie / <code>httpOnly</code></td><td>A small value the browser stores for a site and automatically sends back with every request to it — the usual way a server remembers "who you are" between visits. An <code>httpOnly</code> cookie is one that page scripts are forbidden to read; only the server sees it. This app stores the Google refresh token in an <code>httpOnly</code> cookie precisely so that a malicious script on the page cannot read and steal it.</td></tr>
+  <tr><td>CRUD</td><td>Create, Read, Update, Delete — the four basic things almost any app does to stored records. Naming them as a set is useful because most data features are just some combination of these four. In this project the transcript routes cover read, list, and delete, while "create" happens inside the transcribe endpoint.</td></tr>
+  <tr><td>database index</td><td>An extra, behind-the-scenes lookup structure the database builds on a column so it can find matching rows quickly instead of scanning every row one by one — much like the index at the back of a book lets you jump to a topic without reading every page. Indexes make reads faster but cost a little space and slightly slow writes, so you add them deliberately on the columns you search or sort by. The scaling chapter flags them as something to add as the transcripts table grows.</td></tr>
+  <tr><td>debounce / defer (<code>setTimeout(…, 0)</code>)</td><td>Deliberately postponing a piece of work to a slightly later moment so that something else runs first. <code>setTimeout(fn, 0)</code> does not mean "run instantly"; it means "run after the current pile of work finishes." The reader uses this so that a click landing on an existing highlight is handled before the broader mouse-up handler opens the actions pop-up, preventing the two from fighting.</td></tr>
+  <tr><td>dependency array</td><td>The second argument you pass to a React hook like <code>useEffect</code> or <code>useMemo</code> — the list of values the hook watches. When any listed value changes between renders, React re-runs the hook; an empty array <code>[]</code> means "run once, on mount, and never again." Getting this list right is how you control exactly when effects fire and expensive computations are recalculated.</td></tr>
+  <tr><td>destructuring</td><td>A shorthand for pulling fields out of an object, or items out of an array, into their own named variables in a single line — for example <code>const { url } = await req.json()</code> grabs just the <code>url</code> field. It keeps code short and makes it obvious, at a glance, exactly which pieces of a larger value a function actually cares about.</td></tr>
+  <tr><td>discriminated union</td><td>A union of several object shapes that all carry one shared "tag" field whose value tells you which shape you are holding. In this app <code>popup.kind</code> is that tag: checking whether it equals <code>'actions'</code>, <code>'note'</code>, or <code>'define'</code> tells both you and the compiler which other fields are safely present. It lets one variable stand in for several mutually-exclusive states without confusion.</td></tr>
+  <tr><td>DOM (Document Object Model)</td><td>The live, in-memory tree of every element on the page — headings, paragraphs, buttons — that scripts can read and change while the page is open. When code adds a highlight or hides the header, it is editing the DOM, and the browser instantly re-paints to match. It is a tree because elements nest inside one another, parent to child, exactly like the HTML they came from.</td></tr>
+  <tr><td>environment variable</td><td>A named secret or setting kept <i>outside</i> the code — configured in the deployment (Vercel) and read at runtime with <code>process.env.NAME</code>. API keys and the database URL live here so they never appear in the source, never land in Git, and can differ between your laptop and production without changing a line of code. This is the main reason secret-using logic must run on the server.</td></tr>
+  <tr><td>event loop / single thread</td><td>The core model of how JavaScript runs: <b>one</b> thread executes your code, one thing at a time, and slow work (network, timers) is handed off and its follow-up queued as a callback to run when the thread is free. The "event loop" is the tireless clerk that keeps pulling the next ready callback off the queue. Understanding it explains why nothing runs truly in parallel and why blocking that one thread freezes the whole page — see the dedicated glossary entry on single-threaded pages.</td></tr>
+  <tr><td>fetch</td><td>The browser's (and modern server's) built-in function for making an HTTP request to a URL and getting a response back. Every network call in this project — to the app's own API routes, to Gemini, to YouTube — goes through <code>fetch</code>. It returns a Promise, so it is almost always used with <code>await</code>, and you check <code>res.ok</code> before trusting the body.</td></tr>
+  <tr><td><code>for</code> loop with <code>let</code></td><td>The classic counting loop: <code>for (let i = 0; i &lt; n; i++) { … }</code>. It has three parts inside the parentheses — start (<code>let i = 0</code>), the keep-going test (<code>i &lt; n</code>), and the step run after each pass (<code>i++</code>). <code>let</code> is used, not <code>const</code>, precisely because <code>i</code> must be <i>reassigned</i> on every pass (<code>const</code> forbids reassignment). You reach for this form when you need the running index or want to march through something in fixed steps, as the batching loops in the caption and feed code do.</td></tr>
+  <tr><td>hook</td><td>A special React function whose name starts with <code>use</code> — <code>useState</code>, <code>useEffect</code>, <code>useRef</code>, and the app's own <code>useReadingPrefs</code> — that gives an otherwise-plain component a superpower: memory, a side effect, or a persistent handle. Hooks must be called at the top level of a component, in the same order every render, which is why you never see them inside an <code>if</code> or a loop.</td></tr>
+  <tr><td>HTTP methods (GET, POST, DELETE, …)</td><td>The verbs of the web. Every request a browser makes carries a <b>method</b> that states its <i>intent</i>: <code>GET</code> means "fetch me this, change nothing," <code>POST</code> means "here is some data, create or process it," <code>DELETE</code> means "remove this," and there are a few others (<code>PUT</code>, <code>PATCH</code>). They are part of <b>HTTP</b>, the protocol the whole web speaks — not "backend commands" in themselves. A route handler simply exports a function named after the method it answers, so <code>export async function POST()</code> handles the POSTs. The method is a label of intent; what the server does in response is up to its code.</td></tr>
+  <tr><td>hydration</td><td>The moment the browser takes the static HTML the server sent and "wakes it up" — attaching the event handlers and state that make a client component interactive. Before hydration you see the content but clicks do nothing; after it, the page is live. Mismatches between what the server rendered and what the client expects cause "hydration errors," a common React gotcha.</td></tr>
+  <tr><td>idempotent</td><td>A property of an operation meaning you can run it repeatedly and the end result is the same as running it once — no harm from a retry. Deleting a specific row is idempotent (it is gone whether you ask once or twice); blindly incrementing a counter is not. It matters wherever retries happen, such as job queues and the caption chain, where a repeated attempt must not corrupt anything.</td></tr>
+  <tr><td>JSX</td><td>The HTML-like syntax written directly inside JavaScript/TypeScript that describes what a component should render, e.g. <code>&lt;p className="x"&gt;{text}&lt;/p&gt;</code>. It is not really HTML — it compiles down to function calls — which is why attributes use <code>className</code> instead of <code>class</code> and why you drop into <code>{ … }</code> to embed live values and expressions. Files that contain JSX are named <code>.tsx</code>.</td></tr>
+  <tr><td>localStorage / sessionStorage</td><td>Two small key-value stores the browser gives every site, holding <i>strings only</i> (so objects are <code>JSON.stringify</code>-ed on the way in and parsed on the way out). <code>localStorage</code> persists across visits until cleared — the app keeps highlights, notes, and reading preferences there. <code>sessionStorage</code> lives only as long as the tab is open — used for the "pending URL" handed to the loading page and the remembered feed.</td></tr>
+  <tr><td>migration</td><td>A deliberate change to the database's <i>structure</i> (its schema) applied to a database that already holds data, without losing that data. This project does a lightweight one with a lazy <code>ALTER TABLE … ADD COLUMN IF NOT EXISTS</code>, which quietly brings older databases up to date. Bigger apps use dedicated migration tools that version and order such changes.</td></tr>
+  <tr><td>NextResponse.json(…)</td><td>A helper from Next.js used inside route handlers (in TypeScript) to build the HTTP response. You hand it a plain object and, optionally, a status code — <code>NextResponse.json({ error: 'No URL' }, { status: 400 })</code> — and it serializes the object to JSON, sets the correct <code>Content-Type</code> header, and attaches the status. It is the standard way every API route in this app hands data back to the browser, cleanly and with the right metadata, instead of assembling a raw response by hand.</td></tr>
+  <tr><td>OAuth / refresh token / access token</td><td>The standard dance that lets an app act on your behalf in another service (here, read your YouTube subscriptions) <i>without ever seeing your password</i>. You approve on Google's own screen; Google hands the app a long-lived <b>refresh token</b>, which the app trades whenever needed for a short-lived <b>access token</b> that authorizes the actual API calls. Only the durable refresh token is stored (in an httpOnly cookie); access tokens are fetched fresh and thrown away.</td></tr>
+  <tr><td>optional chaining <code>?.</code> / nullish <code>??</code></td><td>Two guardrails for missing values. <code>a?.b?.c</code> reads each step only if the previous one exists, yielding <code>undefined</code> instead of crashing when something in the chain is absent — invaluable for the deeply nested JSON that APIs return. <code>x ?? y</code> means "use <code>x</code>, unless it is <code>null</code> or <code>undefined</code>, in which case use <code>y</code>," giving a clean fallback without tripping on legitimately-empty values like <code>0</code> or <code>''</code>.</td></tr>
+  <tr><td>overflow</td><td>What happens when content is bigger than the box meant to hold it. In web/CSS terms, the <code>overflow</code> property decides the outcome — clip it (<code>hidden</code>), add a scrollbar (<code>auto</code>/<code>scroll</code>), or let it spill visibly. More broadly in software, "overflow" names any case where a value exceeds its container's capacity, such as a number growing past the maximum a fixed-size integer can hold. The common thread is "too much for the space allotted, now what?"</td></tr>
+  <tr><td>Postgres (PostgreSQL)</td><td>A mature, widely-trusted open-source <b>relational database</b> — software that stores data in tables of rows and columns and lets you query it with SQL. It is where this app permanently keeps every transcript, so they survive across devices and users and can be listed in the library. "Relational" means data lives in structured tables with defined column types and relationships, as opposed to loose files. The app reaches it through a hosted Postgres provider (Neon).</td></tr>
+  <tr><td>Postgres cache (the caching decision)</td><td>Not a separate product but a <i>use</i> of the Postgres table as a memory of expensive work already done. Before the app spends a caption fetch and a Gemini cleanup on a video, it asks Postgres "have we transcribed this video before?" — and if so, returns the stored copy instantly. Because a transcript is saved keyed by its video ID, each video is processed at most once ever, across all users; the database doubles as both the permanent library and the cost-saving cache.</td></tr>
+  <tr><td>query parameters</td><td>The <code>key=value</code> pairs after a <code>?</code> in a URL, joined by <code>&amp;</code> — as in <code>…/watch?v=abc123&amp;lang=en</code>. They pass small inputs to a server without a request body: here <code>v</code> carries the video ID and <code>lang</code> the language. In code they are read with the URL's <code>searchParams.get('v')</code> and built safely with <code>URLSearchParams</code>, which handles the encoding of odd characters for you.</td></tr>
+  <tr><td>ref</td><td>A mutable box created with <code>useRef</code> that keeps a value across re-renders <i>without</i> triggering one when it changes — the escape hatch from React's usual "change state → re-render" rule. Its most common use is holding a direct handle to a real DOM element (an input, a container) so imperative code can measure or focus it, which several measurement effects in this project rely on.</td></tr>
+  <tr><td>regular expression (regex)</td><td>A compact pattern language for matching and extracting text, written between slashes like <code>/PT(\d+)M/</code>. This app uses regexes to pull a publish date out of a YouTube page, to split a cleaned transcript on blank lines, and to recognize timestamps in caption files. They are terse and powerful; the cost is that they can be hard to read, so the code comments explain what each one matches.</td></tr>
+  <tr><td>render / re-render</td><td>"Rendering" is a component running its function to produce the JSX describing what should appear. React <b>re-renders</b> a component — runs it again — whenever its state or props change, then efficiently updates only the parts of the real page that actually differ. Grasping what triggers a re-render (and what does not) is central to reasoning about performance and about why immutable updates matter.</td></tr>
+  <tr><td>serverless function</td><td>Server code that is not a constantly-running machine but a function spun up on demand, run briefly to handle one request, and torn down — with a maximum time limit per invocation. This is how the app's API routes are deployed on Vercel. The upside is you pay only for what runs and it scales automatically; the constraint is the time cap, which is why very long transcriptions can bump against a limit.</td></tr>
+  <tr><td>single-threaded page (one thread)</td><td>A web page runs its JavaScript on a <b>single</b> thread — one worker doing one thing at a time, which is also the thread that responds to clicks and redraws the screen. So if your code sits and does heavy work on that thread, nothing else can happen: the page freezes, buttons stop responding, animation stalls. The whole async model (Promises, <code>await</code>, callbacks) exists to avoid this — slow work is handed off and its result picked up later, keeping the one thread free to stay responsive.</td></tr>
+  <tr><td>SQL / upsert</td><td><b>SQL</b> is the standard language for talking to relational databases like Postgres — you write statements such as <code>SELECT … WHERE …</code> to read and <code>INSERT …</code> to write. An <b>upsert</b> is the useful combination "insert this row, but if one with the same key already exists, update it instead" (spelled <code>ON CONFLICT … DO UPDATE</code> in Postgres). The app upserts transcripts so re-saving the same video cleanly overwrites rather than erroring or duplicating.</td></tr>
+  <tr><td>SVG / path <code>d</code></td><td><b>SVG</b> is a vector-graphics format where shapes are described by math and text rather than a grid of pixels, so they stay crisp at any size. A path's <code>d</code> attribute is a string of drawing commands — <code>M</code> to move, <code>L</code> to draw a line, <code>Z</code> to close. The decorative "waves" on the home and loading pages are generated as SVG path strings by pure geometry code.</td></tr>
+  <tr><td>tagged template literal</td><td>A backtick string that is handed to a function rather than just built into text, letting that function inspect and safely process the pieces you interpolate. The database code's <code>sql`SELECT … ${videoId}`</code> is one: the Neon library reads the query and safely substitutes the value, which is what makes SQL-injection attacks impossible here. The backticks plus the leading function name are the giveaway.</td></tr>
+  <tr><td>ternary <code>?:</code></td><td>An inline if/else that produces a <i>value</i>, written <code>condition ? whenTrue : whenFalse</code>. Unlike a normal <code>if</code> statement, it can sit inside an expression — an assignment, a JSX attribute — which is exactly why it appears throughout the components to pick a class name, a color, or a fallback based on the current theme or state.</td></tr>
+  <tr><td>tree structure</td><td>A way of organizing data as nested nodes that branch out from a single root, each node holding children, like a family tree or a folder-inside-folder hierarchy. It appears all over this project: the DOM is a tree of elements, the project's own files form a folder tree, and JSX nests elements into a tree. A <b>TreeWalker</b> (below) is a tool for visiting the nodes of the DOM tree in order.</td></tr>
+  <tr><td>TreeWalker</td><td>A built-in browser object that steps through the nodes of the DOM tree one at a time, in document order, optionally filtered to a kind of node. The highlight code uses one to visit every text node inside a paragraph and add up their lengths, converting a visual selection into a single stable character offset — necessary because a paragraph may be split into several text pieces once earlier highlights have wrapped parts of it.</td></tr>
+  <tr><td>try / catch</td><td>The structure for handling errors without crashing. Code that might fail goes inside <code>try { … }</code>; if anything in there throws an error, execution jumps immediately to the <code>catch { … }</code> block, where you recover — return a safe default, log it, show a message. This app leans on it constantly: network calls, JSON parsing, and <code>localStorage</code> access are all wrapped so that one failure degrades gracefully instead of taking down the whole page or request. A <code>catch</code> can also receive the error object to inspect what went wrong.</td></tr>
+  <tr><td>.ts vs .tsx</td><td>Both are TypeScript files; the difference is the last letter. A <b>.tsx</b> file is allowed to contain JSX (the HTML-like markup), so every React component and page uses that extension. A plain <b>.ts</b> file contains only logic — types, functions, data — and no JSX, which is why the <code>lib/</code> helpers, the database code, and the caption engine are <code>.ts</code>. The extension tells the compiler and your editor which rules to apply.</td></tr>
+  <tr><td>type / interface / union</td><td>TypeScript's vocabulary for describing the <i>shape</i> of data so mistakes are caught before the code ever runs. A <code>type</code> or <code>interface</code> names a shape (an object with these fields of these kinds); a <b>union</b> (<code>A | B</code>) says a value is "one of several" allowed shapes or literals. The compiler then enforces that you only use fields that exist and handle every case — turning a whole class of bugs into red squiggles in the editor.</td></tr>
+  <tr><td>rem (CSS unit)</td><td>A unit of size relative to the <i>root</i> font size of the page (the "r" is for root). If the root is the usual 16 pixels, then <code>1rem</code> = 16px, <code>44rem</code> = 704px, and so on. The reading-settings widths (<code>44rem</code>, <code>50rem</code>, …) use <code>rem</code> so the column scales sensibly with the base font size and stays consistent across the app, rather than being pinned to a fixed pixel count that ignores the reader's settings.</td></tr>
 </table>
 
 <h1>16 · Syntax appendix (expanded)</h1>
@@ -1225,6 +1239,143 @@ if (popup?.kind === 'define') {
 {items.length === 0 ? &lt;Empty/&gt; : &lt;List/&gt;}     // one or the other
 {value &amp;&amp; (() =&gt; { /* compute */; return &lt;X/&gt; })()}  // inline IIFE for logic before returning JSX</code></pre>
 <p>JSX has no <code>if</code> statement inside it, so conditions are expressed with <code>&amp;&amp;</code>, ternaries, or — when you need statements — an immediately-invoked function (the <code>(() =&gt; {...})()</code> form the note pop-up uses).</p>
+
+<h3>Variables: <code>const</code> vs <code>let</code> (and why you rarely see <code>var</code>)</h3>
+<pre><code>const apiKey = process.env.GEMINI_API_KEY   // a name that will never be reassigned
+let buf = ''                                // a name you intend to reassign later
+buf += 'more text'                          // legal for let, illegal for const
+// const does NOT mean the value is deeply frozen -- an object held by a const
+// can still have its fields changed; const only forbids re-pointing the name.
+const list = []
+list.push(1)                                // fine: same array, mutated
+// list = [1]                               // error: can't reassign a const</code></pre>
+<p>Reach for <code>const</code> by default — it documents "this binding stays put" and prevents accidental reassignment. Use <code>let</code> only when a value genuinely must change over time, such as a loop counter or a text buffer being built up piece by piece. The old keyword <code>var</code> exists but is avoided in modern code because its scoping rules are surprising; you will not see it in this project.</p>
+
+<h3>The counting <code>for</code> loop, dissected</h3>
+<pre><code>for (let i = 0; i &lt; channelIds.length; i += 50) {   // start ; test ; step
+  const batch = channelIds.slice(i, i + 50)         // take 50 at a time
+  // ...call the API with this batch...
+}</code></pre>
+<p>The three clauses inside the parentheses run at different times: <code>let i = 0</code> once at the very start; <code>i &lt; length</code> before <b>every</b> pass (if it is false the loop stops); and <code>i += 50</code> after each pass. Here the step is <code>50</code>, not <code>1</code>, because the code marches through channels in batches of fifty — the exact pattern the caption and feed code use to respect API batch limits. <code>let</code> is mandatory: <code>i</code> is reassigned on every iteration, which <code>const</code> would forbid. A cousin, <code>for (const x of list)</code>, is used when you just want each item and never need the index.</p>
+
+<h3><code>try</code> / <code>catch</code> / <code>finally</code>, in depth</h3>
+<pre><code>try {
+  const res = await fetch(url)          // anything in here might throw
+  if (!res.ok) return null              // you can also bail early on a bad status
+  return await res.json()               // parsing can throw too -- still covered
+} catch (err) {                         // jumped to the instant something throws
+  const msg = err instanceof Error ? err.message : String(err)
+  return null                           // recover: a safe default, no crash
+} finally {
+  setLoading(false)                     // runs no matter what -- success OR failure
+}</code></pre>
+<p>Wrap code that can fail — network calls, <code>JSON.parse</code>, <code>localStorage</code> — in <code>try</code>. The moment any line throws, the rest of the <code>try</code> is abandoned and control leaps to <code>catch</code>, where you decide how to recover instead of letting the whole page or request die. The <code>catch</code> may name the error (<code>catch (err)</code>) to inspect it, or ignore it (<code>catch {}</code>) when you simply want a safe fallback. The optional <code>finally</code> block runs either way — perfect for cleanup like turning off a loading flag. This "degrade gracefully, never crash" habit is everywhere in the codebase.</p>
+
+<h3>Route handlers, HTTP methods, and <code>NextResponse.json</code></h3>
+<pre><code>import { NextResponse } from 'next/server'
+
+// The function's NAME is the HTTP method it answers. This one handles POSTs.
+export async function POST(req: Request) {
+  const { url } = await req.json()                 // read + destructure the JSON body
+  if (!url) {
+    return NextResponse.json({ error: 'No URL' }, { status: 400 })  // data + status
+  }
+  // ...do the work...
+  return NextResponse.json({ id, segments })        // 200 OK by default
+}
+
+export async function GET() { /* answers GET requests */ }
+export async function DELETE() { /* answers DELETE requests */ }</code></pre>
+<p>In Next.js a file named <code>route.ts</code> becomes a server endpoint, and you implement it by exporting one function per HTTP method you want to support, each named after that method in capitals. <code>req.json()</code> reads the incoming request body and parses it from JSON; pairing it with destructuring pulls out just the fields you need. To reply, <code>NextResponse.json(payload, { status })</code> serializes your object to JSON, sets the JSON content-type, and stamps the status code (omit it and you get <code>200</code>). Status codes carry meaning: <code>400</code> bad request, <code>401</code> unauthorized, <code>404</code> not found, <code>422</code> unprocessable, <code>5xx</code> server error.</p>
+
+<h3>Sequential vs parallel <code>await</code> (and <code>Promise.all</code>)</h3>
+<pre><code>// Sequential: waits for the first to finish before starting the second (slower).
+const a = await fetchTitle(id)
+const b = await fetchPublishDate(id)
+
+// Parallel: starts BOTH at once, then waits for both (faster when independent).
+const [title, published] = await Promise.all([
+  fetchTitle(id),
+  fetchPublishDate(id),
+])</code></pre>
+<p>Each <code>await</code> pauses until its call settles, so writing them one after another makes the waits add up. When two slow operations do not depend on each other, kick them off together with <code>Promise.all([...])</code>, which starts them all immediately and resolves once every one has finished — then destructure the results array. The transcribe route fetches a video's title and publish date this way to shave off a round-trip.</p>
+
+<h3>URLs, query parameters, and safe encoding</h3>
+<pre><code>const u = new URL('https://youtube.com/watch?v=abc&amp;lang=en')
+u.searchParams.get('v')        // 'abc'  -- read one query parameter
+u.hostname                     // 'youtube.com'
+
+// Build a query string safely (handles spaces, &amp;, etc. for you):
+const qs = new URLSearchParams({ videoId: id, lang: 'en' }).toString()
+fetch(`https://api.example.com/thing?${qs}`)</code></pre>
+<p>The built-in <code>URL</code> parser turns a messy link into structured parts, so extracting the video ID is <code>searchParams.get('v')</code> rather than fragile string cutting. Going the other way, <code>URLSearchParams</code> assembles <code>key=value&amp;key=value</code> and escapes any awkward characters, which is why the app never glues query strings together by hand.</p>
+
+<h3>Array methods you will see constantly</h3>
+<pre><code>arr.map(x =&gt; x * 2)              // NEW array, each item transformed
+arr.filter(x =&gt; x &gt; 0)           // NEW array, only items passing the test
+arr.find(x =&gt; x.id === id)       // the FIRST matching item, or undefined
+arr.some(x =&gt; x.bad)             // true if AT LEAST ONE passes
+arr.sort((a, b) =&gt; a - b)        // in-place order; negative = a before b
+arr.slice(0, 50)                 // a COPY of a sub-range (does not change arr)
+arr.join(' ')                    // glue items into one string
+[...new Set(arr)]                // de-duplicate, then spread back into an array</code></pre>
+<p><code>map</code>, <code>filter</code>, <code>find</code>, and <code>some</code> never change the original array — they read it and return something new — which fits React's preference for immutable data. <code>sort</code> is the exception: it reorders in place, and its comparator returns a negative number to put <code>a</code> first, positive to put <code>b</code> first, zero to tie. The caption and feed code chain these to reshape API results into exactly what the UI needs.</p>
+
+<h3>String methods for text wrangling</h3>
+<pre><code>str.trim()                       // strip leading/trailing whitespace
+str.split(/\n\s*\n/)             // cut into an array wherever a blank line appears
+str.replace(/\s+/g, ' ')         // collapse any run of whitespace to one space (g = all)
+str.slice(0, 200)                // first 200 characters
+str.includes('&gt;&gt;')               // true/false substring test
+str.startsWith('WEBVTT')         // prefix test -- used to sniff a caption format
+str.match(/"publishDate":"([^"]+)"/)  // pull out a captured group with regex</code></pre>
+<p>These power the transcript cleanup and the caption parsing. Note the two roles of a regular expression: <code>split</code>/<code>replace</code> use one as the <i>where</i>, while <code>match</code> uses one to <i>extract</i> — the parentheses in a pattern capture a piece you can read back out of the result.</p>
+
+<h3>Objects: spread, shorthand, optional fields</h3>
+<pre><code>const next = { ...prefs, theme: 'dark' }     // copy prefs, override one field
+const seg = { text, startMs }                // shorthand for { text: text, startMs: startMs }
+interface Rec { title: string; note?: string }  // note? is OPTIONAL (may be absent)
+const val = obj.note ?? ''                    // supply a default when it is absent</code></pre>
+<p>Spreading (<code>{ ...obj, field }</code>) is the standard way to make a changed <i>copy</i> of an object without mutating the original — again matching React's model. The shorthand <code>{ text }</code> means a field named <code>text</code> holding the variable <code>text</code>. A <code>?</code> after a field name in a type marks it optional, so callers may leave it out, and you pair that with <code>??</code> to fill in a default.</p>
+
+<h3>Type annotations: the beginner's core set</h3>
+<pre><code>function f(name: string, count: number): boolean { ... }  // param types ; return type
+let ids: string[]                       // an array of strings
+let map: Record&lt;string, number&gt;         // an object used as a lookup table
+type Source = 'youtube' | 'piped'       // a string that must be one of these exact words
+interface CaptionSegment {              // a named object shape
+  text: string
+  offset: number
+  lang: string
+}
+const x = value as Source               // "trust me, treat this as a Source"</code></pre>
+<p>Annotations describe the shape of data so the compiler can catch mismatches before the code runs — passing a number where a string is expected becomes an editor error, not a production bug. <code>string[]</code> is "array of strings"; <code>Record&lt;K, V&gt;</code> is an object used as a dictionary; a union of string literals (<code>'youtube' | 'piped'</code>) restricts a value to a fixed set of words. <code>Promise&lt;T&gt;</code> wraps the type an async function will eventually resolve to.</p>
+
+<h3>Template literals</h3>
+<pre><code>const url = `https://youtube.com/embed/${videoId}`   // embed a value with ${ }
+const msg = `served by ${source} in ${count} segments`
+// backticks also allow real line breaks inside the string</code></pre>
+<p>Backtick strings let you drop live values straight into text with <code>${ … }</code> instead of clumsy <code>'a' + b + 'c'</code> concatenation, and they may span multiple lines. (A <i>tagged</i> template — a function placed right before the backticks, like the database's <code>sql`…`</code> — is a related but more advanced form covered in the glossary.)</p>
+
+<h3>Numbers, <code>Math</code>, and dates</h3>
+<pre><code>Math.round(x)  Math.max(0, v)  Math.min(v, max)   // rounding and clamping
+parseInt('20', 10)   parseFloat('1.5')             // text -&gt; number (10 = base)
++new Date(iso)                                      // a date string -&gt; milliseconds number
+list.sort((a, b) =&gt; +new Date(b.date) - +new Date(a.date))  // newest first</code></pre>
+<p>Turning a date string into <code>+new Date(...)</code> yields a plain number of milliseconds, which is handy because two dates can then be subtracted or compared directly — the feed sorts newest-first exactly this way. <code>Math.max</code>/<code>Math.min</code> together are the usual trick for "clamp a value into a range," as the reading-progress percentage does to stay within 0–100.</p>
+
+<h3>Modules: <code>import</code> and <code>export</code></h3>
+<pre><code>// captions.ts -- make things available to other files:
+export interface CaptionSegment { ... }
+export async function getCaptions(id: string) { ... }
+export default function Page() { ... }     // the ONE default export per file
+
+// transcribe/route.ts -- pull them in:
+import { getCaptions, type CaptionSegment } from '@/lib/captions'
+import TranscriptReader from '@/components/TranscriptReader'   // the default export
+// '@/' is a shortcut for the project's src/ folder, set up in the config.</code></pre>
+<p>Each file is a <b>module</b> with its own scope; nothing is shared unless it is <code>export</code>ed. Named exports are imported inside braces by their exact names; a file may also have one <code>default</code> export (imported without braces, under any name you like) — every page and component is a default export. The <code>@/</code> prefix is a configured alias for <code>src/</code>, so imports do not turn into long <code>../../../</code> chains.</p>
+
 <h1>17 · How to use Part II</h1>
 <p class="lead">Part I explained the project. Part II reads two files the way you would in a code review: top to bottom, in order, with the reasoning for each block. These two files — the transcript reader and the transcript page — together contain most of the project's genuinely hard client-side logic. If you understand them, the rest of the codebase is straightforward by comparison.</p>
 <p>Open the real file in your editor alongside this chapter. The line numbers here match the source at the time of writing; if the file has drifted, match on the code, not the number. Each block is quoted, then explained. Where a construct was covered in Chapter 16, it is named rather than re-explained — flip back if needed.</p>
